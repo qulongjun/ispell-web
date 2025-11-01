@@ -1,0 +1,33 @@
+
+@import "tailwindcss";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* 全局字体设置 */
+@layer base {
+  html {
+    /* 
+      字体优先级：
+      1. 英文使用JetBrains Mono
+      2. 中文使用系统默认无衬线字体（苹方、微软雅黑等）
+      3. 最后 fallback 到 sans-serif
+    */
+    font-family: 'JetBrains Mono', -apple-system, BlinkMacSystemFont,  "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", 'Segoe UI', Roboto, 
+      'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  }
+  
+  :root {
+    @apply transition-colors duration-300;
+  }
+
+  @keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+}

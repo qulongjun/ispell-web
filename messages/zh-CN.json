@@ -1,0 +1,342 @@
+{
+  "metadata": {
+    "title": "爱拼词 - 免费好用的语言学习平台",
+    "description": "免费的语言学习平台，专注于词汇记忆与复习，助你高效掌握新单词。"
+  },
+  "Locale": {
+    "en": "English",
+    "zh-CN": "简体中文",
+    "zh-TW": "繁體中文",
+    "ja": "日本語"
+  },
+  "AuthButton": {
+    "login": "登录"
+  },
+  "LoginModal": {
+    "title": "欢迎",
+    "emailOrPhone": "邮箱或手机号",
+    "password": "密码",
+    "verificationCode": "验证码",
+    "getCode": "获取验证码",
+    "resendCode": "重新发送 ({seconds}s)",
+    "rememberMe": "记住我",
+    "useCode": "验证码登录",
+    "usePassword": "密码登录",
+    "forgotPassword": "忘记密码？",
+    "loginSubmit": "登录",
+    "loginSuccess": "登录成功，欢迎回来！",
+    "newUserHint": "新用户将自动注册",
+    "registerNow": "立即注册",
+    "thirdParty": "或使用以下方式登录",
+    "agreePolicyPrefix": "我已阅读并同意",
+    "terms": "服务条款",
+    "and": "和",
+    "privacy": "隐私政策"
+  },
+  "RegisterModal": {
+    "title": "注册新账户",
+    "confirmPassword": "确认密码",
+    "registerSubmit": "注册",
+    "registerSuccess": "注册成功，欢迎！",
+    "alreadyHaveAccount": "已有账户？",
+    "loginNow": "立即登录"
+  },
+  "ResetPasswordModal": {
+    "title": "重置密码",
+    "newPassword": "新密码 (8-16位)",
+    "confirmNewPassword": "确认新密码",
+    "resetSubmit": "确认重置",
+    "resetSuccess": "密码重置成功，请使用新密码登录",
+    "rememberPassword": "记起密码了？",
+    "loginNow": "立即登录"
+  },
+  "LearningStart": {
+    "title": "学习准备就绪",
+    "noActiveBookDescription": "从书架挑选一本书，即刻开始学习！",
+    "browseBookshelfBtn": "逛逛书架",
+    "openBookshelfBtn": "打开书架",
+    "startLearningBtn": "开始学习",
+    "openNextChapterBtn": "开启下一章",
+    "openingChapter": "开启中...",
+    "openNewChapterSuccess": "已开启新章节！",
+    "chapterProgress": "章节进度：第 {current} / {total} 章",
+    "todayProgressTitle": "今日进度",
+    "todayTaskOnlyNew": "新学 {completed}/{total}",
+    "todayTaskWithReview": "新学 {completedNew}/{totalNew} | 复习 {completedReview}/{totalReview}",
+    "alt": {
+      "selectBookIllustration": "选择书籍插图",
+      "bookIllustration": "单词书插图"
+    }
+  },
+  "BookSelection": {
+    "bookshelfBtnText": "书架",
+    "aria": {
+      "selectBook": "选择单词书"
+    },
+    "BookCard": {
+      "totalWords": "共 {count} 词"
+    },
+    "LearningView": {
+      "currentActive": "当前激活",
+      "noLearningBooks": "你还没有开始学习的书籍。",
+      "learningOrder": {
+        "label": "顺序",
+        "sequential": "顺序",
+        "random": "乱序"
+      },
+      "reviewStrategy": {
+        "label": "策略"
+      },
+      "buttons": {
+        "active": "已激活",
+        "setAsCurrent": "设为当前",
+        "adjustPlan": "调整计划",
+        "resetProgress": "重置进度",
+        "cancelLearning": "取消学习"
+      }
+    },
+    "PlanSetupView": {
+      "titles": {
+        "createPlan": "创建学习计划: {bookName}",
+        "editPlan": "修改学习计划: {bookName}"
+      },
+      "sectionTitles": {
+        "generalPlan": "通用计划",
+        "customPlan": "自定义计划",
+        "learningOrder": "学习顺序",
+        "reviewStrategy": "复习策略"
+      },
+      "buttons": {
+        "cancel": "取消",
+        "createPlan": "创建计划",
+        "updatePlan": "更新计划"
+      },
+      "placeholders": {
+        "days": "天数",
+        "words": "词数"
+      },
+      "errors": {
+        "invalidCustomDays": "请输入有效的自定义天数",
+        "invalidCustomWords": "请输入有效的每日单词数"
+      },
+      "presetPlan": {
+        "dayUnit": "天",
+        "wordsPerDay": "约 {count} 词/天"
+      },
+      "customPlan": {
+        "customDays": "自定义天数",
+        "dailyWords": "每日单词",
+        "wordsPerDay": "计划: 约 {count} 词/天",
+        "totalDays": "计划: 约 {count} 天完成"
+      },
+      "learningOrder": {
+        "sequential": {
+          "name": "顺序学习",
+          "desc": "按书本顺序"
+        },
+        "random": {
+          "name": "乱序学习",
+          "desc": "打乱所有单词"
+        }
+      },
+      "reviewStrategies": {
+        "recommended": "推荐",
+        "NONE": {
+          "name": "不复习",
+          "description": "只学习新单词，不安排复习。适合已有基础或考前冲刺。"
+        },
+        "EBBINGHAUS": {
+          "name": "艾宾浩斯",
+          "description": "基于艾宾浩斯遗忘曲线，在关键遗忘点（如1, 2, 4, 7天）智能安排复习。"
+        },
+        "SM2": {
+          "name": "SM-2 算法",
+          "description": "智能间隔重复，根据你的回答动态调整每个单词的最佳复习时间。"
+        },
+        "LEITNER": {
+          "name": "莱布尼茨",
+          "description": "经典的卡片盒系统，答对的单词进入下一级（间隔更长），答错的退回第一级。"
+        }
+      }
+    },
+    "BrowserView": {
+      "noBooksInCategory": "该分类下暂无书籍。",
+      "aria": {
+        "tabLabel": "切换到 {categoryName} 分类",
+        "bookRadiogroupLabel": "选择要学习的单词书"
+      }
+    }
+  },
+  "Settings": {
+    "sectionTitles": {
+      "speechSettings": "语音设置",
+      "displaySettings": "单词隐藏",
+      "contentSettings": "内容显示"
+    },
+    "labels": {
+      "speechSource": "发音源",
+      "accent": "口音",
+      "speechRate": "语速",
+      "voiceGender": "声音",
+      "displayMode": "模式",
+      "showSentences": "显示例句"
+    },
+    "options": {
+      "speechSource": {
+        "default": "默认发音 (API)",
+        "custom": "自定义发音 (Browser)"
+      },
+      "accent": {
+        "american": "美式",
+        "british": "英式"
+      },
+      "gender": {
+        "auto": "随机",
+        "male": "男声",
+        "female": "女声"
+      },
+      "displayMode": {
+        "full": "默认",
+        "hideVowels": "隐藏元音",
+        "hideConsonants": "隐藏辅音",
+        "hideRandom": "随机隐藏",
+        "hideAll": "全部隐藏"
+      }
+    },
+    "aria": {
+      "openSettings": "打开设置",
+      "closeSettings": "关闭设置"
+    }
+  },
+  "Words": {
+    "WordList": {
+      "drawer": {
+        "title": "单词列表",
+        "emptyState": "列表为空",
+        "aria": {
+          "closeList": "关闭单词列表",
+          "playPronunciation": "播放 {word} 发音"
+        }
+      }
+    },
+    "statsCard": {
+      "timing": "计时",
+      "attempts": "尝试次数",
+      "correctSpelling": "正确拼写",
+      "mastered": "已掌握",
+      "accuracy": "正确率"
+    },
+    "Pronunciation": {
+      "ukLabel": "英",
+      "usLabel": "美",
+      "aria": {
+        "playUk": "播放英式发音",
+        "playUs": "播放美式发音"
+      },
+      "unsupportedHint": "浏览器不支持语音功能"
+    },
+    "Sentence": {
+      "show": "显示例句",
+      "hide": "隐藏例句",
+      "aria": {
+        "show": "显示例句",
+        "hide": "隐藏例句",
+        "toggleTranslation": "显示/隐藏翻译"
+      }
+    },
+    "Relations": {
+      "title": "词语关系",
+      "synonymsTitle": "近义词",
+      "relatedWordsTitle": "相关词",
+      "aria": {
+        "show": "显示词语关系",
+        "hide": "隐藏词语关系"
+      }
+    }
+  },
+  "common": {
+    "Confirmation": {
+      "confirm": "确认",
+      "cancel": "取消"
+    }
+  },
+  "Errors": {
+    "invalidFormat": "请输入正确的邮箱或手机号",
+    "min8": "密码必须至少为8位",
+    "max16": "密码不能超过16位",
+    "length6": "验证码必须为6位",
+    "passwordsMismatch": "两次输入的密码不一致",
+    "agreePolicy": "请同意服务条款和隐私政策",
+    "invalidCode": "验证码无效或已过期",
+    "invalidCredentials": "邮箱/手机号或密码不正确",
+    "passwordNotSupported": "该账户不支持密码登录，请使用验证码",
+    "userAlreadyExists": "该邮箱或手机号已被注册",
+    "userNotFound": "该用户不存在",
+    "sendCodeFailed": "验证码发送失败，请稍后再试",
+    "sendCodeSuccess": "验证码已发送，请查收",
+    "loginFailed": "登录失败，请稍后重试",
+    "unknownError": "发生未知错误，请稍后再试",
+    "oauthFailed": "第三方登录失败，请稍后再试",
+    "oauthStateMismatch": "安全验证失败，请刷新页面重试"
+  },
+  "Alt": {
+    "wechat": "使用微信登录",
+    "qq": "使用QQ登录",
+    "google": "使用谷歌登录",
+    "github": "使用GitHub登录"
+  },
+  "UserMenu": {
+    "label": "用户菜单",
+    "hello": "你好",
+    "profileSettings": "个性设置",
+    "systemSettings": "系统设置",
+    "logout": "退出登录"
+  },
+  "Donation": {
+    "qrCode": {
+      "alipayTitle": "支付宝捐赠",
+      "wechatTitle": "微信捐赠",
+      "scanHint": "长按识别二维码捐赠"
+    },
+    "footer": {
+      "thankYou": "感谢您的善意与支持，让更多孩子拥有平等的学习机会"
+    },
+    "certificate": {
+      "closeLabel": "关闭证书查看",
+      "altText": "捐款公示证书大图"
+    },
+    "publicity": {
+      "title": "捐款收支公示",
+      "closeLabel": "关闭公示",
+      "totalDonation": "总捐赠金额",
+      "operationCost": "运营成本",
+      "publicWelfareExpense": "公益支出",
+      "certificateLabel": "捐款公示证书：",
+      "viewFullCert": "点击查看完整证书",
+      "updateHint": "公示数据每月更新，确保每一笔捐赠都公开透明，欢迎监督"
+    },
+    "main": {
+      "title": "助力偏远地区学子",
+      "subtitle": "致力于每个乡村孩子的健康成长，让孩子的未来发光发亮",
+      "desc1": "群山环绕的一些偏远地区，优质的学习资源尤为稀缺，这里的孩子们没有多少能够了解外面世界的机会。他们渴望探索知识，却因缺乏基础的教材、设备和指导而面临阻碍。我们希望汇聚大家的力量，为这些孩子搭建通往未来的桥梁。",
+      "desc2": "我们仅扣除维持网站运转的必要基础费用，剩余捐赠将全部用于支持偏远地区孩子的学习。"
+    },
+    "donateNow": {
+      "title": "立即捐赠",
+      "hint": "选择您常用的支付方式，扫描二维码即可完成捐赠。所有捐赠都将为偏远地区的孩子带来实质性帮助。"
+    },
+    "instructions": {
+      "title": "捐赠说明",
+      "viewPublicityBtn": "查看捐款公示",
+      "item1": "除网站基本运营成本（服务器、域名等）外，所有捐赠资金用于偏远地区公益学习项目",
+      "item2": "每月公示捐赠收支明细，确保资金透明可追溯，接受社会监督",
+      "item3": "捐赠金额不限，每一分钱都能为孩子带来实质性帮助",
+      "item4": "运营成本控制在最低限度，最大化公益用途"
+    },
+    "aria": {
+      "closeCertificate": "关闭证书查看",
+      "closePublicity": "关闭公示",
+      "viewPublicity": "查看捐款公示"
+    }
+  }
+}

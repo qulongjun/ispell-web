@@ -1,0 +1,295 @@
+{
+  "metadata": {
+    "title": "iSpell - 無料で使いやすい言語学習プラットフォーム",
+    "description": "語彙の記憶と復習に特化した無料の言語学習プラットフォームで、新しい単語の効率的な習得をサポートします。"
+  },
+  "Locale": {
+    "en": "English",
+    "zh-CN": "簡体字中国語",
+    "zh-TW": "繁体字中国語",
+    "ja": "日本語"
+  },
+  "AuthButton": {
+    "login": "ログイン"
+  },
+  "LoginModal": {
+    "title": "ようこそ",
+    "emailOrPhone": "メールアドレスまたは電話番号",
+    "password": "パスワード",
+    "verificationCode": "認証コード",
+    "getCode": "コード取得",
+    "resendCode": "再送信 ({seconds}s)",
+    "rememberMe": "ログイン状態を保持",
+    "useCode": "コードでログイン",
+    "usePassword": "パスワードでログイン",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "loginSubmit": "ログイン",
+    "loginSuccess": "ログインしました。おかえりなさい！",
+    "newUserHint": "新規ユーザーは自動的に登録されます",
+    "registerNow": "今すぐ登録",
+    "thirdParty": "または以下のアカウントでログイン",
+    "agreePolicyPrefix": "以下を読み、同意します",
+    "terms": "利用規約",
+    "and": "および",
+    "privacy": "プライバシーポリシー"
+  },
+  "RegisterModal": {
+    "title": "新規アカウント登録",
+    "confirmPassword": "パスワード（確認用）",
+    "registerSubmit": "登録",
+    "registerSuccess": "登録が完了しました。ようこそ！",
+    "alreadyHaveAccount": "アカウントをお持ちですか？",
+    "loginNow": "今すぐログイン"
+  },
+  "ResetPasswordModal": {
+    "title": "パスワードをリセット",
+    "newPassword": "新しいパスワード (8～16文字)",
+    "confirmNewPassword": "新しいパスワード（確認用）",
+    "resetSubmit": "リセット",
+    "resetSuccess": "パスワードがリセットされました。新しいパスワードでログインしてください。",
+    "rememberPassword": "パスワードを思い出しましたか？",
+    "loginNow": "今すぐログイン"
+  },
+  "LearningStart": {
+    "title": "学習の準備ができました",
+    "noActiveBookDescription": "本棚から学習する本を選びましょう！",
+    "browseBookshelfBtn": "本棚を見る",
+    "openBookshelfBtn": "本棚を開く",
+    "startLearningBtn": "学習を開始",
+    "openNextChapterBtn": "次の章を開始",
+    "openingChapter": "開始中...",
+    "openNewChapterSuccess": "新しい章を開始しました！",
+    "chapterProgress": "章の進捗： {current} / {total} 章",
+    "todayProgressTitle": "今日の進捗",
+    "todayTaskOnlyNew": "新規 {completed}/{total}",
+    "todayTaskWithReview": "新規 {completedNew}/{totalNew} | 復習 {completedReview}/{totalReview}",
+    "alt": {
+      "selectBookIllustration": "本を選択するイラスト",
+      "bookIllustration": "単語帳のイラスト"
+    }
+  },
+  "BookSelection": {
+    "bookshelfBtnText": "本棚",
+    "aria": {
+      "selectBook": "単語帳を選択"
+    },
+    "BookCard": {
+      "totalWords": "全 {count} 語"
+    },
+    "LearningView": {
+      "currentActive": "学習中",
+      "noLearningBooks": "学習中の単語帳がありません。",
+      "learningOrder": {
+        "label": "順序",
+        "sequential": "収録順",
+        "random": "ランダム"
+      },
+      "reviewStrategy": {
+        "label": "戦略"
+      },
+      "buttons": {
+        "active": "学習中",
+        "setAsCurrent": "学習中の本に設定",
+        "adjustPlan": "計画を調整",
+        "resetProgress": "進捗をリセット",
+        "cancelLearning": "学習を中止"
+      }
+    },
+    "PlanSetupView": {
+      "titles": {
+        "createPlan": "学習計画を作成: {bookName}",
+        "editPlan": "学習計画を編集: {bookName}"
+      },
+      "sectionTitles": {
+        "generalPlan": "一般プラン",
+        "customPlan": "カスタムプラン",
+        "learningOrder": "学習順序",
+        "reviewStrategy": "復習戦略"
+      },
+      "buttons": {
+        "cancel": "キャンセル",
+        "createPlan": "計画を作成",
+        "updatePlan": "計画を更新"
+      },
+      "placeholders": {
+        "days": "日数",
+        "words": "単語数"
+      },
+      "errors": {
+        "invalidCustomDays": "有効な日数を入力してください",
+        "invalidCustomWords": "有効な1日の単語数を入力してください"
+      },
+      "presetPlan": {
+        "dayUnit": "日間",
+        "wordsPerDay": "約 {count} 語/日"
+      },
+      "customPlan": {
+        "customDays": "日数を指定",
+        "dailyWords": "1日の単語数",
+        "wordsPerDay": "計画: 約 {count} 語/日",
+        "totalDays": "計画: 約 {count} 日で完了"
+      },
+      "learningOrder": {
+        "sequential": {
+          "name": "収録順",
+          "desc": "本の収録順で学習"
+        },
+        "random": {
+          "name": "ランダム",
+          "desc": "全ての単語をシャッフル"
+        }
+      },
+      "reviewStrategies": {
+        "recommended": "推奨",
+        "NONE": {
+          "name": "復習なし",
+          "description": "新しい単語のみを学習し、復習は行いません。基礎がある場合や試験直前に適しています。"
+        },
+        "EBBINGHAUS": {
+          "name": "エビングハウス",
+          "description": "エビングハウスの忘却曲線に基づき、忘却の節目（例：1, 2, 4, 7日後）に復習をスケジューリングします。"
+        },
+        "SM2": {
+          "name": "SM-2 アルゴリズム",
+          "description": "スマートな間隔反復（SRS）。あなたの回答に基づき、各単語の最適な復習タイミングを動的に調整します。"
+        },
+        "LEITNER": {
+          "name": "ライトナーシステム",
+          "description": "古典的なフラッシュカードシステム。正解した単語は次のレベル（より長い間隔）へ、間違えた単語は最初のレベルに戻ります。"
+        }
+      }
+    },
+    "BrowserView": {
+      "noBooksInCategory": "このカテゴリにはまだ書籍がありません。",
+      "aria": {
+        "tabLabel": "{categoryName} カテゴリに切り替え",
+        "bookRadiogroupLabel": "学習する単語帳を選択"
+      }
+    }
+  },
+  "Settings": {
+    "sectionTitles": {
+      "speechSettings": "音声設定",
+      "displaySettings": "単語の表示",
+      "contentSettings": "コンテンツ表示"
+    },
+    "labels": {
+      "speechSource": "発音ソース",
+      "accent": "アクセント",
+      "speechRate": "再生速度",
+      "voiceGender": "声",
+      "displayMode": "モード",
+      "showSentences": "例文の表示"
+    },
+    "options": {
+      "speechSource": {
+        "default": "デフォルト (API)",
+        "custom": "カスタム (ブラウザ)"
+      },
+      "accent": {
+        "american": "アメリカ英語",
+        "british": "イギリス英語"
+      },
+      "gender": {
+        "auto": "ランダム",
+        "male": "男性",
+        "female": "女性"
+      },
+      "displayMode": {
+        "full": "デフォルト",
+        "hideVowels": "母音を隠す",
+        "hideConsonants": "子音を隠す",
+        "hideRandom": "ランダムに隠す",
+        "hideAll": "すべて隠す"
+      }
+    },
+    "aria": {
+      "openSettings": "設定を開く",
+      "closeSettings": "設定を閉じる"
+    }
+  },
+  "Words": {
+    "WordList": {
+      "drawer": {
+        "title": "単語リスト",
+        "emptyState": "リストは空です",
+        "aria": {
+          "closeList": "単語リストを閉じる",
+          "playPronunciation": "{word} の発音を再生"
+        }
+      }
+    },
+    "statsCard": {
+      "timing": "時間",
+      "attempts": "試行回数",
+      "correctSpelling": "正解スペル",
+      "mastered": "習得済み",
+      "accuracy": "正解率"
+    },
+    "Pronunciation": {
+      "ukLabel": "英",
+      "usLabel": "米",
+      "aria": {
+        "playUk": "イギリス英語の発音を再生",
+        "playUs": "アメリカ英語の発音を再生"
+      },
+      "unsupportedHint": "ブラウザは音声合成をサポートしていません"
+    },
+    "Sentence": {
+      "show": "例文を表示",
+      "hide": "例文を隠す",
+      "aria": {
+        "show": "例文を表示",
+        "hide": "例文を隠す",
+        "toggleTranslation": "翻訳の表示/非表示"
+      }
+    },
+    "Relations": {
+      "title": "関連語",
+      "synonymsTitle": "類義語",
+      "relatedWordsTitle": "関連語",
+      "aria": {
+        "show": "関連語を表示",
+        "hide": "関連語を隠す"
+      }
+    }
+  },
+  "common": {
+    "Confirmation": {
+      "confirm": "確認",
+      "cancel": "キャンセル"
+    }
+  },
+  "Errors": {
+    "invalidFormat": "有効なメールアドレスまたは電話番号を入力してください",
+    "min8": "パスワードは8文字以上である必要があります",
+    "max16": "パスワードは16文字を超えることはできません",
+    "length6": "認証コードは6桁である必要があります",
+    "passwordsMismatch": "入力された2つのパスワードが一致しません",
+    "agreePolicy": "利用規約とプライバシーポリシーに同意してください",
+    "invalidCode": "認証コードが無効か、期限切れです",
+    "invalidCredentials": "メールアドレス/電話番号またはパスワードが正しくありません",
+    "passwordNotSupported": "このアカウントはパスワードログインをサポートしていません。認証コードを使用してください。",
+    "userAlreadyExists": "このメールアドレスまたは電話番号は既に登録されています",
+    "userNotFound": "このユーザーは存在しません",
+    "sendCodeFailed": "認証コードの送信に失敗しました。しばらくしてからもう一度お試しください。",
+    "sendCodeSuccess": "認証コードを送信しました。ご確認ください。",
+    "loginFailed": "ログインに失敗しました。しばらくしてからもう一度お試しください。",
+    "unknownError": "不明なエラーが発生しました。しばらくしてからもう一度お試しください。",
+    "oauthFailed": "サードパーティでのログインに失敗しました。しばらくしてからもう一度お試しください。",
+    "oauthStateMismatch": "セキュリティ検証に失敗しました。ページを更新してもう一度お試しください。"
+  },
+  "Alt": {
+    "wechat": "WeChatでログイン",
+    "qq": "QQでログイン",
+    "google": "Googleでログイン",
+    "github": "GitHubでログイン"
+  },
+  "UserMenu": {
+    "label": "ユーザーメニュー",
+    "hello": "こんにちは",
+    "profileSettings": "プロフィール設定",
+    "systemSettings": "システム設定",
+    "logout": "ログアウト"
+  }
+}

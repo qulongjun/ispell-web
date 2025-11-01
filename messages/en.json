@@ -1,0 +1,295 @@
+{
+  "metadata": {
+    "title": "iSpell - Free & Easy-to-Use Language Learning Platform",
+    "description": "A free language learning platform focused on vocabulary memorization and review, helping you master new words efficiently."
+  },
+  "Locale": {
+    "en": "English",
+    "zh-CN": "Simplified Chinese",
+    "zh-TW": "Traditional Chinese",
+    "ja": "Japanese"
+  },
+  "AuthButton": {
+    "login": "Login"
+  },
+  "LoginModal": {
+    "title": "Welcome",
+    "emailOrPhone": "Email or Phone",
+    "password": "Password",
+    "verificationCode": "Verification Code",
+    "getCode": "Get Code",
+    "resendCode": "Resend ({seconds}s)",
+    "rememberMe": "Remember Me",
+    "useCode": "Login with Code",
+    "usePassword": "Login with Password",
+    "forgotPassword": "Forgot Password?",
+    "loginSubmit": "Login",
+    "loginSuccess": "Login successful. Welcome back!",
+    "newUserHint": "New users will be registered automatically",
+    "registerNow": "Register Now",
+    "thirdParty": "Or log in with",
+    "agreePolicyPrefix": "I have read and agree to the",
+    "terms": "Terms of Service",
+    "and": "and",
+    "privacy": "Privacy Policy"
+  },
+  "RegisterModal": {
+    "title": "Create New Account",
+    "confirmPassword": "Confirm Password",
+    "registerSubmit": "Register",
+    "registerSuccess": "Registration successful. Welcome!",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginNow": "Login Now"
+  },
+  "ResetPasswordModal": {
+    "title": "Reset Password",
+    "newPassword": "New Password (8-16 characters)",
+    "confirmNewPassword": "Confirm New Password",
+    "resetSubmit": "Confirm Reset",
+    "resetSuccess": "Password reset successfully. Please log in with your new password.",
+    "rememberPassword": "Remembered your password?",
+    "loginNow": "Login Now"
+  },
+  "LearningStart": {
+    "title": "Ready to Learn",
+    "noActiveBookDescription": "Pick a book from your bookshelf to start learning!",
+    "browseBookshelfBtn": "Browse Bookshelf",
+    "openBookshelfBtn": "Open Bookshelf",
+    "startLearningBtn": "Start Learning",
+    "openNextChapterBtn": "Start Next Chapter",
+    "openingChapter": "Starting...",
+    "openNewChapterSuccess": "New chapter started!",
+    "chapterProgress": "Chapter Progress: {current} / {total}",
+    "todayProgressTitle": "Today's Progress",
+    "todayTaskOnlyNew": "New {completed}/{total}",
+    "todayTaskWithReview": "New {completedNew}/{totalNew} | Review {completedReview}/{totalReview}",
+    "alt": {
+      "selectBookIllustration": "Select book illustration",
+      "bookIllustration": "Word book illustration"
+    }
+  },
+  "BookSelection": {
+    "bookshelfBtnText": "Bookshelf",
+    "aria": {
+      "selectBook": "Select a word book"
+    },
+    "BookCard": {
+      "totalWords": "{count} words total"
+    },
+    "LearningView": {
+      "currentActive": "Currently Active",
+      "noLearningBooks": "You haven't started learning any books yet.",
+      "learningOrder": {
+        "label": "Order",
+        "sequential": "Sequential",
+        "random": "Random"
+      },
+      "reviewStrategy": {
+        "label": "Strategy"
+      },
+      "buttons": {
+        "active": "Active",
+        "setAsCurrent": "Set as Current",
+        "adjustPlan": "Adjust Plan",
+        "resetProgress": "Reset Progress",
+        "cancelLearning": "Cancel Learning"
+      }
+    },
+    "PlanSetupView": {
+      "titles": {
+        "createPlan": "Create Plan: {bookName}",
+        "editPlan": "Edit Plan: {bookName}"
+      },
+      "sectionTitles": {
+        "generalPlan": "General Plan",
+        "customPlan": "Custom Plan",
+        "learningOrder": "Learning Order",
+        "reviewStrategy": "Review Strategy"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "createPlan": "Create Plan",
+        "updatePlan": "Update Plan"
+      },
+      "placeholders": {
+        "days": "Days",
+        "words": "Words"
+      },
+      "errors": {
+        "invalidCustomDays": "Please enter valid custom days",
+        "invalidCustomWords": "Please enter a valid number of daily words"
+      },
+      "presetPlan": {
+        "dayUnit": "Days",
+        "wordsPerDay": "≈ {count} words/day"
+      },
+      "customPlan": {
+        "customDays": "Custom Days",
+        "dailyWords": "Daily Words",
+        "wordsPerDay": "Plan: ≈ {count} words/day",
+        "totalDays": "Plan: ≈ {count} days total"
+      },
+      "learningOrder": {
+        "sequential": {
+          "name": "Sequential",
+          "desc": "In book order"
+        },
+        "random": {
+          "name": "Random",
+          "desc": "Shuffle all words"
+        }
+      },
+      "reviewStrategies": {
+        "recommended": "Recommended",
+        "NONE": {
+          "name": "No Review",
+          "description": "Only learn new words, no reviews scheduled. Good for exams or refreshers."
+        },
+        "EBBINGHAUS": {
+          "name": "Ebbinghaus",
+          "description": "Based on the Ebbinghaus forgetting curve, schedules reviews at key intervals (e.g., 1, 2, 4, 7 days)."
+        },
+        "SM2": {
+          "name": "SM-2 Algorithm",
+          "description": "Smart Spaced Repetition (SRS). Dynamically adjusts the best review time for each word based on your answers."
+        },
+        "LEITNER": {
+          "name": "Leitner System",
+          "description": "The classic flashcard box system. Correct words move to the next box (longer interval), incorrect ones return to the first."
+        }
+      }
+    },
+    "BrowserView": {
+      "noBooksInCategory": "No books in this category yet.",
+      "aria": {
+        "tabLabel": "Switch to {categoryName} category",
+        "bookRadiogroupLabel": "Select word book to learn"
+      }
+    }
+  },
+  "Settings": {
+    "sectionTitles": {
+      "speechSettings": "Speech Settings",
+      "displaySettings": "Word Display",
+      "contentSettings": "Content Display"
+    },
+    "labels": {
+      "speechSource": "Speech Source",
+      "accent": "Accent",
+      "speechRate": "Speech Rate",
+      "voiceGender": "Voice",
+      "displayMode": "Mode",
+      "showSentences": "Show Sentences"
+    },
+    "options": {
+      "speechSource": {
+        "default": "Default (API)",
+        "custom": "Custom (Browser)"
+      },
+      "accent": {
+        "american": "American",
+        "british": "British"
+      },
+      "gender": {
+        "auto": "Auto",
+        "male": "Male",
+        "female": "Female"
+      },
+      "displayMode": {
+        "full": "Default",
+        "hideVowels": "Hide Vowels",
+        "hideConsonants": "Hide Consonants",
+        "hideRandom": "Hide Random",
+        "hideAll": "Hide All"
+      }
+    },
+    "aria": {
+      "openSettings": "Open settings",
+      "closeSettings": "Close settings"
+    }
+  },
+  "Words": {
+    "WordList": {
+      "drawer": {
+        "title": "Word List",
+        "emptyState": "List is empty",
+        "aria": {
+          "closeList": "Close word list",
+          "playPronunciation": "Play pronunciation for {word}"
+        }
+      }
+    },
+    "statsCard": {
+      "timing": "Timing",
+      "attempts": "Attempts",
+      "correctSpelling": "Correct Spelling",
+      "mastered": "Mastered",
+      "accuracy": "Accuracy"
+    },
+    "Pronunciation": {
+      "ukLabel": "UK",
+      "usLabel": "US",
+      "aria": {
+        "playUk": "Play UK pronunciation",
+        "playUs": "Play US pronunciation"
+      },
+      "unsupportedHint": "Browser does not support speech synthesis"
+    },
+    "Sentence": {
+      "show": "Show sentence",
+      "hide": "Hide sentence",
+      "aria": {
+        "show": "Show example sentence",
+        "hide": "Hide example sentence",
+        "toggleTranslation": "Toggle translation"
+      }
+    },
+    "Relations": {
+      "title": "Word Relations",
+      "synonymsTitle": "Synonyms",
+      "relatedWordsTitle": "Related Words",
+      "aria": {
+        "show": "Show word relations",
+        "hide": "Hide word relations"
+      }
+    }
+  },
+  "common": {
+    "Confirmation": {
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    }
+  },
+  "Errors": {
+    "invalidFormat": "Please enter a valid email or phone number",
+    "min8": "Password must be at least 8 characters",
+    "max16": "Password cannot exceed 16 characters",
+    "length6": "Code must be 6 digits",
+    "passwordsMismatch": "The two passwords do not match",
+    "agreePolicy": "Please agree to the Terms of Service and Privacy Policy",
+    "invalidCode": "Invalid or expired verification code",
+    "invalidCredentials": "Incorrect email/phone or password",
+    "passwordNotSupported": "Password login is not supported for this account. Please use a code.",
+    "userAlreadyExists": "This email or phone number is already registered",
+    "userNotFound": "This user does not exist",
+    "sendCodeFailed": "Failed to send code. Please try again later.",
+    "sendCodeSuccess": "Verification code sent. Please check your messages.",
+    "loginFailed": "Login failed. Please try again later.",
+    "unknownError": "An unknown error occurred. Please try again later.",
+    "oauthFailed": "Third-party login failed. Please try again later.",
+    "oauthStateMismatch": "Security verification failed. Please refresh the page and try again."
+  },
+  "Alt": {
+    "wechat": "Login with WeChat",
+    "qq": "Login with QQ",
+    "google": "Login with Google",
+    "github": "Login with GitHub"
+  },
+  "UserMenu": {
+    "label": "User Menu",
+    "hello": "Hello",
+    "profileSettings": "Profile Settings",
+    "systemSettings": "System Settings",
+    "logout": "Logout"
+  }
+}

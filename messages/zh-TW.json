@@ -1,0 +1,295 @@
+{
+  "metadata": {
+    "title": "愛拼詞 - 免費好用的語言學習平台",
+    "description": "免費的語言學習平台，專注於詞彙記憶與複習，助你高效掌握新單詞。"
+  },
+  "Locale": {
+    "en": "English",
+    "zh-CN": "簡體中文",
+    "zh-TW": "繁體中文",
+    "ja": "日本語"
+  },
+  "AuthButton": {
+    "login": "登入"
+  },
+  "LoginModal": {
+    "title": "歡迎",
+    "emailOrPhone": "信箱或手機號",
+    "password": "密碼",
+    "verificationCode": "驗證碼",
+    "getCode": "獲取驗證碼",
+    "resendCode": "重新發送 ({seconds}s)",
+    "rememberMe": "記住我",
+    "useCode": "驗證碼登入",
+    "usePassword": "密碼登入",
+    "forgotPassword": "忘記密碼？",
+    "loginSubmit": "登入",
+    "loginSuccess": "登入成功，歡迎回來！",
+    "newUserHint": "新用戶將自動註冊",
+    "registerNow": "立即註冊",
+    "thirdParty": "或使用以下方式登入",
+    "agreePolicyPrefix": "我已閱讀並同意",
+    "terms": "服務條款",
+    "and": "和",
+    "privacy": "隱私政策"
+  },
+  "RegisterModal": {
+    "title": "註冊新帳戶",
+    "confirmPassword": "確認密碼",
+    "registerSubmit": "註冊",
+    "registerSuccess": "註冊成功，歡迎！",
+    "alreadyHaveAccount": "已有帳戶？",
+    "loginNow": "立即登入"
+  },
+  "ResetPasswordModal": {
+    "title": "重設密碼",
+    "newPassword": "新密碼 (8-16位)",
+    "confirmNewPassword": "確認新密碼",
+    "resetSubmit": "確認重設",
+    "resetSuccess": "密碼重設成功，請使用新密碼登入",
+    "rememberPassword": "記起密碼了？",
+    "loginNow": "立即登入"
+  },
+  "LearningStart": {
+    "title": "學習準備就緒",
+    "noActiveBookDescription": "從書架挑選一本書，即刻開始學習！",
+    "browseBookshelfBtn": "逛逛書架",
+    "openBookshelfBtn": "打開書架",
+    "startLearningBtn": "開始學習",
+    "openNextChapterBtn": "開啟下一章",
+    "openingChapter": "開啟中...",
+    "openNewChapterSuccess": "已開啟新章節！",
+    "chapterProgress": "章節進度：第 {current} / {total} 章",
+    "todayProgressTitle": "今日進度",
+    "todayTaskOnlyNew": "新學 {completed}/{total}",
+    "todayTaskWithReview": "新學 {completedNew}/{totalNew} | 複習 {completedReview}/{totalReview}",
+    "alt": {
+      "selectBookIllustration": "選擇書籍插圖",
+      "bookIllustration": "單詞書插圖"
+    }
+  },
+  "BookSelection": {
+    "bookshelfBtnText": "書架",
+    "aria": {
+      "selectBook": "選擇單詞書"
+    },
+    "BookCard": {
+      "totalWords": "共 {count} 詞"
+    },
+    "LearningView": {
+      "currentActive": "當前啟用",
+      "noLearningBooks": "你還沒有開始學習的書籍。",
+      "learningOrder": {
+        "label": "順序",
+        "sequential": "順序",
+        "random": "亂序"
+      },
+      "reviewStrategy": {
+        "label": "策略"
+      },
+      "buttons": {
+        "active": "已啟用",
+        "setAsCurrent": "設為當前",
+        "adjustPlan": "調整計畫",
+        "resetProgress": "重設進度",
+        "cancelLearning": "取消學習"
+      }
+    },
+    "PlanSetupView": {
+      "titles": {
+        "createPlan": "建立學習計畫: {bookName}",
+        "editPlan": "修改學習計畫: {bookName}"
+      },
+      "sectionTitles": {
+        "generalPlan": "通用計畫",
+        "customPlan": "自訂計畫",
+        "learningOrder": "學習順序",
+        "reviewStrategy": "複習策略"
+      },
+      "buttons": {
+        "cancel": "取消",
+        "createPlan": "建立計畫",
+        "updatePlan": "更新計畫"
+      },
+      "placeholders": {
+        "days": "天數",
+        "words": "詞數"
+      },
+      "errors": {
+        "invalidCustomDays": "請輸入有效的自訂天數",
+        "invalidCustomWords": "請輸入有效的每日單詞數"
+      },
+      "presetPlan": {
+        "dayUnit": "天",
+        "wordsPerDay": "約 {count} 詞/天"
+      },
+      "customPlan": {
+        "customDays": "自訂天數",
+        "dailyWords": "每日單詞",
+        "wordsPerDay": "計畫: 約 {count} 詞/天",
+        "totalDays": "計畫: 約 {count} 天完成"
+      },
+      "learningOrder": {
+        "sequential": {
+          "name": "順序學習",
+          "desc": "按書本順序"
+        },
+        "random": {
+          "name": "亂序學習",
+          "desc": "打亂所有單詞"
+        }
+      },
+      "reviewStrategies": {
+        "recommended": "推薦",
+        "NONE": {
+          "name": "不複習",
+          "description": "只學習新單詞，不安排複習。適合已有基礎或考前衝刺。"
+        },
+        "EBBINGHAUS": {
+          "name": "艾賓浩斯",
+          "description": "基於艾賓浩斯遺忘曲線，在關鍵遺忘點（如1, 2, 4, 7天）智能安排複習。"
+        },
+        "SM2": {
+          "name": "SM-2 演算法",
+          "description": "智能間隔重複，根據你的回答動態調整每個單詞的最佳複習時間。"
+        },
+        "LEITNER": {
+          "name": "萊特納",
+          "description": "經典的卡片盒系統，答對的單詞進入下一級（間隔更長），答錯的退回第一級。"
+        }
+      }
+    },
+    "BrowserView": {
+      "noBooksInCategory": "該分類下暫無書籍。",
+      "aria": {
+        "tabLabel": "切換到 {categoryName} 分類",
+        "bookRadiogroupLabel": "選擇要學習的單詞書"
+      }
+    }
+  },
+  "Settings": {
+    "sectionTitles": {
+      "speechSettings": "語音設定",
+      "displaySettings": "單詞隱藏",
+      "contentSettings": "內容顯示"
+    },
+    "labels": {
+      "speechSource": "發音源",
+      "accent": "口音",
+      "speechRate": "語速",
+      "voiceGender": "聲音",
+      "displayMode": "模式",
+      "showSentences": "顯示例句"
+    },
+    "options": {
+      "speechSource": {
+        "default": "預設發音 (API)",
+        "custom": "自訂發音 (Browser)"
+      },
+      "accent": {
+        "american": "美式",
+        "british": "英式"
+      },
+      "gender": {
+        "auto": "隨機",
+        "male": "男聲",
+        "female": "女聲"
+      },
+      "displayMode": {
+        "full": "預設",
+        "hideVowels": "隱藏母音",
+        "hideConsonants": "隱藏子音",
+        "hideRandom": "隨機隱藏",
+        "hideAll": "全部隱藏"
+      }
+    },
+    "aria": {
+      "openSettings": "打開設定",
+      "closeSettings": "關閉設定"
+    }
+  },
+  "Words": {
+    "WordList": {
+      "drawer": {
+        "title": "單詞列表",
+        "emptyState": "列表為空",
+        "aria": {
+          "closeList": "關閉單詞列表",
+          "playPronunciation": "播放 {word} 發音"
+        }
+      }
+    },
+    "statsCard": {
+      "timing": "計時",
+      "attempts": "嘗試次數",
+      "correctSpelling": "正確拼寫",
+      "mastered": "已掌握",
+      "accuracy": "正確率"
+    },
+    "Pronunciation": {
+      "ukLabel": "英",
+      "usLabel": "美",
+      "aria": {
+        "playUk": "播放英式發音",
+        "playUs": "播放美式發音"
+      },
+      "unsupportedHint": "瀏覽器不支持語音功能"
+    },
+    "Sentence": {
+      "show": "顯示例句",
+      "hide": "隱藏例句",
+      "aria": {
+        "show": "顯示例句",
+        "hide": "隱藏例句",
+        "toggleTranslation": "顯示/隱藏翻譯"
+      }
+    },
+    "Relations": {
+      "title": "詞語關係",
+      "synonymsTitle": "近義詞",
+      "relatedWordsTitle": "相關詞",
+      "aria": {
+        "show": "顯示詞語關係",
+        "hide": "隱藏詞語關係"
+      }
+    }
+  },
+  "common": {
+    "Confirmation": {
+      "confirm": "確認",
+      "cancel": "取消"
+    }
+  },
+  "Errors": {
+    "invalidFormat": "請輸入正確的信箱或手機號",
+    "min8": "密碼必須至少為8位",
+    "max16": "密碼不能超過16位",
+    "length6": "驗證碼必須為6位",
+    "passwordsMismatch": "兩次輸入的密碼不一致",
+    "agreePolicy": "請同意服務條款和隱私政策",
+    "invalidCode": "驗證碼無效或已過期",
+    "invalidCredentials": "信箱/手機號或密碼不正確",
+    "passwordNotSupported": "該帳戶不支持密碼登入，請使用驗證碼",
+    "userAlreadyExists": "該信箱或手機號已被註冊",
+    "userNotFound": "該用戶不存在",
+    "sendCodeFailed": "驗證碼發送失敗，請稍後再試",
+    "sendCodeSuccess": "驗證碼已發送，請查收",
+    "loginFailed": "登入失敗，請稍後再試",
+    "unknownError": "發生未知錯誤，請稍後再試",
+    "oauthFailed": "第三方登入失敗，請稍後再試",
+    "oauthStateMismatch": "安全驗證失敗，請刷新頁面重試"
+  },
+  "Alt": {
+    "wechat": "使用微信登入",
+    "qq": "使用QQ登入",
+    "google": "使用谷歌登入",
+    "github": "使用GitHub登入"
+  },
+  "UserMenu": {
+    "label": "用戶菜單",
+    "hello": "你好",
+    "profileSettings": "個性設定",
+    "systemSettings": "系統設定",
+    "logout": "登出"
+  }
+}
