@@ -1,75 +1,48 @@
-name: Deploy to Tencent Cloud (Next.js SSR)
+name: Deploy to Tencent Cloud
 
 on:
   push:
     branches:
-      - main # 只在 main 分支 push 时触发
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 1. Checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: 2. Set up Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22 # 确保这个版本和你宝塔中设置的Node版本一致
+          node-version: 22
+          cache: 'npm'
 
-      - name: 3. Install dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: 4. Build Next.js project
-        run: npm run build # 这会生成 .next 目录
+      - name: Build project (服务端渲染，生成.next目录)
+        run: npm run build
 
-      - name: 5. Archive production files
-        run: |
-          echo "Archiving files for deployment..."
-          tar -czf deploy.tar.gz \
-            --ignore-failed-read \
-            .next \
-            public \
-            package.json \
-            package-lock.json \
-            next.config.js \
-            next.config.mjs \
-            next.config.ts
-
-      - name: 6. Deploy to Tencent Cloud
+      - name: Deploy to Tencent Cloud
         env:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          REMOTE_DIR: ${{ secrets.REMOTE_DIR }} # 宝塔中 "Node项目" 的 "项目目录"
-          PM2_APP_NAME: ${{ secrets.PM2_APP_NAME }} # 宝塔 PM2 管理器中你的项目名
+          REMOTE_DIR: ${{ secrets.REMOTE_DIR_DEVOPS }}
         run: |
-          # 安装 sshpass
           sudo apt-get update
           sudo apt-get install -y sshpass
-
-          # 1. 上传压缩包到服务器的项目目录
-          sshpass -p "$SERVER_PASSWORD" scp -o StrictHostKeyChecking=no -P "$SERVER_PORT" deploy.tar.gz "$SERVER_USER@$SERVER_IP:$REMOTE_DIR"
-
-          # 2. SSH 登录服务器执行部署命令
+          
+          # 上传服务端渲染所需文件（.next目录、依赖配置）
+          sshpass -p "$SERVER_PASSWORD" scp -o StrictHostKeyChecking=no -r -P "$SERVER_PORT" .next package.json package-lock.json "$SERVER_USER@$SERVER_IP:$REMOTE_DIR"
+          
+          # 在服务器安装依赖并启动服务（使用pm2后台运行）
           sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT" "$SERVER_USER@$SERVER_IP" "
-            # 进入项目目录
-            cd $REMOTE_DIR
-            
-            # 解压文件
-            tar -xzf deploy.tar.gz
-            
-            # 删除压缩包，保持目录干净
-            rm deploy.tar.gz
-            
-            # 关键：运行 'npm install' 来安装所有依赖 (包括 typescript)
-            # 否则 'next start' 无法读取 'next.config.ts'
-            echo 'Installing ALL dependencies (including devDependencies for .ts config)...'
-            npm install
-            
-            # 重新加载 PM2 进程。宝塔会通过 PM2 管理你的 Node 项目
-            echo 'Restarting PM2 process: $PM2_APP_NAME'
-            pm2 reload $PM2_APP_NAME
+            cd $REMOTE_DIR &&
+            npm install --production && # 安装生产依赖
+            npm install -g pm2 && # 安装进程管理工具（首次部署需要，后续可省略）
+            pm2 restart ispell-web || pm2 start npm --name 'ispell-web' -- start # 重启或启动服务
           "
