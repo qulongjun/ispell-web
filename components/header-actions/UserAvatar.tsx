@@ -1,9 +1,13 @@
+/*
+ * @Date: 2025-10-28 21:48:48
+ * @LastEditTime: 2025-11-03 10:25:02
+ * @Description: 
+ */
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAppContext } from '@/contexts/app.context';
-import Image from 'next/image';
 import { Settings, UserCog, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
@@ -67,7 +71,8 @@ const UserAvatar: React.FC = () => {
         aria-label={t('label')}
         className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 hover:ring-2 hover:ring-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={avatarSrc}
           alt={user?.nickname || 'User Avatar'}
           width={40}
