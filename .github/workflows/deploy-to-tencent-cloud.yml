@@ -38,11 +38,4 @@ jobs:
           
           # 上传服务端渲染所需文件（.next目录、依赖配置）
           sshpass -p "$SERVER_PASSWORD" scp -o StrictHostKeyChecking=no -r -P "$SERVER_PORT" .next package.json package-lock.json "$SERVER_USER@$SERVER_IP:$REMOTE_DIR"
-          
-          # 在服务器安装依赖并启动服务（使用pm2后台运行）
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT" "$SERVER_USER@$SERVER_IP" "
-            cd $REMOTE_DIR &&
-            npm install --production && # 安装生产依赖
-            npm install -g pm2 && # 安装进程管理工具（首次部署需要，后续可省略）
-            pm2 restart ispell-web || pm2 start npm --name 'ispell-web' -- start # 重启或启动服务
           "
