@@ -37,4 +37,4 @@ jobs:
           sudo apt-get install -y sshpass
           
           # 上传服务端渲染所需文件（.next目录、依赖配置）
-          sshpass -p "$SERVER_PASSWORD" scp -o StrictHostKeyChecking=no -r -P "$SERVER_PORT" .next package.json package-lock.json "$SERVER_USER@$SERVER_IP:$REMOTE_DIR"
+          sshpass -p "$SERVER_PASSWORD" scp -o StrictHostKeyChecking=no -r -P "$SERVER_PORT" .next package.json package-lock.json public "$SERVER_USER@$SERVER_IP:$REMOTE_DIR"
