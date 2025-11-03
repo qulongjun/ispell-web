@@ -27,8 +27,6 @@ jobs:
       - name: 5. Archive production files
         run: |
           echo "Archiving files for deployment..."
-          # 使用 --ignore-failed-read 选项
-          # 这样即使 .mjs 或 .js 文件不存在，tar 也不会报错
           tar -czf deploy.tar.gz \
             --ignore-failed-read \
             .next \
