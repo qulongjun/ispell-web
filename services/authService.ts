@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-11-01 00:07:06
- * @LastEditTime: 2025-11-03 09:28:24
- * @Description: 认证相关 API 服务
+ * @LastEditTime: 2025-11-04 14:06:41
+ * @Description: 认证及用户 API 服务 (已更新)
  */
 
 import { z } from 'zod';
@@ -17,7 +17,7 @@ export const EXPECTED_OAUTH_ORIGIN = new URL(API_URL).origin;
 export const COUNTDOWN_TIMESTAMP_KEY = 'ispell_code_timestamp';
 export const COUNTDOWN_SECONDS = 60;
 
-// --- Zod 表单校验规则 ---
+// --- Zod 表单校验规则 (保持不变) ---
 /** 邮箱/手机号校验规则（支持标准邮箱格式或11位手机号） */
 export const emailPhoneSchema = z.string().refine(
   (val) => {
@@ -27,13 +27,10 @@ export const emailPhoneSchema = z.string().refine(
   },
   { message: 'invalidFormat' }
 );
-
 /** 密码校验规则（8-16位字符） */
 export const passwordSchema = z.string().min(8, 'min8').max(16, 'max16');
-
 /** 验证码校验规则（固定6位） */
 export const codeSchema = z.string().length(6, 'length6');
-
 /** 注册表单校验规则 */
 export const registerSchema = z
   .object({
@@ -49,7 +46,6 @@ export const registerSchema = z
     message: 'passwordsMismatch',
     path: ['confirmPassword'],
   });
-
 /** 密码登录表单校验规则 */
 export const loginPasswordSchema = z.object({
   emailOrPhone: emailPhoneSchema,
@@ -58,7 +54,6 @@ export const loginPasswordSchema = z.object({
     .boolean()
     .refine((val) => val === true, { message: 'agreePolicy' }),
 });
-
 /** 验证码登录表单校验规则 */
 export const loginCodeSchema = z.object({
   emailOrPhone: emailPhoneSchema,
@@ -67,7 +62,6 @@ export const loginCodeSchema = z.object({
     .boolean()
     .refine((val) => val === true, { message: 'agreePolicy' }),
 });
-
 /** 密码重置表单校验规则（无需同意协议） */
 export const resetPasswordSchema = z
   .object({
@@ -81,39 +75,24 @@ export const resetPasswordSchema = z
     path: ['confirmPassword'],
   });
 
-// --- 辅助函数 ---
-/**
- * 初始化验证码倒计时（从本地存储恢复或重置为0）
- * @returns 剩余倒计时秒数
- */
+// --- 辅助函数 (保持不变) ---
 export const getInitialCountdown = (): number => {
+  /* ... (代码无变化) ... */
   if (typeof window === 'undefined') return 0;
-
   const storedTimestamp = localStorage.getItem(COUNTDOWN_TIMESTAMP_KEY);
   if (!storedTimestamp) return 0;
-
   const elapsedMs = Date.now() - parseInt(storedTimestamp, 10);
   const remainingSec = Math.ceil((COUNTDOWN_SECONDS * 1000 - elapsedMs) / 1000);
-
   if (remainingSec > 0) return remainingSec;
-
-  // 倒计时已结束，清除本地存储
   localStorage.removeItem(COUNTDOWN_TIMESTAMP_KEY);
   return 0;
 };
-
-/**
- * 翻译 API 错误信息（适配多语言）
- * @param message - 原始错误信息
- * @param t_err - 多语言翻译函数
- * @returns 翻译后的错误提示
- */
 export const translateApiError = (
   message: string,
   t_err: TErrorFunction
 ): string => {
+  /* ... (代码无变化) ... */
   const safeMessage = String(message || '').toLowerCase();
-
   if (safeMessage.includes('invalid or expired verification code'))
     return t_err('invalidCode');
   if (safeMessage.includes('user already exists'))
@@ -132,20 +111,13 @@ export const translateApiError = (
     return t_err('oauthFailed');
   }
   if (safeMessage.includes('invalid state')) return t_err('oauthStateMismatch');
-
-  // 默认错误提示
   return t_err('unknownError');
 };
 
-// --- API 调用函数 ---
-/**
- * 发送验证码（用于登录/注册/密码重置）
- * @param emailOrPhone - 接收验证码的邮箱或手机号
- * @throws {Error} - 接口调用失败时抛出错误
- */
+// --- API 调用函数 (Auth) ---
+/** 发送验证码 */
 export const apiSendCode = async (emailOrPhone: string): Promise<void> => {
   console.log(`[Auth Service] Sending code to: ${emailOrPhone}`);
-
   const response = await apiClient(
     '/auth/send-code',
     {
@@ -153,20 +125,14 @@ export const apiSendCode = async (emailOrPhone: string): Promise<void> => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ emailOrPhone }),
     },
-    false
+    false // false = 不需要 token
   );
-
   if (!response.ok) {
     await handleApiError(response, 'Failed to send code.');
   }
 };
 
-/**
- * 用户登录（支持密码登录/验证码登录）
- * @param payload - 登录参数（包含邮箱/手机号、登录模式、密码/验证码）
- * @returns 登录成功后的用户信息和令牌
- * @throws {Error} - 接口调用失败时抛出错误
- */
+/** 用户登录 */
 export const apiLogin = async (payload: {
   emailOrPhone: string;
   mode: 'password' | 'code';
@@ -176,7 +142,6 @@ export const apiLogin = async (payload: {
   console.log(
     `[Auth Service] User login: ${payload.emailOrPhone}, mode: ${payload.mode}`
   );
-
   const response = await apiClient(
     '/auth/login',
     {
@@ -186,27 +151,19 @@ export const apiLogin = async (payload: {
     },
     false
   );
-
   if (!response.ok) {
     await handleApiError(response, 'Login failed.');
   }
-
   return response.json();
 };
 
-/**
- * 用户注册
- * @param payload - 注册参数（包含邮箱/手机号、密码、验证码）
- * @returns 注册成功后的响应数据
- * @throws {Error} - 接口调用失败时抛出错误
- */
+/** 用户注册 */
 export const apiRegister = async (payload: {
   emailOrPhone: string;
   password: string;
   code: string;
 }) => {
   console.log(`[Auth Service] User register: ${payload.emailOrPhone}`);
-
   const response = await apiClient(
     '/auth/register',
     {
@@ -216,20 +173,13 @@ export const apiRegister = async (payload: {
     },
     false
   );
-
   if (!response.ok) {
     await handleApiError(response, 'Registration failed.');
   }
-
   return response.json();
 };
 
-/**
- * 密码重置
- * @param payload - 重置参数（包含邮箱/手机号、新密码、确认密码、验证码）
- * @returns 重置成功后的响应数据
- * @throws {Error} - 接口调用失败时抛出错误
- */
+/** 密码重置 */
 export const apiResetPassword = async (payload: {
   emailOrPhone: string;
   password: string;
@@ -237,7 +187,6 @@ export const apiResetPassword = async (payload: {
   code: string;
 }) => {
   console.log(`[Auth Service] Reset password for: ${payload.emailOrPhone}`);
-
   const response = await apiClient(
     '/auth/reset-password',
     {
@@ -247,38 +196,141 @@ export const apiResetPassword = async (payload: {
     },
     false
   );
-
   if (!response.ok) {
     await handleApiError(response, 'Password reset failed.');
   }
-
   return response.json();
 };
 
-/**
- * 获取第三方 OAuth 授权链接（微信/QQ/谷歌等）
- * @param provider - 第三方服务商标识（如 wechat/qq/google/github）
- * @returns 授权链接
- * @throws {Error} - 接口调用失败时抛出错误
- */
+/** 获取 OAuth 授权链接 */
 export const apiGetOAuthUrl = async (
   provider: string
 ): Promise<{ url: string }> => {
   console.log(`[Auth Service] Get OAuth URL for provider: ${provider}`);
-
   const response = await apiClient(
     `/auth/${provider}/url`,
     {
       method: 'GET',
-      credentials: 'include',
+      credentials: 'include', // 必须携带 cookie (用于 state 校验)
       headers: { Accept: 'application/json' },
     },
     false
   );
-
   if (!response.ok) {
     await handleApiError(response, `Failed to get ${provider} OAuth URL.`);
   }
-
   return response.json();
+};
+
+// --- [新] API 调用函数 (User) ---
+
+/**
+ * [新] 获取当前登录用户的个人资料
+ * (用于 AppContext 初始化和 profile 页面)
+ * @returns {Promise<User>} 最新的用户信息
+ */
+export const apiFetchProfile = async (): Promise<User> => {
+  console.log('[User Service] Fetching current user profile (no-cache)...');
+  const response = await apiClient('/user/profile', {
+    method: 'GET',
+    cache: 'no-store', // [!!!! 关键修复 !!!!] 禁用缓存
+  });
+  if (!response.ok) {
+    await handleApiError(response, 'Failed to fetch profile.');
+  }
+  return response.json();
+};
+
+/**
+ * [新] 更新用户昵称
+ * @param payload - { nickname: string }
+ * @returns {Promise<User>} 更新后的用户信息
+ */
+export const apiUpdateProfile = async (payload: {
+  nickname: string;
+}): Promise<User> => {
+  console.log('[User Service] Updating profile...');
+  const response = await apiClient('/user/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    await handleApiError(response, 'Failed to update profile.');
+  }
+  return response.json();
+};
+
+/**
+ * [新] 更新用户头像
+ * @param formData - 包含 'avatar' 文件的 FormData
+ * @returns {Promise<User>} 更新后的用户信息 (含新头像 URL)
+ */
+export const apiUpdateAvatar = async (formData: FormData): Promise<User> => {
+  console.log('[User Service] Updating avatar...');
+  // 注意：当 body 是 FormData 时，不需要设置 Content-Type
+  // 并且 apiClient 的第三个参数需要为 true (表示 formData)
+  const response = await apiClient(
+    '/user/avatar',
+    {
+      method: 'POST',
+      body: formData,
+    },
+    true // true = 是 FormData，不需要 'Content-Type'
+  );
+  if (!response.ok) {
+    await handleApiError(response, 'Failed to update avatar.');
+  }
+  return response.json();
+};
+
+/**
+ * [新] 修改密码
+ * @param payload - { currentPassword: string, newPassword: string }
+ */
+export const apiChangePassword = async (payload: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<void> => {
+  console.log('[User Service] Changing password...');
+  const response = await apiClient('/auth/change-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    await handleApiError(response, 'Failed to change password.');
+  }
+  // 成功时后端返回 200/204，没有 body
+};
+
+/**
+ * [新] 解除第三方账号绑定
+ * @param provider - 'github' | 'google'
+ * @returns {Promise<User>} 更新后的用户信息 (bindings 减少)
+ */
+export const apiUnlinkOAuth = async (provider: string): Promise<User> => {
+  console.log(`[User Service] Unlinking provider: ${provider}`);
+  const response = await apiClient(`/auth/bindings/${provider}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    await handleApiError(response, 'Failed to unlink account.');
+  }
+  return response.json();
+};
+
+/**
+ * [!! 新增 !!] 删除（软删除）当前用户的账户
+ */
+export const apiDeleteAccount = async (): Promise<void> => {
+  console.log('[User Service] Deleting current user account...');
+  // apiClient 默认携带 token
+  const response = await apiClient('/user/delete-account', {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    await handleApiError(response, 'Failed to delete account.');
+  }
+  // 成功时返回 200
 };

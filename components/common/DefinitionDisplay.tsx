@@ -1,10 +1,12 @@
 /*
  * @Date: 2025-10-27 18:20:11
- * @LastEditTime: 2025-11-01 16:00:47
- * @Description: 单词释义展示组件
+ * @LastEditTime: 2025-11-03 14:03:58
+ * @Description: 单词释义展示组件 (已国际化)
  */
 import React from 'react';
-import { Definition } from '@/types/word.types';
+import { useTranslations } from 'next-intl';
+import type { Definition } from '../../types/word.types';
+
 interface DefinitionDisplayProps {
   definitions: Definition[] | null | undefined;
   className?: string;
@@ -16,9 +18,16 @@ const DefinitionDisplay: React.FC<DefinitionDisplayProps> = ({
   className = '',
   mode = 'multi-line', // 默认为多行模式
 }) => {
-  // 处理输入为空或无效的情况
+  const t = useTranslations('Words.DefinitionDisplay');
+
   if (!definitions || !Array.isArray(definitions) || definitions.length === 0) {
-    return null; // 不渲染任何内容
+    return (
+      <span
+        className={`text-xs sm:text-base text-gray-400 dark:text-gray-500 italic ${className}`}
+      >
+        {t('noDefinition')}
+      </span>
+    );
   }
 
   // 单行展示模式

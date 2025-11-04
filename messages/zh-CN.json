@@ -92,7 +92,8 @@
         "setAsCurrent": "设为当前",
         "adjustPlan": "调整计划",
         "resetProgress": "重置进度",
-        "cancelLearning": "取消学习"
+        "cancelLearning": "取消学习",
+        "viewPlanWords": "查看方案"
       }
     },
     "PlanSetupView": {
@@ -165,6 +166,15 @@
         "tabLabel": "切换到 {categoryName} 分类",
         "bookRadiogroupLabel": "选择要学习的单词书"
       }
+    },
+    "PlanWordsModal": {
+      "title": "单词计划: {bookName}",
+      "loading": "正在加载单词计划...",
+      "error": "无法加载计划，请稍后重试。",
+      "dayHeader": "第 {day} 天",
+      "wordCount": "{count} 词",
+      "empty": "该计划中没有单词。",
+      "close": "关闭"
     }
   },
   "Settings": {
@@ -209,6 +219,9 @@
     }
   },
   "Words": {
+    "DefinitionDisplay": {
+      "noDefinition": "暂无释义"
+    },
     "WordList": {
       "drawer": {
         "title": "单词列表",
@@ -258,6 +271,20 @@
     "Confirmation": {
       "confirm": "确认",
       "cancel": "取消"
+    },
+    "buttons": {
+      "save": "保存",
+      "cancel": "取消",
+      "confirm": "确认",
+      "delete": "删除",
+      "edit": "编辑",
+      "bind": "绑定",
+      "unbind": "解除绑定"
+    },
+    "messages": {
+      "noChangesToSave": "没有需要保存的更改",
+      "operationSuccess": "操作成功",
+      "operationFailed": "操作失败，请稍后再试"
     }
   },
   "Errors": {
@@ -277,13 +304,18 @@
     "loginFailed": "登录失败，请稍后重试",
     "unknownError": "发生未知错误，请稍后再试",
     "oauthFailed": "第三方登录失败，请稍后再试",
-    "oauthStateMismatch": "安全验证失败，请刷新页面重试"
+    "oauthStateMismatch": "安全验证失败，请刷新页面重试",
+    "nicknameRequired": "请输入昵称",
+    "nicknameTooLong": "昵称不能超过10个字符",
+    "avatarTooLarge": "头像文件不能超过 2MB"
   },
   "Alt": {
     "wechat": "使用微信登录",
     "qq": "使用QQ登录",
     "google": "使用谷歌登录",
-    "github": "使用GitHub登录"
+    "github": "使用GitHub登录",
+    "userAvatar": "用户头像",
+    "changeAvatar": "更改头像"
   },
   "UserMenu": {
     "label": "用户菜单",
@@ -291,6 +323,66 @@
     "profileSettings": "个性设置",
     "systemSettings": "系统设置",
     "logout": "退出登录"
+  },
+  "Profile": {
+    "pageTitle": "个性设置",
+    "pageDescription": "管理您的个人信息、密码和账号绑定",
+
+    "profileInfo": {
+      "title": "个人资料",
+      "avatarLabel": "头像",
+      "avatarHint": "点击头像更换图片<br />支持 JPG、PNG 格式，不超过 2MB",
+      "nicknameLabel": "昵称",
+      "nicknamePlaceholder": "请输入您的昵称",
+      "saveSuccess": "个人资料已更新"
+    },
+
+    "changePassword": {
+      "title": "修改密码",
+      "setPasswordTitle": "设置密码",
+      "description": "通过验证码修改您的登录密码。",
+      "setPasswordDescription": "您当前使用第三方账号登录，尚未设置密码。您可以通过此功能设置一个登录密码。",
+      "contactLabel_email": "电子邮箱",
+      "contactLabel_phone": "手机号",
+      "verificationCodeLabel": "验证码",
+      "verificationCodePlaceholder": "请输入验证码",
+      "newPasswordLabel": "新密码",
+      "newPasswordPlaceholder": "8-16位，包含字母和数字",
+      "confirmPasswordLabel": "确认新密码",
+      "confirmPasswordPlaceholder": "再次输入新密码",
+      "getCodeBtn": "获取验证码",
+      "resendCodeBtn": "{seconds}s 后重试",
+      "saveSuccess_change": "密码修改成功",
+      "saveSuccess_set": "密码设置成功"
+    },
+
+    "accountBindings": {
+      "title": "账号绑定",
+      "description": "绑定第三方账号可使用对应账号快速登录",
+      "github": "GitHub",
+      "google": "Google",
+      "bindBtn": "绑定",
+      "unbindBtn": "解除绑定",
+      "unbindConfirm": "确定要解除与{provider}的绑定吗？",
+      "unbindSuccess": "已成功解除与{provider}的绑定",
+      "bindFailed": "获取绑定链接失败，请稍后再试"
+    },
+
+    "deleteAccount": {
+      "title": "危险操作",
+      "sectionTitle": "账户删除",
+      "description": "请谨慎操作。一旦删除账户，所有数据将无法恢复，包括您的学习记录、个人设置和绑定的第三方账号。",
+      "deleteBtn": "删除我的账户",
+      "modalTitle": "您确定要删除您的账户吗？",
+      "warning": "这是一个无法撤销的操作！",
+      "deleteInfo1": "您的所有学习计划、进度和个人信息都将被永久删除。",
+      "deleteInfo2": "您的昵称和头像将被重置，绑定的第三方账号将被解除。",
+      "confirmInputLabel": "请输入您的昵称 “{nickname}” 以确认删除。",
+      "confirmInputPlaceholder": "输入您的昵称确认删除",
+      "confirmDeleteBtn": "我已了解，确认删除",
+      "deleteSuccess": "您的账户已成功删除",
+      "deleteFailed": "删除失败，请稍后再试"
+    }
   },
   "Donation": {
     "qrCode": {

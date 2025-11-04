@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, MoreHorizontal, RotateCcw, Trash2 } from 'lucide-react';
+import {
+  X,
+  Star,
+  MoreHorizontal,
+  RotateCcw,
+  Trash2,
+  ListTree, // 1. 导入新图标
+} from 'lucide-react';
 import { useAppContext } from '@/contexts/app.context';
 import type { Book, Category, Language, PlanDetails } from '@/types/book.types';
 import {
@@ -17,6 +24,7 @@ import toast from 'react-hot-toast';
 import BrowserView from './BrowserView';
 import LearningView from './LearningView';
 import ConfirmationModal from '../common/ConfirmationModal';
+import PlanWordsModal from './PlanWordsModal'; // 2. 导入新模态框
 
 // 辅助函数
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -37,6 +45,12 @@ const reviewStrategyNames: { [key: string]: string } = {
 
 type ModalState = {
   type: 'reset' | 'cancel';
+  planId: number;
+  bookName: string;
+};
+
+// 3. 为新模态框添加状态类型
+type PlanWordsModalState = {
   planId: number;
   bookName: string;
 };
@@ -64,6 +78,11 @@ export default function BookSelectionDrawer() {
   const [activeSeriesId, setActiveSeriesId] = useState('');
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [modalState, setModalState] = useState<ModalState | null>(null);
+
+  // 4. 添加新模态框的状态
+  const [planWordsModalState, setPlanWordsModalState] =
+    useState<PlanWordsModalState | null>(null);
+
   const isProgrammaticNav = useRef(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -93,6 +112,7 @@ export default function BookSelectionDrawer() {
       setPreviewBook(null);
       setOpenMenu(null);
       setModalState(null);
+      setPlanWordsModalState(null); // 关闭抽屉时也重置新模态框状态
     }, 300);
   };
 
@@ -170,6 +190,12 @@ export default function BookSelectionDrawer() {
   const openCancelModal = (planId: number, bookName: string) => {
     setModalState({ type: 'cancel', planId, bookName });
     setOpenMenu(null);
+  };
+
+  // 5. 添加打开新模态框的处理函数
+  const openPlanWordsModal = (planId: number, bookName: string) => {
+    setPlanWordsModalState({ planId, bookName });
+    setOpenMenu(null); // 关闭 "..." 菜单
   };
 
   const confirmResetProgress = async () => {
@@ -367,7 +393,8 @@ export default function BookSelectionDrawer() {
                         }
                       >
                         <span className="text-lg font-bold">
-                          {lang.shortName}
+                          {/* 假设 lang 对象有 shortName 字段 */}
+                          {lang.shortName || lang.code.toUpperCase()}
                         </span>
                         <span className="text-xs mt-1">{lang.name}</span>
                       </button>
@@ -429,6 +456,7 @@ export default function BookSelectionDrawer() {
                         openCancelModal={openCancelModal}
                         setPreviewBook={setPreviewBook}
                         handleUpdatePlan={handleUpdatePlan}
+                        handleViewPlanWords={openPlanWordsModal} // 6. 传递新 handler
                       />
                     )}
                   </AnimatePresence>
@@ -455,6 +483,14 @@ export default function BookSelectionDrawer() {
                   : confirmResetProgress
               }
               onCancel={() => setModalState(null)}
+            />
+
+            {/* 7. 渲染新模态框 */}
+            <PlanWordsModal
+              isOpen={planWordsModalState !== null}
+              planId={planWordsModalState?.planId}
+              bookName={planWordsModalState?.bookName}
+              onClose={() => setPlanWordsModalState(null)}
             />
           </motion.div>
         </>

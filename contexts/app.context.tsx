@@ -1,9 +1,10 @@
-'use client';
 /*
  * @Date: 2025-10-28 22:05:53
- * @LastEditTime: 2025-11-02 22:55:12
- * @Description: 实现记住我功能，区分会话级/持久化存储
+ * @LastEditTime: 2025-11-03 18:50:38
+ * @Description: AppContext，已添加 refreshUser 和 OAuth 绑定监听器
  */
+'use client';
+
 import React, {
   createContext,
   useContext,
@@ -17,6 +18,12 @@ import type { PlanDetails, Language, LearningPlan } from '@/types/book.types';
 import { fetchBookHierarchy } from '@/services/bookService';
 import { fetchLearningList } from '@/services/planService';
 import { Tokens, User } from '@/types/auth.types';
+// [新] 导入 apiFetchProfile 和 OAuth 常量
+import {
+  apiFetchProfile,
+  EXPECTED_OAUTH_ORIGIN,
+} from '@/services/authService';
+import toast from 'react-hot-toast';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -27,14 +34,16 @@ export interface LearningTrigger {
   action: LearningAction;
 }
 
-// 上下文接口定义（修改login方法，新增rememberMe参数）
+// 上下文接口定义（新增 refreshUser）
 interface IAppContext {
   // 认证
   user: User | null;
   isLoggedIn: boolean;
   accessToken: string | null;
-  login: (userData: User, tokens: Tokens, rememberMe: boolean) => void; // 新增rememberMe参数
+  login: (userData: User, tokens: Tokens, rememberMe: boolean) => void;
   logout: () => void;
+  refreshUser: () => Promise<void>; // [新] 刷新用户信息
+  isLoading: boolean; // [新] 添加一个顶层 isLoading
   // 弹窗
   isLoginModalOpen: boolean;
   openLoginModal: () => void;
@@ -75,6 +84,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isBookDrawerOpen, setIsBookDrawerOpen] = useState<boolean>(false);
   const isLoggedIn = !!user && !!accessToken;
+  const [isLoading, setIsLoading] = useState(true); // [新] 顶层加载状态
 
   // --- 学习状态/数据 ---
   const [currentBookId, setCurrentBookId] = useState<string | null>(null);
@@ -98,6 +108,42 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // --- 主题状态管理 ---
   const [theme, setTheme] = useState<Theme>('system');
+
+  // --- [新] 刷新用户信息的函数 ---
+  const refreshUser = useCallback(async () => {
+    console.log('[AppContext] Refreshing user...');
+    try {
+      // 1. 检查是否存在 token
+      let token = accessToken;
+      if (!token) {
+        token =
+          sessionStorage.getItem('accessToken') ||
+          localStorage.getItem('accessToken');
+      }
+      if (!token) {
+        console.warn('[AppContext] No token, skipping user refresh.');
+        return;
+      }
+
+      // 2. 调用 API 获取最新用户信息
+      const updatedUser = await apiFetchProfile();
+
+      // 3. 更新 user 状态
+      setUser(updatedUser);
+
+      // 4. 更新存储（保持持久化状态）
+      const storage = localStorage.getItem('accessToken')
+        ? localStorage
+        : sessionStorage;
+      storage.setItem('user', JSON.stringify(updatedUser));
+      console.log('[AppContext] User refresh successful.');
+    } catch (error) {
+      console.error('[AppContext] Failed to refresh user:', error);
+      toast.error('无法更新用户信息，请尝试重新登录');
+      // 如果刷新失败（例如 token 过期），则登出
+      logout();
+    }
+  }, [accessToken]); // 依赖 logout
 
   // --- 数据获取函数 ---
   const refreshAllData = useCallback(async () => {
@@ -169,12 +215,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     refreshAllData();
   }, [refreshAllData]);
 
-  // --- 登录逻辑（核心修改：根据rememberMe选择存储方式） ---
+  // --- 登录逻辑 ---
   const login = useCallback(
     (userData: User, tokens: Tokens, rememberMe: boolean) => {
       setUser(userData);
       setAccessToken(tokens.accessToken);
-      // 勾选"记住我"用localStorage（持久化），否则用sessionStorage（会话级）
       const storage = rememberMe ? localStorage : sessionStorage;
       storage.setItem('user', JSON.stringify(userData));
       storage.setItem('accessToken', tokens.accessToken);
@@ -186,21 +231,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setCurrentBookId(storedBookId);
       }
     },
-    [closeLoginModal, closeRegisterModal]
+    [] // 移除依赖
   );
 
-  // --- 登出逻辑（核心修改：同时清除两种存储） ---
+  // --- 登出逻辑 ---
   const logout = useCallback(() => {
     setUser(null);
     setAccessToken(null);
-    // 清除localStorage和sessionStorage中的登录信息
     localStorage.removeItem('user');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     sessionStorage.removeItem('user');
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('refreshToken');
-    // 清除学习状态
     localStorage.removeItem('currentBookId');
     setCurrentBookId(null);
     setLearningTrigger(null);
@@ -209,38 +252,70 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setDataError(null);
     closeLoginModal();
     closeRegisterModal();
-  }, [closeLoginModal, closeRegisterModal]);
+  }, []); // 移除依赖
 
-  // --- 初始化：先读sessionStorage，再读localStorage ---
+  // --- [新] OAuth 绑定/登录 回调监听器 ---
   useEffect(() => {
+    const handleOAuthMessage = async (event: MessageEvent) => {
+      // 安全校验：检查来源是否是后端 API
+      if (event.origin !== EXPECTED_OAUTH_ORIGIN) {
+        console.warn('Received message from untrusted origin:', event.origin);
+        return;
+      }
+
+      const { data } = event;
+      console.log('[AppContext] Received postMessage:', data);
+
+      // 检查是否为 OAuth 成功消息
+      if (data && data.type && data.type.endsWith('-login-success')) {
+        const { user, accessToken, refreshToken } = data;
+
+        if (user && accessToken && refreshToken) {
+          // 检查这是“登录”还是“绑定”
+          if (isLoggedIn) {
+            // 场景：已登录用户，进行“绑定”
+            toast.success(`账号 ${data.type.split('-')[0]} 绑定成功！`);
+            // 刷新用户信息（以获取新的 bindings）
+            await refreshUser();
+          } else {
+            // 场景：未登录用户，进行“登录”
+            toast.success('登录成功，欢迎回来！');
+            // 触发登录（此处假设 OAuth 登录总是“记住我”）
+            login(user, { accessToken, refreshToken }, true);
+          }
+        }
+      } else if (data && data.type && data.type.endsWith('-login-error')) {
+        toast.error(`登录失败: ${data.error || '未知错误'}`);
+      }
+    };
+
+    window.addEventListener('message', handleOAuthMessage);
+
+    return () => {
+      window.removeEventListener('message', handleOAuthMessage);
+    };
+  }, [isLoggedIn, login, refreshUser]); // 依赖 isLoggedIn, login, refreshUser
+
+  // --- 初始化 ---
+  useEffect(() => {
+    setIsLoading(true);
     // 读取主题
     const storedTheme = localStorage.getItem('app-theme') as Theme | null;
     if (storedTheme && ['light', 'dark', 'system'].includes(storedTheme)) {
       setTheme(storedTheme);
     }
 
-    // 1. 加载书籍层级数据
-    setIsDataLoading(true);
+    // 1. 加载书籍层级数据（始终加载）
     fetchBookHierarchy()
       .then(setHierarchy)
       .catch((err) => {
         console.error('加载书籍层级失败 (onMount):', err);
         setDataError(err.message || '无法加载书籍列表。');
-      })
-      .finally(() => {
-        // 无token时停止加载
-        if (
-          !localStorage.getItem('accessToken') &&
-          !sessionStorage.getItem('accessToken')
-        ) {
-          setIsDataLoading(false);
-        }
       });
 
-    // 2. 加载用户数据（优先读会话存储，再读持久存储）
+    // 2. 加载用户数据
     let storedUser = sessionStorage.getItem('user');
     let storedToken = sessionStorage.getItem('accessToken');
-    // 会话存储无数据时，读持久存储
     if (!storedUser || !storedToken) {
       storedUser = localStorage.getItem('user');
       storedToken = localStorage.getItem('accessToken');
@@ -255,8 +330,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setCurrentBookId(storedBookId);
         }
       } catch (e) {
-        logout(); // 数据损坏时强制登出
+        logout();
       }
+    } else {
+      setIsLoading(false); // 没有 token，停止加载
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -266,28 +343,40 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (accessToken) {
       console.log('[AppContext] AccessToken 变化，正在加载在学列表...');
       setIsDataLoading(true);
-      fetchLearningList()
-        .then((learningData) => {
+      // [修改] 在 accessToken 变化时，同时刷新学习列表和用户信息
+      Promise.all([fetchLearningList(), apiFetchProfile()])
+        .then(([learningData, profileData]) => {
+          // 更新学习列表
           setLearningList(learningData);
           const activePlan = learningData.find((p) => p.isCurrent);
           const activeListCode = activePlan ? activePlan.listCode : null;
           if (currentBookId !== activeListCode) {
             setCurrentBookId(activeListCode);
           }
+          // 更新用户信息
+          setUser(profileData);
+          const storage = localStorage.getItem('accessToken')
+            ? localStorage
+            : sessionStorage;
+          storage.setItem('user', JSON.stringify(profileData));
         })
         .catch((err) => {
-          console.error('加载在学列表失败:', err);
-          setDataError(err.message || '无法加载在学列表。');
+          console.error('加载在学列表或用户信息失败:', err);
+          setDataError(err.message || '无法加载数据。');
+          if (err.message.includes('401') || err.message.includes('403')) {
+            logout(); // Token 无效，登出
+          }
         })
         .finally(() => {
           setIsDataLoading(false);
+          setIsLoading(false); // [新] 结束顶层加载
         });
     } else {
       setLearningList([]);
       setCurrentBookId(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken]);
+  }, [accessToken]); // 依赖 accessToken
 
   // --- 主题变化同步 ---
   useEffect(() => {
@@ -319,8 +408,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       user,
       isLoggedIn,
       accessToken,
-      login, // 传递修改后的login方法
+      login,
       logout,
+      refreshUser, // [新] 导出
+      isLoading, // [新] 导出
       theme,
       setTheme,
       isLoginModalOpen,
@@ -350,8 +441,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       user,
       isLoggedIn,
       accessToken,
-      login, // 依赖修改后的login
+      login,
       logout,
+      refreshUser, // [新]
+      isLoading, // [新]
       theme,
       isLoginModalOpen,
       isRegisterModalOpen,

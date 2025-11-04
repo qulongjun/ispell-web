@@ -1,12 +1,14 @@
 /*
  * @Date: 2025-10-29 23:14:16
- * @LastEditTime: 2025-11-01 11:38:08
+ * @LastEditTime: 2025-11-03 13:55:11
  * @Description: 学习计划相关 API 服务
  */
 
 import apiClient from '@/utils/api.utils';
 import { handleApiError } from '@/utils/error.utils';
 import type { LearningPlan, PlanDetails } from '@/types/book.types';
+// 假设 Word 类型定义在 @/types/word.types
+import type { Definition, Pronunciation, Word } from '@/types/word.types';
 
 /**
  * 获取用户所有激活的学习计划
@@ -174,6 +176,51 @@ export async function advancePlan(planId: number) {
   } catch (error) {
     console.error(
       `[Plan Service Error] Advance learning plan failed: planId=${planId}`,
+      error
+    );
+    throw error;
+  }
+}
+
+/**
+ * 定义从后端获取的按天单词数据类型
+ */
+export type PlanDayWord = {
+  id: number;
+  word: string; // 后端 'text' 映射而来
+  definitions: Definition[] | null; // 后端 'definitions' JSON
+  pronunciation?: Pronunciation[];
+};
+
+export type PlanDayWords = {
+  day: number;
+  words: PlanDayWord[];
+};
+
+/**
+ * 获取计划的按天单词列表
+ * @param planId 计划ID
+ * @returns Promise<PlanDayWords[]>
+ */
+export async function getPlanWordsByDay(
+  planId: number
+): Promise<PlanDayWords[]> {
+  const endpoint = `/plans/${planId}/words`;
+  console.log(`[Plan Service] Fetching word list by day for plan: ${planId}`);
+
+  try {
+    const response = await apiClient(endpoint, { method: 'GET' });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to fetch plan words.');
+    }
+
+    const data: PlanDayWords[] = await response.json();
+    console.log(`[Plan Service] Fetched plan words successfully.`);
+    return data;
+  } catch (error) {
+    console.error(
+      `[Plan Service Error] Fetching plan words failed: planId=${planId}`,
       error
     );
     throw error;
