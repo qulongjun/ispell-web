@@ -1,13 +1,12 @@
 /*
  * @Date: 2025-10-30 10:23:51
- * @LastEditTime: 2025-11-06 22:13:58
- * @Description: 书籍卡片组件 ([!! 已修改 !!] 移除了倒三角)
- * 功能：展示单本书籍信息，支持选中状态显示，点击触发选择事件
+ * @LastEditTime: 2025-11-08 22:28:20
+ * @Description: 书籍卡片组件
  */
 
 import React from 'react';
 import { Check } from 'lucide-react';
-import { useTranslations } from 'next-intl'; // 导入国际化Hook
+import { useTranslations } from 'next-intl';
 import type { Book } from '@/types/book.types';
 
 interface BookCardProps {
@@ -17,7 +16,6 @@ interface BookCardProps {
 }
 
 const BookCard: React.FC<BookCardProps> = ({ book, isActive, onSelect }) => {
-  // 国际化翻译Hook：指向 BookSelection 命名空间（BookCard 嵌套其中）
   const t = useTranslations('BookSelection');
 
   return (
@@ -31,7 +29,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, isActive, onSelect }) => {
       role="radio"
       aria-checked={isActive}
     >
-      {/* 书籍名称（来自book数据，无需翻译） */}
+      {/* 书籍名称 */}
       <p
         className={`font-medium ${
           isActive
@@ -42,7 +40,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, isActive, onSelect }) => {
         {book.name}
       </p>
 
-      {/* 书籍描述（来自book数据，无需翻译） */}
+      {/* 书籍描述 */}
       {book.description && (
         <p
           className={`text-xs mt-0.5 ${
@@ -55,7 +53,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, isActive, onSelect }) => {
         </p>
       )}
 
-      {/* 单词总数（翻译键对应嵌套路径：BookCard.totalWords） */}
+      {/* 单词总数 */}
       <p
         className={`text-sm mt-1 ${
           isActive
@@ -66,12 +64,10 @@ const BookCard: React.FC<BookCardProps> = ({ book, isActive, onSelect }) => {
         {t('BookCard.totalWords', { count: book.totalWords })}
       </p>
 
-      {/* 选中状态图标（无文本，无需翻译） */}
+      {/* 选中状态图标 */}
       {isActive && (
         <Check className="absolute top-3 right-3 w-5 h-5 text-gray-900 dark:text-gray-100" />
       )}
-
-      {/* [!! 已移除 !!] 倒三角箭头代码已被删除 */}
     </button>
   );
 };

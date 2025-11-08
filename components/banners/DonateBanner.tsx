@@ -1,96 +1,92 @@
-'use client';
 /*
  * @Date: 2025-10-31 10:08:45
- * @LastEditTime: 2025-11-07 16:29:13
- * @Description: 捐赠 Banner (V5 - 使用 localStorage 实现每周显示一次)
+ * @LastEditTime: 2025-11-08 22:27:48
+ * @Description: 捐赠提示横幅组件
  */
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Gift, X } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
-// [!! 1. 修改 !!] 存储键改为 localStorage key
-const STORAGE_KEY = 'donateBannerClosedWeek'; // 存储用户点击关闭时的“周数”
+// localStorage存储键：用于记录用户关闭横幅的周数
+const STORAGE_KEY = 'donateBannerClosedWeek';
 
 /**
- * 获取自 Unix 纪元以来的周数
- * (这是一个简单、统一的计算方式，与时区无关)
- * @param date - The date timestamp (e.g., Date.now())
- * @returns {number} - The week number
+ * 计算自Unix纪元（1970-01-01）以来的周数
+ * 采用与时间无关的统一计算方式，确保跨设备一致性
+ * @param date 时间戳（如Date.now()）
+ * @returns 对应的周数（整数）
  */
 const getWeekNumber = (date: number): number => {
-  const MSEC_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
-  // (Date.now() / 毫秒数) -> 得到周数
-  return Math.floor(date / MSEC_PER_WEEK);
+  const MSEC_PER_WEEK = 1000 * 60 * 60 * 24 * 7; // 一周的毫秒数
+  return Math.floor(date / MSEC_PER_WEEK); // 时间戳除以每周毫秒数，取整得到周数
 };
 
+/**
+ * 捐赠提示横幅组件
+ * 仅在桌面端显示，用户关闭后本周内不再展示，新的一周自动重新显示
+ */
 const DonateBanner: React.FC = () => {
-  const t = useTranslations('DonateBanner');
-  // [!!] (保留 null 初始状态以防止 Hydration Error)
+  const t = useTranslations('DonateBanner'); // 捐赠横幅的国际化翻译
+  // 初始为null：避免服务端渲染与客户端状态不匹配导致的Hydration Error
   const [isVisible, setIsVisible] = useState<boolean | null>(null);
 
-  // [!! 2. 修改 !!] useEffect 逻辑，使用 localStorage 和周数计算
+  /**
+   * 初始化横幅显示状态
+   * 组件挂载时执行，通过比较当前周数与用户上次关闭的周数决定是否显示
+   */
   useEffect(() => {
     try {
-      // 1. 获取当前周数
-      const currentWeek = getWeekNumber(Date.now());
+      const currentWeek = getWeekNumber(Date.now()); // 当前周数
+      const storedValue = localStorage.getItem(STORAGE_KEY); // 从本地存储获取上次关闭的周数
+      const closedWeek = storedValue ? parseInt(storedValue, 10) : 0; // 解析存储的周数，默认为0
 
-      // 2. 获取用户上次关闭的周数
-      const storedValue = localStorage.getItem(STORAGE_KEY);
-      const closedWeek = parseInt(storedValue || '0', 10); // 默认为0
-
-      // 3. 比较
-      // 如果当前周数 > 上次关闭的周数，说明是新的一周，应该显示
-      if (currentWeek > closedWeek) {
-        setIsVisible(true);
-      } else {
-        // 否则 (currentWeek === closedWeek)，说明本周已经关闭过了，不显示
-        setIsVisible(false);
-      }
+      // 若当前周数大于上次关闭的周数，说明进入了新的一周，需要显示横幅
+      setIsVisible(currentWeek > closedWeek);
     } catch (e) {
-      console.warn('Could not access localStorage for DonateBanner', e);
-      setIsVisible(true); // 降级为默认显示
+      // 本地存储访问失败时（如隐私模式），降级为显示横幅
+      console.warn('无法访问localStorage以管理捐赠横幅状态:', e);
+      setIsVisible(true);
     }
-  }, []); // 空依赖数组，仅在挂载时运行一次
+  }, []); // 空依赖数组：仅在组件挂载时执行一次
 
-  // [!! 3. 修改 !!] 关闭处理逻辑
+  /**
+   * 处理横幅关闭事件
+   * 存储当前周数到localStorage，标记本周已关闭，并隐藏横幅
+   */
   const handleClose = () => {
     try {
-      // 1. 获取当前周数
       const currentWeek = getWeekNumber(Date.now());
-      // 2. 将当前周数存入 localStorage，标记本周已关闭
-      localStorage.setItem(STORAGE_KEY, currentWeek.toString());
+      localStorage.setItem(STORAGE_KEY, currentWeek.toString()); // 记录当前周数
     } catch (e) {
-      console.warn('Could not set localStorage for DonateBanner', e);
+      console.warn('无法存储捐赠横幅关闭状态到localStorage:', e);
     }
-    setIsVisible(false); // 更新 state
+    setIsVisible(false); // 立即隐藏横幅
   };
 
-  // [!!] (保留渲染逻辑)
+  // 渲染守卫：初始状态（null）或不显示状态下不渲染组件
   if (isVisible === null || !isVisible) {
     return null;
   }
 
   return (
-    // (所有样式保持不变: 移动端隐藏, 反色, i18n)
+    // 仅桌面端显示（sm:block），深色模式适配（颜色反转）
     <div className="hidden sm:block w-full bg-gray-900 dark:bg-gray-100 relative border-b border-gray-700 dark:border-gray-200">
       <div className="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-          <Gift
-            // 颜色反转 (图标)
-            className="w-4 h-4 text-white dark:text-gray-900 shrink-0"
-          />
+          {/* 礼物图标：颜色随主题反转 */}
+          <Gift className="w-4 h-4 text-white dark:text-gray-900 shrink-0" />
 
-          <p
-            // 颜色反转 (文字)
-            className="text-center text-sm text-white dark:text-gray-900"
-          >
+          {/* 提示文本：颜色随主题反转 */}
+          <p className="text-center text-sm text-white dark:text-gray-900">
             {t('text')}
           </p>
 
+          {/* 捐赠链接：带箭头图标，颜色随主题反转并支持hover效果 */}
           <Link
             href="/donate"
-            // 颜色反转 (链接)
             className="text-sm font-medium text-white dark:text-gray-900 hover:text-gray-300 dark:hover:text-gray-600 transition-colors duration-200 flex items-center gap-1 underline underline-offset-2"
           >
             {t('link')}
@@ -111,7 +107,7 @@ const DonateBanner: React.FC = () => {
           </Link>
         </div>
 
-        {/* 颜色反转 (关闭按钮) */}
+        {/* 关闭按钮：颜色随主题反转，点击隐藏横幅 */}
         <button
           onClick={handleClose}
           aria-label={t('closeAriaLabel')}

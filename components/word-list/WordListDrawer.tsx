@@ -1,9 +1,9 @@
-'use client';
 /*
  * @Date: 2025-10-27 11:44:29
- * @LastEditTime: 2025-11-01 15:53:41
- * @Description: 显示单词列表的侧边抽屉组件（支持国际化，配置路径：Words.WordList.drawer）
+ * @LastEditTime: 2025-11-08 23:13:04
+ * @Description: 显示单词列表的侧边抽屉组件
  */
+'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
@@ -58,7 +58,7 @@ function WordCard({
         <DefinitionDisplay definitions={wordData.definitions} />
       </div>
 
-      {/* 播放按钮：国际化路径 -> Words.WordList.drawer.aria.playPronunciation */}
+      {/* 播放按钮 */}
       <button
         onClick={handlePlayClick}
         disabled={isAnyWordPlaying}
@@ -128,7 +128,7 @@ export default function WordListDrawer({
             aria-modal="true"
             aria-labelledby="word-list-drawer-title"
           >
-            {/* 标题栏：国际化路径 -> Words.WordList.drawer.title / closeList */}
+            {/* 标题栏 */}
             <div className="flex items-center justify-between p-4 shrink-0">
               <h2
                 id="word-list-drawer-title"
@@ -145,7 +145,7 @@ export default function WordListDrawer({
               </button>
             </div>
 
-            {/* 内容区：国际化路径 -> Words.WordList.drawer.emptyState */}
+            {/* 内容区 */}
             <div className="flex-1 p-4 space-y-3 overflow-y-auto border-t border-gray-200 dark:border-gray-700">
               {words && words.length > 0 ? (
                 words.map((word) => (

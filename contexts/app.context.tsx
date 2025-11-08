@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-10-28 22:05:53
- * @LastEditTime: 2025-11-07 20:36:09
- * @Description: 
+ * @LastEditTime: 2025-11-08 23:27:27
+ * @Description: 应用全局状态管理上下文，集中管理用户认证、弹窗状态、主题设置、学习进度和核心数据，提供跨组件状态访问和修改能力
  */
 'use client';
 
@@ -14,124 +14,158 @@ import React, {
   ReactNode,
   useCallback,
 } from 'react';
-import type { PlanDetails, Language, LearningPlan } from '@/types/book.types';
-import { fetchBookHierarchy } from '@/services/bookService';
-import { fetchLearningList } from '@/services/planService';
-import { Tokens, User } from '@/types/auth.types';
-import { Word } from '@/types/word.types';
-import { apiFetchProfile, EXPECTED_OAUTH_ORIGIN } from '@/services/authService';
 import toast from 'react-hot-toast';
 
+// 类型导入
+import type { PlanDetails, Language, LearningPlan } from '@/types/book.types';
+import { Tokens, User } from '@/types/auth.types';
+import { Word } from '@/types/word.types';
+
+// 服务导入
+import { fetchBookHierarchy } from '@/services/bookService';
+import { fetchLearningList } from '@/services/planService';
+import { apiFetchProfile, EXPECTED_OAUTH_ORIGIN } from '@/services/authService';
+
+/**
+ * 应用主题类型
+ * - light: 浅色模式
+ * - dark: 深色模式
+ * - system: 跟随系统设置
+ */
 export type Theme = 'light' | 'dark' | 'system';
 
+/**
+ * 学习动作类型
+ * 用于触发不同的学习操作（如激活计划、重置进度等）
+ */
 export type LearningAction = PlanDetails | 'activate' | 'reset' | null;
 
+/**
+ * 学习触发器类型
+ * 用于启动或切换学习内容
+ */
 export interface LearningTrigger {
-  listCode: string | null;
-  action: LearningAction;
+  listCode: string | null; // 学习列表标识
+  action: LearningAction; // 要执行的学习动作
 }
 
-// [!! 新增 !!] 错题集复习触发器类型
+/**
+ * 错题集复习触发器类型
+ * 用于启动错题复习模式
+ */
 export type MistakeReviewTrigger = {
-  planId: number;
-  words: Word[]; // 这些是错题集服务获取的单词
+  planId: number; // 关联的学习计划ID
+  words: Word[]; // 待复习的错题列表
 } | null;
 
-// 上下文接口定义
+/**
+ * 应用全局上下文接口
+ * 定义了全局可访问的状态和操作方法
+ */
 interface IAppContext {
-  // 认证
-  user: User | null;
-  isLoggedIn: boolean;
-  accessToken: string | null;
-  login: (userData: User, tokens: Tokens, rememberMe: boolean) => void;
-  logout: () => void;
-  refreshUser: () => Promise<void>;
-  isLoading: boolean;
-  // 弹窗
-  isLoginModalOpen: boolean;
-  openLoginModal: () => void;
-  closeLoginModal: () => void;
-  isRegisterModalOpen: boolean;
-  openRegisterModal: () => void;
-  closeRegisterModal: () => void;
-  isBookDrawerOpen: boolean;
-  setIsBookDrawerOpen: (isOpen: boolean) => void;
-  // [!! 新增 !!]
-  isFeedbackModalOpen: boolean;
-  openFeedbackModal: () => void;
-  closeFeedbackModal: () => void;
-  // 主题
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  // 学习状态/动作
-  currentBookId: string | null;
-  setCurrentBookId: (bookId: string | null) => void;
-  learningTrigger: LearningTrigger | null;
-  loadBook: (listCode: string | null, action: LearningAction) => void;
-  isLearningSessionActive: boolean;
-  startLearningSession: () => void;
-  endLearningSession: () => void;
-  // [!! 新增 !!] 错题集复习
-  mistakeReviewTrigger: MistakeReviewTrigger;
-  startMistakeReview: (planId: number, words: Word[]) => void;
-  // 数据状态
-  hierarchy: Language[];
-  learningList: LearningPlan[];
-  isDataLoading: boolean;
-  dataError: string | null;
-  refreshAllData: () => Promise<void>;
-  setLearningList: React.Dispatch<React.SetStateAction<LearningPlan[]>>;
-  setDataError: React.Dispatch<React.SetStateAction<string | null>>;
+  // 认证相关
+  user: User | null; // 当前用户信息
+  isLoggedIn: boolean; // 是否已登录（派生状态）
+  accessToken: string | null; // 访问令牌
+  login: (userData: User, tokens: Tokens, rememberMe: boolean) => void; // 登录处理
+  logout: () => void; // 登出处理
+  refreshUser: () => Promise<void>; // 刷新用户信息
+  isLoading: boolean; // 初始化加载状态
+
+  // 弹窗状态管理
+  isLoginModalOpen: boolean; // 登录弹窗是否打开
+  openLoginModal: () => void; // 打开登录弹窗
+  closeLoginModal: () => void; // 关闭登录弹窗
+  isRegisterModalOpen: boolean; // 注册弹窗是否打开
+  openRegisterModal: () => void; // 打开注册弹窗
+  closeRegisterModal: () => void; // 关闭注册弹窗
+  isBookDrawerOpen: boolean; // 书籍列表抽屉是否打开
+  setIsBookDrawerOpen: (isOpen: boolean) => void; // 设置书籍列表抽屉状态
+  isFeedbackModalOpen: boolean; // 反馈弹窗是否打开
+  openFeedbackModal: () => void; // 打开反馈弹窗
+  closeFeedbackModal: () => void; // 关闭反馈弹窗
+
+  // 主题设置
+  theme: Theme; // 当前主题
+  setTheme: (theme: Theme) => void; // 设置主题
+
+  // 学习状态管理
+  currentBookId: string | null; // 当前选中的书籍ID
+  setCurrentBookId: (bookId: string | null) => void; // 设置当前书籍ID
+  learningTrigger: LearningTrigger | null; // 学习触发器
+  loadBook: (listCode: string | null, action: LearningAction) => void; // 加载书籍内容
+  isLearningSessionActive: boolean; // 学习会话是否激活
+  startLearningSession: () => void; // 开始学习会话
+  endLearningSession: () => void; // 结束学习会话
+  mistakeReviewTrigger: MistakeReviewTrigger; // 错题复习触发器
+  startMistakeReview: (planId: number, words: Word[]) => void; // 开始错题复习
+
+  // 数据管理
+  hierarchy: Language[]; // 书籍层级结构数据
+  learningList: LearningPlan[]; // 学习计划列表
+  isDataLoading: boolean; // 数据加载状态
+  dataError: string | null; // 数据加载错误信息
+  refreshAllData: () => Promise<void>; // 刷新所有核心数据
+  setLearningList: React.Dispatch<React.SetStateAction<LearningPlan[]>>; // 设置学习计划列表
+  setDataError: React.Dispatch<React.SetStateAction<string | null>>; // 设置数据错误信息
 }
 
-// --- 创建上下文 ---
+/**
+ * 创建应用上下文
+ * 初始值为undefined，确保必须在Provider内部使用
+ */
 const AppContext = createContext<IAppContext | undefined>(undefined);
 
-// --- Provider 组件 ---
+/**
+ * 应用上下文提供者组件
+ * 负责管理全局状态并向子组件提供上下文
+ */
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   // --- 用户状态管理 ---
-  const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [isBookDrawerOpen, setIsBookDrawerOpen] = useState<boolean>(false);
-  const isLoggedIn = !!user && !!accessToken;
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null); // 当前用户信息
+  const [accessToken, setAccessToken] = useState<string | null>(null); // 访问令牌
+  const [isBookDrawerOpen, setIsBookDrawerOpen] = useState<boolean>(false); // 书籍抽屉状态
+  const isLoggedIn = !!user && !!accessToken; // 派生登录状态
+  const [isLoading, setIsLoading] = useState(true); // 初始化加载状态
 
-  // --- 学习状态/数据 ---
-  const [currentBookId, setCurrentBookId] = useState<string | null>(null);
+  // --- 学习状态管理 ---
+  const [currentBookId, setCurrentBookId] = useState<string | null>(null); // 当前书籍ID
   const [learningTrigger, setLearningTrigger] =
-    useState<LearningTrigger | null>(null);
-  // [!! 新增 !!] 错题集状态
+    useState<LearningTrigger | null>(null); // 学习触发器
   const [mistakeReviewTrigger, setMistakeReviewTrigger] =
-    useState<MistakeReviewTrigger>(null);
-  const [isLearningSessionActive, setIsLearningSessionActive] = useState(false);
+    useState<MistakeReviewTrigger>(null); // 错题复习触发器
+  const [isLearningSessionActive, setIsLearningSessionActive] = useState(false); // 学习会话激活状态
 
-  // 数据状态
-  const [hierarchy, setHierarchy] = useState<Language[]>([]);
-  const [learningList, setLearningList] = useState<LearningPlan[]>([]);
-  const [isDataLoading, setIsDataLoading] = useState(true);
-  const [dataError, setDataError] = useState<string | null>(null);
+  // --- 数据状态管理 ---
+  const [hierarchy, setHierarchy] = useState<Language[]>([]); // 书籍层级数据
+  const [learningList, setLearningList] = useState<LearningPlan[]>([]); // 学习计划列表
+  const [isDataLoading, setIsDataLoading] = useState(true); // 数据加载状态
+  const [dataError, setDataError] = useState<string | null>(null); // 数据错误信息
 
-  // --- 弹窗状态 ---
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const openLoginModal = () => setIsLoginModalOpen(true);
-  const closeLoginModal = () => setIsLoginModalOpen(false);
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-  const openRegisterModal = () => setIsRegisterModalOpen(true);
-  const closeRegisterModal = () => setIsRegisterModalOpen(false);
+  // --- 弹窗状态管理 ---
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // 登录弹窗状态
+  const openLoginModal = () => setIsLoginModalOpen(true); // 打开登录弹窗
+  const closeLoginModal = () => setIsLoginModalOpen(false); // 关闭登录弹窗
 
-  // [!! 新增 !!] 反馈模态框状态
-  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-  const openFeedbackModal = () => setIsFeedbackModalOpen(true);
-  const closeFeedbackModal = () => setIsFeedbackModalOpen(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false); // 注册弹窗状态
+  const openRegisterModal = () => setIsRegisterModalOpen(true); // 打开注册弹窗
+  const closeRegisterModal = () => setIsRegisterModalOpen(false); // 关闭注册弹窗
+
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false); // 反馈弹窗状态
+  const openFeedbackModal = () => setIsFeedbackModalOpen(true); // 打开反馈弹窗
+  const closeFeedbackModal = () => setIsFeedbackModalOpen(false); // 关闭反馈弹窗
 
   // --- 主题状态管理 ---
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>('system'); // 当前主题
 
-  // --- [新] 刷新用户信息的函数 ---
+  /**
+   * 刷新用户信息
+   * 从服务器获取最新用户数据并更新状态，处理令牌过期情况
+   */
   const refreshUser = useCallback(async () => {
-    console.log('[AppContext] Refreshing user...');
+    console.log('[AppContext] 刷新用户信息...');
     try {
-      // 1. 检查是否存在 token
+      // 获取令牌（优先内存，其次存储）
       let token = accessToken;
       if (!token) {
         token =
@@ -139,58 +173,57 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           localStorage.getItem('accessToken');
       }
       if (!token) {
-        console.warn('[AppContext] No token, skipping user refresh.');
+        console.warn('[AppContext] 无令牌，跳过用户刷新');
         return;
       }
 
-      // 2. 调用 API 获取最新用户信息
+      // 调用API获取最新用户信息
       const updatedUser = await apiFetchProfile();
-
-      // 3. 更新 user 状态
       setUser(updatedUser);
 
-      // 4. 更新存储（保持持久化状态）
+      // 同步更新存储的用户信息
       const storage = localStorage.getItem('accessToken')
         ? localStorage
         : sessionStorage;
       storage.setItem('user', JSON.stringify(updatedUser));
-      console.log('[AppContext] User refresh successful.');
+      console.log('[AppContext] 用户信息刷新成功');
     } catch (error) {
-      console.error('[AppContext] Failed to refresh user:', error);
+      console.error('[AppContext] 用户信息刷新失败:', error);
       toast.error('无法更新用户信息，请尝试重新登录');
-      // 如果刷新失败（例如 token 过期），则登出
-      logout();
+      logout(); // 刷新失败（如令牌过期）则登出
     }
-  }, [accessToken]); // 依赖 logout
+  }, [accessToken]);
 
-  // --- 数据获取函数 ---
+  /**
+   * 刷新所有核心数据
+   * 包括书籍层级和学习计划列表，处理加载状态和错误
+   */
   const refreshAllData = useCallback(async () => {
     setIsDataLoading(true);
     setDataError(null);
-    console.log(
-      `[AppContext] Refreshing data. Token available: ${!!accessToken}`
-    );
+    console.log(`[AppContext] 刷新数据，令牌状态: ${!!accessToken}`);
 
     try {
+      // 并行请求书籍层级和学习计划
       const hierarchyPromise = fetchBookHierarchy();
       const learningPromise = accessToken
         ? fetchLearningList()
         : Promise.resolve([]);
-
       const [hierarchyData, learningData] = await Promise.all([
         hierarchyPromise,
         learningPromise,
       ]);
 
+      // 更新状态
       setHierarchy(hierarchyData as Language[]);
       setLearningList(learningData as LearningPlan[]);
 
+      // 同步当前书籍ID与激活的学习计划
       if (accessToken && learningData.length > 0) {
         const activePlan = (learningData as LearningPlan[]).find(
           (p) => p.isCurrent
         );
-        const activeListCode = activePlan ? activePlan.listCode : null;
-
+        const activeListCode = activePlan?.listCode || null;
         if (currentBookId !== activeListCode) {
           setCurrentBookId(activeListCode);
         }
@@ -198,81 +231,104 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setCurrentBookId(null);
       }
     } catch (err: unknown) {
-      console.error('加载全局数据失败:', err);
-      setDataError((err as Error).message || '无法加载数据，请稍后重试。');
+      console.error('全局数据加载失败:', err);
+      setDataError((err as Error).message || '无法加载数据，请稍后重试');
     } finally {
       setIsDataLoading(false);
     }
   }, [accessToken, currentBookId]);
 
-  // --- 学习动作 ---
+  /**
+   * 加载书籍内容
+   * @param listCode 书籍列表标识
+   * @param action 要执行的学习动作
+   */
   const loadBook = useCallback(
     (listCode: string | null, action: LearningAction) => {
-      console.log('[AppContext] loadBook triggered:', listCode, action);
+      console.log('[AppContext] 加载书籍:', listCode, action);
       setCurrentBookId(listCode);
       setLearningTrigger({ listCode, action });
-      setMistakeReviewTrigger(null); // [!! 新增 !!] 清空错题集触发器
+      setMistakeReviewTrigger(null); // 清除错题复习状态
     },
     []
   );
 
-  // --- 会话控制 ---
+  /**
+   * 开始学习会话
+   * 激活当前选中书籍的学习状态，若无选中书籍则打开书籍抽屉
+   */
   const startLearningSession = useCallback(() => {
     if (currentBookId) {
-      console.log('[AppContext] Starting learning session...');
+      console.log('[AppContext] 开始学习会话');
       setIsLearningSessionActive(true);
       setLearningTrigger({ listCode: currentBookId, action: 'activate' });
-      setMistakeReviewTrigger(null); // [!! 新增 !!] 清空错题集触发器
+      setMistakeReviewTrigger(null); // 清除错题复习状态
     } else {
-      console.warn('[AppContext] Cannot start session: no active book.');
-      setIsBookDrawerOpen(true);
+      console.warn('[AppContext] 无法开始会话：无选中书籍');
+      setIsBookDrawerOpen(true); // 提示用户选择书籍
     }
   }, [currentBookId]);
 
+  /**
+   * 结束学习会话
+   * 重置学习状态并刷新数据
+   */
   const endLearningSession = useCallback(() => {
-    console.log('[AppContext] Ending learning session...');
+    console.log('[AppContext] 结束学习会话');
     setIsLearningSessionActive(false);
-    setMistakeReviewTrigger(null); // [!! 新增 !!] 清空错题集触发器
-    refreshAllData();
+    setMistakeReviewTrigger(null); // 清除错题复习状态
+    refreshAllData(); // 刷新数据以更新进度
   }, [refreshAllData]);
 
-  // [!! 新增 !!] 错题集复习启动函数
+  /**
+   * 开始错题集复习
+   * @param planId 关联的学习计划ID
+   * @param words 待复习的错题列表
+   */
   const startMistakeReview = useCallback(
     (planId: number, words: Word[]) => {
       if (words.length === 0) {
-        toast.error('错题集是空的。');
+        toast.error('错题集为空，无需复习');
         return;
       }
-      console.log(`[AppContext] Starting mistake review for plan ${planId}`);
+      console.log(`[AppContext] 开始错题复习，计划ID: ${planId}`);
 
-      // 1. 设置错题集触发器
+      // 设置错题复习状态
       setMistakeReviewTrigger({ planId, words });
-      // 2. 清空常规学习触发器，避免冲突
-      setLearningTrigger(null);
-      // 3. 激活学习会话
+      setLearningTrigger(null); // 清除常规学习状态
       setIsLearningSessionActive(true);
 
-      // 4. (重要) 确保 currentBookId 与计划匹配
+      // 同步当前书籍ID与计划匹配
       const plan = learningList.find((p) => p.planId === planId);
       if (plan && plan.listCode !== currentBookId) {
         setCurrentBookId(plan.listCode);
-        // 注意：setCurrentBookId 会触发 localStorage 写入 (在 useEffect 中)
       }
     },
-    [learningList, currentBookId] // 依赖 learningList 和 currentBookId
+    [learningList, currentBookId]
   );
 
-  // --- 登录逻辑 ---
+  /**
+   * 处理登录逻辑
+   * @param userData 用户信息
+   * @param tokens 认证令牌
+   * @param rememberMe 是否记住登录状态
+   */
   const login = useCallback(
     (userData: User, tokens: Tokens, rememberMe: boolean) => {
       setUser(userData);
       setAccessToken(tokens.accessToken);
+
+      // 根据rememberMe选择存储方式
       const storage = rememberMe ? localStorage : sessionStorage;
       storage.setItem('user', JSON.stringify(userData));
       storage.setItem('accessToken', tokens.accessToken);
       storage.setItem('refreshToken', tokens.refreshToken);
+
+      // 关闭相关弹窗
       closeLoginModal();
       closeRegisterModal();
+
+      // 恢复之前的书籍选择
       const storedBookId = localStorage.getItem('currentBookId');
       if (storedBookId) {
         setCurrentBookId(storedBookId);
@@ -281,10 +337,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  // --- 登出逻辑 ---
+  /**
+   * 处理登出逻辑
+   * 清除用户信息、令牌和相关状态
+   */
   const logout = useCallback(() => {
     setUser(null);
     setAccessToken(null);
+
+    // 清除所有存储的认证信息
     localStorage.removeItem('user');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -292,80 +353,83 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('refreshToken');
     localStorage.removeItem('currentBookId');
+
+    // 重置学习相关状态
     setCurrentBookId(null);
     setLearningTrigger(null);
-    setMistakeReviewTrigger(null); // [!! 新增 !!]
+    setMistakeReviewTrigger(null);
     setIsLearningSessionActive(false);
     setLearningList([]);
     setDataError(null);
+
+    // 关闭所有弹窗
     closeLoginModal();
     closeRegisterModal();
-    closeFeedbackModal(); // [!! 新增 !!] 登出时关闭
+    closeFeedbackModal();
   }, []);
 
-  // --- [新] OAuth 绑定/登录 回调监听器 ---
+  /**
+   * 监听OAuth认证回调消息
+   * 处理第三方登录/绑定的结果
+   */
   useEffect(() => {
     const handleOAuthMessage = async (event: MessageEvent) => {
-      // 安全校验：检查来源是否是后端 API
+      // 验证消息来源安全性
       if (event.origin !== EXPECTED_OAUTH_ORIGIN) {
-        console.warn('Received message from untrusted origin:', event.origin);
+        console.warn('收到未知来源消息:', event.origin);
         return;
       }
 
       const { data } = event;
-      console.log('[AppContext] Received postMessage:', data);
+      console.log('[AppContext] 收到OAuth消息:', data);
 
-      // 检查是否为 OAuth 成功消息
-      if (data && data.type && data.type.endsWith('-login-success')) {
+      // 处理登录成功消息
+      if (data?.type?.endsWith('-login-success')) {
         const { user, accessToken, refreshToken } = data;
-
         if (user && accessToken && refreshToken) {
-          // 检查这是“登录”还是“绑定”
           if (isLoggedIn) {
-            // 场景：已登录用户，进行“绑定”
-            toast.success(`账号 ${data.type.split('-')[0]} 绑定成功！`);
-            // 刷新用户信息（以获取新的 bindings）
-            await refreshUser();
+            // 已登录状态：处理账号绑定
+            toast.success(`账号 ${data.type.split('-')[0]} 绑定成功`);
+            await refreshUser(); // 刷新用户信息以更新绑定状态
           } else {
-            // 场景：未登录用户，进行“登录”
-            toast.success('登录成功，欢迎回来！');
-            // 触发登录（此处假设 OAuth 登录总是“记住我”）
+            // 未登录状态：处理登录
+            toast.success('登录成功，欢迎回来');
             login(user, { accessToken, refreshToken }, true);
           }
         }
-      } else if (data && data.type && data.type.endsWith('-login-error')) {
+      }
+      // 处理登录错误消息
+      else if (data?.type?.endsWith('-login-error')) {
         toast.error(`登录失败: ${data.error || '未知错误'}`);
       }
     };
 
     window.addEventListener('message', handleOAuthMessage);
-
-    return () => {
-      window.removeEventListener('message', handleOAuthMessage);
-    };
+    return () => window.removeEventListener('message', handleOAuthMessage);
   }, [isLoggedIn, login, refreshUser]);
 
-  // --- 初始化 ---
+  /**
+   * 初始化应用状态
+   * 加载主题设置、用户信息和书籍层级数据
+   */
   useEffect(() => {
     setIsLoading(true);
-    // 读取主题
+
+    // 加载主题设置
     const storedTheme = localStorage.getItem('app-theme') as Theme | null;
     if (storedTheme && ['light', 'dark', 'system'].includes(storedTheme)) {
       setTheme(storedTheme);
     }
 
-    // 1. 加载书籍层级数据（始终加载）
+    // 加载书籍层级数据（无需登录）
     fetchBookHierarchy()
       .then(setHierarchy)
       .catch((err) => {
-        console.error('加载书籍层级失败 (onMount):', err);
-        setDataError(err.message || '无法加载书籍列表。');
-      })
-      .finally(() => {
-        setIsDataLoading(false);
+        console.error('初始化加载书籍层级失败:', err);
+        setDataError(err.message || '无法加载书籍列表');
       });
 
-    // 2. 加载用户数据
+    // 加载用户信息（如有存储）
     let storedUser = sessionStorage.getItem('user');
     let storedToken = sessionStorage.getItem('accessToken');
     if (!storedUser || !storedToken) {
@@ -377,34 +441,41 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       try {
         setUser(JSON.parse(storedUser));
         setAccessToken(storedToken);
+        // 恢复之前的书籍选择
         const storedBookId = localStorage.getItem('currentBookId');
         if (storedBookId) {
           setCurrentBookId(storedBookId);
         }
       } catch (e) {
+        console.error('解析存储的用户数据失败，执行登出', e);
         logout();
       }
     } else {
-      setIsLoading(false); // 没有 token，停止加载
+      setIsLoading(false); // 无用户数据，结束加载
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- 登录/登出时加载"在学"数据 ---
+  /**
+   * 令牌变化时刷新数据
+   * 登录/令牌更新时加载学习计划和用户信息
+   */
   useEffect(() => {
     if (accessToken) {
-      console.log('[AppContext] AccessToken 变化，正在加载在学列表...');
+      console.log('[AppContext] 令牌变化，加载学习数据...');
       setIsDataLoading(true);
-      // [修改] 在 accessToken 变化时，同时刷新学习列表和用户信息
+
+      // 并行加载学习计划和用户信息
       Promise.all([fetchLearningList(), apiFetchProfile()])
         .then(([learningData, profileData]) => {
-          // 更新学习列表
+          // 更新学习计划
           setLearningList(learningData);
           const activePlan = learningData.find((p) => p.isCurrent);
-          const activeListCode = activePlan ? activePlan.listCode : null;
+          const activeListCode = activePlan?.listCode || null;
           if (currentBookId !== activeListCode) {
             setCurrentBookId(activeListCode);
           }
+
           // 更新用户信息
           setUser(profileData);
           const storage = localStorage.getItem('accessToken')
@@ -413,38 +484,49 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           storage.setItem('user', JSON.stringify(profileData));
         })
         .catch((err) => {
-          console.error('加载在学列表或用户信息失败:', err);
-          setDataError(err.message || '无法加载数据。');
-          if (err.message.includes('401') || err.message.includes('403')) {
-            logout(); // Token 无效，登出
+          console.error('加载学习数据或用户信息失败:', err);
+          setDataError(err.message || '无法加载数据');
+          // 令牌无效时登出
+          if (err.message?.includes('401') || err.message?.includes('403')) {
+            logout();
           }
         })
         .finally(() => {
           setIsDataLoading(false);
-          setIsLoading(false); // [新] 结束顶层加载
+          setIsLoading(false); // 结束初始化加载
         });
     } else {
+      // 无令牌时清空学习数据
       setLearningList([]);
       setCurrentBookId(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
-  // --- 主题变化同步 ---
+  /**
+   * 主题变化时同步到DOM
+   * 更新文档根元素的data-theme属性
+   */
   useEffect(() => {
     localStorage.setItem('app-theme', theme);
     const root = window.document.documentElement;
+
     if (theme === 'system') {
+      // 跟随系统主题
       const systemPrefersDark = window.matchMedia(
         '(prefers-color-scheme: dark)'
       ).matches;
       root.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
     } else {
+      // 使用指定主题
       root.setAttribute('data-theme', theme);
     }
   }, [theme]);
 
-  // --- 当前书籍变化同步 ---
+  /**
+   * 当前书籍变化时同步到本地存储
+   * 确保刷新后保持选中状态
+   */
   useEffect(() => {
     if (currentBookId) {
       localStorage.setItem('currentBookId', currentBookId);
@@ -454,9 +536,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [currentBookId]);
 
-  // --- 上下文值 ---
-  const contextValue = useMemo(
+  /**
+   * 构建上下文值
+   * 使用useMemo避免不必要的重渲染
+   */
+  const contextValue = useMemo<IAppContext>(
     () => ({
+      // 认证相关
       user,
       isLoggedIn,
       accessToken,
@@ -464,8 +550,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       logout,
       refreshUser,
       isLoading,
-      theme,
-      setTheme,
+
+      // 弹窗状态
       isLoginModalOpen,
       openLoginModal,
       closeLoginModal,
@@ -474,11 +560,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       closeRegisterModal,
       isBookDrawerOpen,
       setIsBookDrawerOpen,
-      // [!! 新增 !!]
       isFeedbackModalOpen,
       openFeedbackModal,
       closeFeedbackModal,
-      //
+
+      // 主题设置
+      theme,
+      setTheme,
+
+      // 学习状态
       currentBookId,
       setCurrentBookId,
       learningTrigger,
@@ -486,10 +576,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       isLearningSessionActive,
       startLearningSession,
       endLearningSession,
-      // [!! 新增 !!]
       mistakeReviewTrigger,
       startMistakeReview,
-      //
+
+      // 数据管理
       hierarchy,
       learningList,
       isDataLoading,
@@ -506,23 +596,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       logout,
       refreshUser,
       isLoading,
-      theme,
       isLoginModalOpen,
       isRegisterModalOpen,
       isBookDrawerOpen,
-      // [!! 新增 !!]
       isFeedbackModalOpen,
-      //
+      theme,
       currentBookId,
       learningTrigger,
       loadBook,
       isLearningSessionActive,
       startLearningSession,
       endLearningSession,
-      // [!! 新增 !!]
       mistakeReviewTrigger,
       startMistakeReview,
-      //
       hierarchy,
       learningList,
       isDataLoading,
@@ -536,7 +622,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// --- 自定义Hook ---
+/**
+ * 自定义Hook：获取应用上下文
+ * 确保在Provider内部使用，否则抛出错误
+ */
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (context === undefined) {

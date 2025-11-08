@@ -1,15 +1,15 @@
-/* eslint-disable @next/next/no-img-element */
+/*
+ * @Date: 2025-11-01 10:40:35
+ * @LastEditTime: 2025-11-08 22:19:13
+ * @Description: 注册弹窗组件
+ * 提供用户注册功能，支持邮箱/手机号+验证码+密码的注册流程
+ * 包含表单验证、验证码发送、注册提交及第三方登录集成
+ */
 'use client';
 
-// --- 1. Imports ---
-
-// React Core
 import React, { useState, useMemo, useEffect } from 'react';
-// 全局应用上下文
 import { useAppContext } from '@/contexts/app.context';
-// 国际化
 import { useTranslations } from 'next-intl';
-// UI & 通知
 import toast from 'react-hot-toast';
 import {
   X,
@@ -21,27 +21,15 @@ import {
   AlertCircle,
   Key,
 } from 'lucide-react';
-import { ApiError } from '@/utils/error.utils';
 
-// [!! 关键修改 1: 拆分 Imports !!]
-// 从 authService 导入 API 函数
-import {
-  apiRegister,
-  apiSendCode,
-  getInitialCountdown,
-  COUNTDOWN_TIMESTAMP_KEY,
-  COUNTDOWN_SECONDS,
-} from '@/services/authService';
-// 从 authSchema 导入 Zod Schemas
+// 业务依赖
+import { apiRegister } from '@/services/authService';
 import { registerSchema, emailPhoneSchema } from '@/schema/authSchema';
-// [!! 修改结束 !!]
-
-// 自定义 Hooks
-import { useOAuth } from '@/hooks/useOAuth'; // 处理第三方登录逻辑
-// 子组件
+import { useAuthForm } from '@/hooks/useAuthForm';
+import { useOAuth } from '@/hooks/useOAuth';
 import ThirdPartyLogins from './ThirdPartyLogins';
 
-// --- 2. Types ---
+// 表单错误类型定义
 type FormErrors = {
   emailOrPhone?: string[];
   password?: string[];
@@ -50,89 +38,72 @@ type FormErrors = {
   agreePolicy?: string[];
 };
 
-// --- 3. Component Definition ---
-
 const RegisterModal: React.FC = () => {
-  // --- 4. Hooks & Context ---
+  // 全局状态
   const { isRegisterModalOpen, closeRegisterModal, openLoginModal, login } =
     useAppContext();
 
+  // 国际化翻译
   const t = useTranslations('LoginModal');
   const t_reg = useTranslations('RegisterModal');
   const t_err = useTranslations('Errors');
 
-  // 表单字段状态
+  // 表单状态
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [code, setCode] = useState('');
   const [agreePolicy, setAgreePolicy] = useState(false);
 
-  // 认证表单逻辑 (从 useAuthForm 移入)
+  // 错误与状态管理
   const [errors, setErrors] = useState<FormErrors>({});
   const [isShaking, setIsShaking] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [countdown, setCountdown] = useState(getInitialCountdown());
 
-  // OAuth Hook
+  // 认证表单共享逻辑
+  const {
+    isLoading,
+    setIsLoading,
+    apiError,
+    countdown,
+    handleGetCode,
+    translateAndSetApiError,
+    clearErrors,
+  } = useAuthForm();
+
+  // 第三方登录逻辑
   const { handleOAuthClick } = useOAuth({
     login,
     closeModal: closeRegisterModal,
     setIsLoading,
-    translateAndSetApiError: (error: unknown) => {
-      let msg = t_err('unknownError');
-      if (error instanceof ApiError) {
-        msg = t_err(`e${error.code}`, { defaultValue: msg });
-      } else if (error instanceof Error) {
-        if (error.message.includes('Invalid state')) {
-          msg = t_err('e2006');
-        } else {
-          msg = t_err('e2007');
-        }
-      } else if (typeof error === 'string') {
-        msg = t_err(error, { defaultValue: error });
-      }
-      setApiError(msg);
-    },
+    translateAndSetApiError,
   });
 
-  // --- 5. Memoization ---
-  // [!! 关键修改 2: 修复 !!]
+  // 邮箱/手机号验证缓存
   const isEmailPhoneValid = useMemo(
     () => emailPhoneSchema.safeParse(emailOrPhone).success,
     [emailOrPhone]
   );
 
-  // --- 6. Effects ---
-  // 倒计时
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
-
-  // 重置
+  // 弹窗打开时重置表单
   useEffect(() => {
     if (isRegisterModalOpen) {
-      setTimeout(() => {
+      const resetForm = () => {
         setEmailOrPhone('');
         setPassword('');
         setConfirmPassword('');
         setCode('');
         setAgreePolicy(false);
         setErrors({});
-        setApiError(null);
+        clearErrors();
         setIsShaking(false);
-        setCountdown(getInitialCountdown());
-      }, 100);
+      };
+      // 延迟重置避免动画冲突
+      const timer = setTimeout(resetForm, 100);
+      return () => clearTimeout(timer); // 清除定时器防止内存泄漏
     }
-  }, [isRegisterModalOpen]);
+  }, [isRegisterModalOpen, clearErrors]);
 
-  // ESC 键
+  // ESC键关闭弹窗
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -147,45 +118,32 @@ const RegisterModal: React.FC = () => {
     };
   }, [isRegisterModalOpen, closeRegisterModal]);
 
-  // --- 7. Render Guard ---
+  // 弹窗未打开时不渲染
   if (!isRegisterModalOpen) {
     return null;
   }
 
-  // --- 8. Event Handlers ---
+  // 阻止事件冒泡
   const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
-  // 获取验证码
+  // 发送验证码
   const handleGetCodeClick = async () => {
     setErrors({});
-    setApiError(null);
-    const emailValidation = emailPhoneSchema.safeParse(emailOrPhone);
-    if (!emailValidation.success) {
-      setErrors((prev) => ({
-        ...prev,
-        emailOrPhone: emailValidation.error.issues.map((i) => t_err(i.message)),
-      }));
+    clearErrors();
+
+    const validation = emailPhoneSchema.safeParse(emailOrPhone);
+    if (!validation.success) {
+      setErrors({
+        emailOrPhone: validation.error.issues.map((i) => t_err(i.message)),
+      });
       return;
     }
 
-    setIsLoading(true);
-    try {
-      await apiSendCode(emailOrPhone);
+    const errorMsg = await handleGetCode(emailOrPhone);
+    if (errorMsg === null) {
       toast.success(t_err('sendCodeSuccess'));
-      setCountdown(COUNTDOWN_SECONDS);
-      localStorage.setItem(COUNTDOWN_TIMESTAMP_KEY, Date.now().toString());
-    } catch (error) {
-      console.error('Send code failed:', error);
-      if (error instanceof ApiError) {
-        const message = t_err(`e${error.code}`, {
-          defaultValue: t_err('unknownError'),
-        });
-        toast.error(message);
-      } else {
-        toast.error(t_err('unknownError'));
-      }
-    } finally {
-      setIsLoading(false);
+    } else {
+      toast.error(errorMsg);
     }
   };
 
@@ -199,9 +157,9 @@ const RegisterModal: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    setApiError(null);
+    clearErrors();
 
-    // 2. 客户端 Zod 校验
+    // 表单验证
     const formData = {
       emailOrPhone,
       password,
@@ -211,59 +169,39 @@ const RegisterModal: React.FC = () => {
     };
     const validation = registerSchema.safeParse(formData);
 
-    // 3. 客户端校验失败
     if (!validation.success) {
       const fieldErrors: FormErrors = {};
-      for (const issue of validation.error.issues) {
+      validation.error.issues.forEach((issue) => {
         const path = issue.path[0] as keyof FormErrors;
-        if (!fieldErrors[path]) {
-          fieldErrors[path] = [];
-        }
+        if (!fieldErrors[path]) fieldErrors[path] = [];
         fieldErrors[path].push(t_err(issue.message));
-      }
+      });
       setErrors(fieldErrors);
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
       return;
     }
 
-    // 4. 客户端校验成功
+    // 提交注册
     setIsLoading(true);
-    const payload = {
-      emailOrPhone: validation.data.emailOrPhone,
-      password: validation.data.password,
-      code: validation.data.code,
-    };
-
-    // 5. 执行 API 调用
     try {
-      await apiRegister(payload);
-      // 6. API 成功
+      await apiRegister({
+        emailOrPhone: validation.data.emailOrPhone,
+        password: validation.data.password,
+        code: validation.data.code,
+      });
       toast.success(t_reg('registerSuccess'));
-      setTimeout(() => {
-        switchToLogin();
-      }, 1000);
+      setTimeout(switchToLogin, 1000);
     } catch (error) {
-      // 7. API 失败
-      console.error('Registration failed:', error);
-      if (error instanceof ApiError) {
-        const message = t_err(`e${error.code}`, {
-          defaultValue: t_err('unknownError'),
-        });
-        setApiError(message);
-      } else {
-        setApiError(t_err('unknownError'));
-      }
+      translateAndSetApiError(error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- 9. JSX Render ---
   return (
-    // ... (其余 JSX 代码与您提供的文件 100% 相同) ...
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={closeRegisterModal}
       aria-modal="true"
       role="dialog"
@@ -275,8 +213,7 @@ const RegisterModal: React.FC = () => {
         {/* 关闭按钮 */}
         <button
           onClick={closeRegisterModal}
-          className="absolute top-4 right-4 rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-          aria-label={t_reg('title')}
+          className="absolute top-4 right-4 rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
         >
           <X className="h-5 w-5" />
         </button>
@@ -300,12 +237,11 @@ const RegisterModal: React.FC = () => {
                 disabled={isLoading}
                 className={`w-full rounded-md border py-3 pl-10 pr-4 text-gray-900 focus:outline-none dark:bg-gray-800 dark:text-white ${
                   errors.emailOrPhone
-                    ? 'border-red-500 focus:ring-red-500' // 错误样式
-                    : 'border-gray-300 focus:border-gray-500 focus:ring-gray-500 dark:border-gray-700' // 默认样式
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:border-gray-500 focus:ring-gray-500 dark:border-gray-700'
                 }`}
               />
             </div>
-            {/* 行内错误提示 */}
             {errors.emailOrPhone && (
               <p className="mt-1 text-xs text-red-500">
                 {errors.emailOrPhone[0]}
@@ -330,13 +266,12 @@ const RegisterModal: React.FC = () => {
                 }`}
               />
             </div>
-            {/* 行内错误提示 */}
             {errors.password && (
               <p className="mt-1 text-xs text-red-500">{errors.password[0]}</p>
             )}
           </div>
 
-          {/* 重复密码 */}
+          {/* 确认密码 */}
           <div>
             <div className="relative">
               <Key className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -353,7 +288,6 @@ const RegisterModal: React.FC = () => {
                 }`}
               />
             </div>
-            {/* 行内错误提示 */}
             {errors.confirmPassword && (
               <p className="mt-1 text-xs text-red-500">
                 {errors.confirmPassword[0]}
@@ -377,19 +311,17 @@ const RegisterModal: React.FC = () => {
                     : 'border-gray-300 focus:border-gray-500 focus:ring-gray-500 dark:border-gray-700'
                 }`}
               />
-              {/* 获取验证码按钮，带倒计时 */}
               <button
                 type="button"
                 onClick={handleGetCodeClick}
                 disabled={!isEmailPhoneValid || isLoading || countdown > 0}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-3 py-1 text-sm text-gray-600 transition-opacity hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent dark:text-gray-300 dark:hover:bg-gray-700 dark:disabled:text-gray-600 dark:disabled:hover:bg-transparent"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-3 py-1 text-sm text-gray-600 transition-opacity hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 {countdown > 0
                   ? t('resendCode', { seconds: countdown })
                   : t('getCode')}
               </button>
             </div>
-            {/* 行内错误提示 */}
             {errors.code && (
               <p className="mt-1 text-xs text-red-500">{errors.code[0]}</p>
             )}
@@ -403,18 +335,17 @@ const RegisterModal: React.FC = () => {
               disabled={isLoading}
               className="flex items-center space-x-1.5 text-sm text-gray-600 dark:text-gray-300"
             >
-              {/* 复选框图标 */}
               {agreePolicy ? (
                 <CheckSquare className="h-4 w-4 text-gray-900 dark:text-white" />
               ) : (
                 <Square className="h-4 w-4 text-gray-400" />
               )}
-              {/* 协议文本 */}
               <span>
                 {t('agreePolicyPrefix')}
                 <a
                   href="/terms"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="underline hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   {t('terms')}
@@ -423,13 +354,13 @@ const RegisterModal: React.FC = () => {
                 <a
                   href="/privacy"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="underline hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   {t('privacy')}
                 </a>
               </span>
             </button>
-            {/* 协议的行内错误提示 */}
             {errors.agreePolicy && (
               <p className="mt-2 text-xs text-red-500">
                 {errors.agreePolicy[0]}
@@ -437,25 +368,22 @@ const RegisterModal: React.FC = () => {
             )}
           </div>
 
-          {/* API 错误提示槽 */}
-          <div className="flex items-center justify-center space-x-2 text-sm text-red-500 h-5">
-            {apiError && (
-              <>
-                <AlertCircle className="h-4 w-4" />
-                <span>{apiError}</span>
-              </>
-            )}
-          </div>
+          {/* 接口错误提示 */}
+          {apiError && (
+            <div className="flex items-center justify-center space-x-2 text-sm text-red-500">
+              <AlertCircle className="h-4 w-4" />
+              <span>{apiError}</span>
+            </div>
+          )}
 
           {/* 注册按钮 */}
           <button
             type="submit"
             disabled={isLoading}
             className={`flex w-full items-center justify-center rounded-lg bg-gray-900 py-3 font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-70 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-300 ${
-              isShaking ? 'animate-shake' : '' // 震动效果
+              isShaking ? 'animate-shake' : ''
             }`}
           >
-            {/* 加载中图标 */}
             {isLoading && (
               <svg
                 className="mr-2 h-5 w-5 animate-spin"
@@ -481,7 +409,7 @@ const RegisterModal: React.FC = () => {
           </button>
         </form>
 
-        {/* 第三方登录组件 */}
+        {/* 第三方登录 */}
         <ThirdPartyLogins
           handleOAuthClick={handleOAuthClick}
           isLoading={isLoading}
@@ -489,7 +417,7 @@ const RegisterModal: React.FC = () => {
 
         {/* 切换到登录 */}
         <div>
-          <p className="pt-1 text-center text-sm text-gray-500">
+          <p className="pt-1 text-center text-sm text-gray-500 dark:text-gray-400">
             {t_reg('alreadyHaveAccount')}{' '}
             <button
               onClick={switchToLogin}

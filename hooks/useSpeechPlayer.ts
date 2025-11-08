@@ -1,8 +1,8 @@
-'use client';
 /*
  * @Date: 2025-10-27 07:33:45
  * @Description: 统一的语音播放 Hook
  */
+'use client';
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useSpelling } from '@/contexts/spelling.context';

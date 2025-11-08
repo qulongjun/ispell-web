@@ -1,9 +1,9 @@
-'use client';
 /*
  * @Date: 2025-10-26 10:02:44
- * @LastEditTime: 2025-11-07 22:12:27
- * @Description: 单词拼写显示区域 (增加 i18n 未登录提示)
+ * @LastEditTime: 2025-11-08 23:23:49
+ * @Description: 单词拼写显示区域
  */
+'use client';
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import DefinitionDisplay from '@/components/common/DefinitionDisplay';
@@ -18,14 +18,12 @@ import {
   getVowelIndices,
 } from '@/utils/word.utils';
 import { SpeechOptions } from '@/utils/speech.utils';
-import { AccentType, Word } from '@/types/word.types';
+import { AccentType } from '@/types/word.types';
 import SentenceDisplay from '@/components/common/SentenceDisplay';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info } from 'lucide-react';
-// [!! 新增 !!] 导入 i18n 钩子
 import { useTranslations } from 'next-intl';
 
-// ... (isInputtableChar 和 isSkippableChar 函数保持不变) ...
 const isInputtableChar = (char: string): boolean => {
   return /[a-zA-Z']/.test(char); // 字母 和 撇号
 };
@@ -50,15 +48,15 @@ export default function WordDisplay() {
   } = useSpelling();
 
   const { isLoggedIn } = useAppContext();
-  // [!! 新增 !!] 初始化 i18n
   const t = useTranslations('WordDisplay');
 
   const { speak, isPlaying } = useSpeechPlayer();
 
-  // ... (sfx 音效和 playSound 函数保持不变) ...
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const successSfx =
     typeof window !== 'undefined' ? new Audio('/sfx/success.mp3') : null;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const errorSfx =
     typeof window !== 'undefined' ? new Audio('/sfx/failed.wav') : null;
 
@@ -70,7 +68,6 @@ export default function WordDisplay() {
     }
   };
 
-  // ... (状态、引用、findNextInputtablePosition, resetInputState, hiddenIndices... 均保持不变) ...
   const [userInput, setUserInput] = useState<string[]>([]);
   const [currentPosition, setCurrentPosition] = useState<number>(0);
   const [isError, setIsError] = useState<boolean>(false);
@@ -106,6 +103,7 @@ export default function WordDisplay() {
     [incrementInputCount]
   );
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const hiddenIndices = useMemo(() => {
     if (!currentWord?.text) return [];
     switch (displayMode) {
@@ -122,7 +120,6 @@ export default function WordDisplay() {
     }
   }, [currentWord?.text, displayMode]);
 
-  // ... (各种播放函数 playNewWordPronunciation, playCurrentWord... 保持不变) ...
   const playNewWordPronunciation = useCallback(() => {
     if (!speechSupported || !currentWord?.text) return;
     const configToPlay: SpeechOptions = {
@@ -149,7 +146,6 @@ export default function WordDisplay() {
     speak(configToPlay);
   }, [currentWord, isPlaying, speechConfig, speechSupported, speak]);
 
-  // ... (拼写逻辑函数 handleSuccess, handleFailure... 保持不变) ...
   const handleSuccess = useCallback(async () => {
     playSound(successSfx);
     setIsComplete(true);
@@ -190,7 +186,6 @@ export default function WordDisplay() {
     findNextInputtablePosition,
   ]);
 
-  // ... (键盘输入监听 handleInputKeyPress... 保持不变) ...
   const handleInputKeyPress = useCallback(
     (e: KeyboardEvent) => {
       if (
@@ -276,7 +271,6 @@ export default function WordDisplay() {
     return () => window.removeEventListener('keydown', keyPressHandler);
   }, [handleInputKeyPress]);
 
-  // ... (渲染逻辑 renderWord... 保持不变) ...
   const renderWord = (word: string) => {
     if (!word) return null;
     const chars = word.split('');
@@ -339,7 +333,6 @@ export default function WordDisplay() {
     );
   };
 
-  // ... (播放逻辑 playWordPronunciation, handlePlaySelectedPronunciation... 保持不变) ...
   const playWordPronunciation = (type: 'uk' | 'us' | null = null) => {
     if (
       !speechSupported ||
@@ -396,12 +389,10 @@ export default function WordDisplay() {
       className="w-full flex flex-col items-center justify-center relative"
       style={{ minHeight: '300px' }}
     >
-      {/* (单词显示区域... 保持不变) */}
       <div className="mb-6 min-h-[80px] w-full px-4 flex items-center justify-center">
         {renderWord(currentWord?.text || '')}
       </div>
 
-      {/* (发音显示区域... 保持不变) */}
       <PronunciationDisplay
         pronunciation={currentWord?.pronunciation}
         onPlay={handlePlaySelectedPronunciation}
@@ -409,12 +400,9 @@ export default function WordDisplay() {
         speechSupported={!!speechSupported}
       />
 
-      {/* (释义显示区域... G保持不变) */}
       <DefinitionDisplay definitions={currentWord?.definitions} />
 
-      {/* [!! 核心修改 !!] */}
       {isLoggedIn ? (
-        // --- 1. 已登录：显示例句 (基于 showSentences) ---
         <>
           <AnimatePresence>
             {showSentences &&
@@ -440,20 +428,16 @@ export default function WordDisplay() {
               )}
           </AnimatePresence>
 
-          {/* (保留原有的“隐藏时占位”逻辑) */}
           {!showSentences &&
             currentWord?.examples?.general &&
             currentWord.examples.general.length > 0 && <div className="h-10" />}
         </>
       ) : (
-        // --- 2. 未登录：显示 i18n 登录提示 ---
         <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400 px-4 text-center py-2">
           <Info className="w-4 h-4 flex-shrink-0" />
-          {/* [!! 修改 !!] 使用 t() 函数 */}
           <span>{t('loginPrompt')}</span>
         </div>
       )}
-      {/* [!! 修改结束 !!] */}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-10-25 23:51:47
- * @LastEditTime: 2025-11-01 17:16:01
- * @Description:
+ * @LastEditTime: 2025-11-08 23:53:51
+ * @Description: tailwind config
  */
 import type { Config } from 'tailwindcss';
 import defaultTheme from 'tailwindcss/defaultTheme';

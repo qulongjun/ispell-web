@@ -1,20 +1,17 @@
 /*
  * @Date: 2025-11-04
- * @LastEditTime: 2025-11-07 09:19:04
- * @Description: 错题集模态框组件 (已修复语法错误并添加底部提示栏)
- * 功能：显示计划的错题列表，支持复习、移除单个、清空全部
+ * @LastEditTime: 2025-11-08 22:40:41
+ * @Description: 错题集模态框组件
  */
 'use client';
 
-// [!!] 确保所有 React 钩子都已导入
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// [!!] 确保所有图标都已导入
 import { X, Loader2, Trash2, ArchiveX, Play, PartyPopper } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 
-// [!!] 路径假设 (请根据您的项目结构核对)
+// 服务与类型
 import {
   getMistakes,
   removeMistake,
@@ -22,19 +19,33 @@ import {
   MistakeEntry,
 } from '../../services/planService';
 import { useAppContext } from '../../contexts/app.context';
-import DefinitionDisplay from '../common/DefinitionDisplay';
-import ConfirmationModal from '../common/ConfirmationModal';
 import type { Definition } from '../../types/word.types';
 
-// Props 接口 (不变)
+// 子组件
+import DefinitionDisplay from '../common/DefinitionDisplay';
+import ConfirmationModal from '../common/ConfirmationModal';
+
+/**
+ * 错题集模态框属性类型
+ */
 interface MistakeModalProps {
+  /** 模态框是否打开 */
   isOpen: boolean;
+  /** 学习计划ID（用于获取对应错题） */
   planId: number | undefined;
+  /** 书籍名称（用于标题显示） */
   bookName: string | undefined;
+  /** 关闭模态框的回调函数 */
   onClose: () => void;
+  /** 开始错题复习的回调函数 */
   onStartReview: (planId: number) => void;
 }
 
+/**
+ * 错题集模态框组件
+ * 展示用户在指定学习计划中积累的错题，提供复习、删除单个错题和清空所有错题的功能
+ * 包含完整的状态管理和用户反馈机制
+ */
 const MistakeModal: React.FC<MistakeModalProps> = ({
   isOpen,
   planId,
@@ -42,29 +53,45 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
   onClose,
   onStartReview,
 }) => {
+  // 国际化翻译
   const t = useTranslations('BookSelection.MistakeModal');
+  
+  // 全局状态
   const { accessToken } = useAppContext();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [mistakes, setMistakes] = useState<MistakeEntry[]>([]);
-  const [isClearing, setIsClearing] = useState<'single' | 'all' | null>(null);
-  const [confirmClearAll, setConfirmClearAll] = useState(false);
 
-  // 获取数据 (逻辑不变)
+  // 状态管理
+  const [isLoading, setIsLoading] = useState(false); // 数据加载状态
+  const [error, setError] = useState<string | null>(null); // 错误信息
+  const [mistakes, setMistakes] = useState<MistakeEntry[]>([]); // 错题列表数据
+  const [isClearing, setIsClearing] = useState<'single' | 'all' | null>(null); // 清除操作状态
+  const [confirmClearAll, setConfirmClearAll] = useState(false); // 清空全部确认弹窗状态
+
+  /**
+   * 获取错题列表数据
+   * 当模态框打开、计划ID或访问令牌变化时触发，处理加载状态和错误捕获
+   */
   const fetchMistakes = useCallback(async () => {
     if (!isOpen || !planId || !accessToken) return;
+    
+    // 开始加载
     setIsLoading(true);
     setError(null);
+    
     try {
       const data = await getMistakes(planId);
       setMistakes(data);
     } catch (err) {
+      console.error('获取错题列表失败:', err);
       setError(t('error'));
+    } finally {
+      // 结束加载
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, [isOpen, planId, accessToken, t]);
 
-  // Effect (逻辑不变)
+  /**
+   * 监听模态框状态和依赖变化，触发数据加载
+   */
   useEffect(() => {
     if (isOpen) {
       fetchMistakes();
@@ -72,38 +99,52 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, planId, accessToken]);
 
-  // 处理：移除单个错题 (逻辑不变)
+  /**
+   * 移除单个错题
+   * 调用接口删除指定错题，更新本地列表并反馈结果
+   */
   const handleRemove = async (wordId: number) => {
     if (!planId) return;
+    
     setIsClearing('single');
     try {
       await removeMistake(planId, wordId);
+      // 本地更新：过滤掉已删除的错题
       setMistakes((prev) => prev.filter((m) => m.word.id !== wordId));
       toast.success(t('removeSuccess'));
     } catch (err) {
+      console.error('移除单个错题失败:', err);
       toast.error(t('removeError'));
+    } finally {
+      setIsClearing(null);
     }
-    setIsClearing(null);
   };
 
-  // [!! 关键修复 !!]
-  // 修正了 `catch (err)` 后面丢失的 `{}` 语法错误
+  /**
+   * 清空所有错题
+   * 调用接口删除该计划下所有错题，清空本地列表并反馈结果
+   */
   const handleClearAll = async () => {
     if (!planId) return;
+    
     setIsClearing('all');
     try {
       await clearMistakes(planId);
       setMistakes([]);
       toast.success(t('clearAllSuccess'));
     } catch (err) {
-      // <--- 此处添加了 {
+      console.error('清空所有错题失败:', err);
       toast.error(t('clearAllError'));
-    } // <--- 此处添加了 }
-    setIsClearing(null);
-    setConfirmClearAll(false);
+    } finally {
+      setIsClearing(null);
+      setConfirmClearAll(false);
+    }
   };
 
-  // 处理：开始复习 (逻辑不变)
+  /**
+   * 开始错题复习
+   * 检查错题列表是否为空，非空则调用复习回调
+   */
   const handleReview = () => {
     if (!planId) return;
     if (mistakes.length === 0) {
@@ -117,7 +158,7 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* 遮罩层 (z-50) */}
+          {/* 背景遮罩：半透明黑色，点击关闭模态框 */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -128,7 +169,7 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
             aria-hidden="true"
           />
 
-          {/* 弹窗面板 (z-[51]) */}
+          {/* 模态框主体：包含头部、内容区和底部操作栏 */}
           <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -137,14 +178,18 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
             className="fixed inset-0 m-auto w-11/12 md:w-2/3 lg:w-1/2 max-w-2xl h-[80vh] bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-[51] flex flex-col"
             role="dialog"
             aria-modal="true"
+            aria-labelledby="mistake-modal-title"
           >
-            {/* 头部 (无问号) */}
+            {/* 头部：标题和关闭按钮 */}
             <div className="flex items-center justify-between p-4 pl-5 shrink-0 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
                 <div className="p-1.5 bg-red-100 dark:bg-red-900/50 rounded-full">
                   <ArchiveX className="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2
+                  id="mistake-modal-title"
+                  className="text-lg font-semibold text-gray-900 dark:text-white"
+                >
                   {t('title', { bookName: bookName || '...' })}
                 </h2>
               </div>
@@ -157,19 +202,24 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
               </button>
             </div>
 
-            {/* 内容区 (不变) */}
+            {/* 内容区：显示加载状态、错误信息或错题列表 */}
             <div className="flex-1 p-4 overflow-y-auto">
+              {/* 加载状态 */}
               {isLoading && (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
                   <span className="ml-2 text-gray-500">{t('loading')}</span>
                 </div>
               )}
+
+              {/* 错误状态 */}
               {error && (
-                <div className="flex items-center justify-center h-full text-red-600">
+                <div className="flex items-center justify-center h-full text-red-600 dark:text-red-400">
                   {error}
                 </div>
               )}
+
+              {/* 错题列表（加载完成且无错误） */}
               {!isLoading && !error && (
                 <>
                   {mistakes.length > 0 ? (
@@ -191,9 +241,7 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
                               </span>
                             </div>
                             <DefinitionDisplay
-                              definitions={
-                                mistake.word.definitions as Definition[]
-                              }
+                              definitions={mistake.word.definitions as Definition[]}
                               mode="single-line"
                               className="text-sm text-gray-500 dark:text-gray-400 mt-1"
                             />
@@ -210,6 +258,7 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
                       ))}
                     </ul>
                   ) : (
+                    // 空状态：无错题时显示
                     <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
                       <PartyPopper className="w-16 h-16 stroke-1 text-gray-300 dark:text-gray-600" />
                       <p className="mt-4 text-center">{t('empty')}</p>
@@ -219,17 +268,18 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
               )}
             </div>
 
-            {/* 底部操作栏 (带提示) */}
+            {/* 底部操作栏：包含提示信息和功能按钮 */}
             <div className="p-4 shrink-0 border-t border-gray-200 dark:border-gray-700">
-              {/* 提示栏 (小 bar + 小字) */}
+              {/* 学习提示栏 */}
               <div className="pb-3 mb-3 border-b border-gray-200 dark:border-gray-600">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {t('strategyHint')}
                 </p>
               </div>
 
-              {/* 按钮行 */}
+              {/* 操作按钮组 */}
               <div className="flex justify-between items-center">
+                {/* 清空全部按钮 */}
                 <button
                   onClick={() => setConfirmClearAll(true)}
                   disabled={mistakes.length === 0 || isClearing === 'all'}
@@ -242,6 +292,8 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
                   )}
                   <span>{t('clearAll')}</span>
                 </button>
+
+                {/* 开始复习按钮 */}
                 <button
                   onClick={handleReview}
                   disabled={mistakes.length === 0 || isLoading}
@@ -254,7 +306,7 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
             </div>
           </motion.div>
 
-          {/* 清空确认弹窗 (不变) */}
+          {/* 清空全部确认弹窗 */}
           <ConfirmationModal
             isOpen={confirmClearAll}
             title={t('clearAllConfirmTitle')}

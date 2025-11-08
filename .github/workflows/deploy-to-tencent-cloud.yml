@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build project (服务端渲染，生成.next目录)
+      - name: Build project
         run: npm run build
 
       - name: Deploy to Tencent Cloud
@@ -34,7 +34,5 @@ jobs:
           REMOTE_DIR: ${{ secrets.REMOTE_DIR_DEVOPS }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y sshpass
-          
-          # 上传服务端渲染所需文件（.next目录、依赖配置）
+          sudo apt-get install -y sshpass          
           sshpass -p "$SERVER_PASSWORD" scp -o StrictHostKeyChecking=no -r -P "$SERVER_PORT" .next package.json package-lock.json public "$SERVER_USER@$SERVER_IP:$REMOTE_DIR"

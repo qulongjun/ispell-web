@@ -1,26 +1,26 @@
-'use client';
-/**
- * 认证相关模态框容器组件
- * 作用：集中管理登录弹窗(LoginModal)和注册弹窗(RegisterModal)，
- * 统一在应用中挂载这两个模态框，避免分散渲染，简化组件引用逻辑
+/*
+ * @Date: 2025-11-01 10:40:35
+ * @LastEditTime: 2025-11-08 21:15:52
+ * @Description: 认证弹窗聚合容器组件
  */
 
-// 导入登录弹窗组件（处理用户登录逻辑与UI）
+// 登录弹窗组件：处理用户登录表单与验证逻辑
 import LoginModal from './LoginModal';
-// 导入注册弹窗组件（处理用户注册逻辑与UI）
+// 注册弹窗组件：处理用户注册表单与提交逻辑
 import RegisterModal from './RegisterModal';
 
 /**
- * AuthModals 组件
- * 作为登录和注册弹窗的聚合容器，无需额外逻辑，仅负责组合渲染
- * 弹窗的显示/隐藏状态由全局上下文（如 AppContext）统一控制，此处仅提供挂载点
+ * 认证弹窗容器组件
+ * 作为登录和注册弹窗的统一挂载点，负责组合渲染两个弹窗
+ * 弹窗的显示状态由全局上下文（如isLoginModalOpen、isRegisterModalOpen）控制
+ * 本身不管理状态，仅提供UI容器功能
  */
 const AuthModals = () => {
   return (
     <>
-      {/* 登录弹窗组件 - 由全局状态 isLoginModalOpen 控制显示/隐藏 */}
+      {/* 登录弹窗：由全局状态isLoginModalOpen控制显示/隐藏 */}
       <LoginModal />
-      {/* 注册弹窗组件 - 由全局状态 isRegisterModalOpen 控制显示/隐藏 */}
+      {/* 注册弹窗：由全局状态isRegisterModalOpen控制显示/隐藏 */}
       <RegisterModal />
     </>
   );

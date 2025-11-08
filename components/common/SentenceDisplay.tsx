@@ -1,38 +1,51 @@
-'use client';
 /*
  * @Date: 2025-10-28 09:30:00
- * @LastEditTime: 2025-11-05 17:35:22
- * @Description: 例句显示组件 (已调整间距)
+ * @LastEditTime: 2025-11-08 22:56:26
+ * @Description: 单词例句展示组件，支持多例句切换、翻译显示/隐藏及单词隐藏模式（用下划线替换目标单词），包含平滑切换动画和分页指示器，适配响应式布局和明暗模式
  */
+'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// [!!] 导入 useSpelling 和 findWordIndices
+// 上下文与工具函数
 import { useSpelling } from '@/contexts/spelling.context';
 import { findWordIndices } from '@/utils/word.utils';
 
 /**
- * 例句的数据结构
+ * 例句数据结构类型
  */
 interface Sentence {
+  /** 中文翻译 */
   cn: string;
-  en: string; // [!!] 我们将使用这个原始英文句子
+  /** 原始英文句子 */
+  en: string;
+  /** 包含高亮目标单词的英文句子（HTML格式） */
   en_highlighted: string;
+  /** 发音音频URL（可选） */
   speechUrl?: string;
 }
 
+/**
+ * 例句展示组件属性类型
+ */
 interface SentenceDisplayProps {
+  /** 例句数组（可能为null/undefined/空数组） */
   sentences: Sentence[] | null | undefined;
+  /** 自定义样式类名 */
   className?: string;
+  /** 是否显示中文翻译 */
   showTranslation: boolean;
 }
 
+/**
+ * 动画变体配置：定义例句切换时的进入、停留和退出动画
+ */
 const variants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 30 : -30,
+    x: direction > 0 ? 30 : -30, // 从右侧进入或左侧进入
     opacity: 0,
   }),
   center: {
@@ -42,13 +55,14 @@ const variants = {
   },
   exit: (direction: number) => ({
     zIndex: 0,
-    x: direction < 0 ? 30 : -30,
+    x: direction < 0 ? 30 : -30, // 向右侧退出或左侧退出
     opacity: 0,
   }),
 };
 
 /**
- * [!!] 辅助组件：用于渲染隐藏或高亮的句子
+ * 例句渲染辅助组件
+ * 根据模式渲染原始高亮例句或隐藏目标单词的例句（用下划线替换）
  */
 const SentenceRenderer: React.FC<{
   sentence: Sentence;
@@ -57,30 +71,27 @@ const SentenceRenderer: React.FC<{
 }> = ({ sentence, targetWord, isHiding }) => {
   const sentenceText = sentence.en;
 
-  // 使用 useMemo 缓存计算结果，提高性能
+  // 缓存渲染内容，避免频繁计算
   const content = useMemo(() => {
     if (isHiding) {
-      // 1. 隐藏模式：使用 findWordIndices 替换
+      // 隐藏模式：定位目标单词位置并替换为下划线
       const indicesToHide = new Set(
         findWordIndices(targetWord, sentenceText, [])
       );
       return (
         <p className="text-gray-700 dark:text-gray-300 text-xs sm:text-base italic">
-          {sentenceText.split('').map((char, index) => {
-            // [!!] 匹配到的索引替换为下划线
-            return indicesToHide.has(index) ? '_' : char;
-          })}
+          {sentenceText
+            .split('')
+            .map((char, index) => (indicesToHide.has(index) ? '_' : char))}
         </p>
       );
     }
 
-    // 2. 默认模式：使用高亮 HTML
+    // 默认模式：渲染带高亮的英文例句
     return (
       <p
         className="text-gray-700 dark:text-gray-300 text-xs sm:text-base italic"
-        dangerouslySetInnerHTML={{
-          __html: sentence.en_highlighted,
-        }}
+        dangerouslySetInnerHTML={{ __html: sentence.en_highlighted }}
       />
     );
   }, [isHiding, targetWord, sentenceText, sentence.en_highlighted]);
@@ -88,44 +99,57 @@ const SentenceRenderer: React.FC<{
   return content;
 };
 
+/**
+ * 单词例句展示组件
+ * 提供多例句轮播功能，支持切换、翻译显示控制和单词隐藏模式，通过动画提升切换体验
+ */
 const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
   sentences,
   className = '',
   showTranslation,
 }) => {
   const t = useTranslations('Words.Sentence');
-  // [!!] 从全局 Context 获取状态
-  const { currentWord, hideWordInSentence } = useSpelling();
+  const { currentWord, hideWordInSentence } = useSpelling(); // 从全局状态获取当前单词和隐藏设置
 
+  // 分页状态：[当前页码, 切换方向]
   const [[page, direction], setPage] = useState([0, 0]);
 
+  /**
+   * 当例句数组变化时，重置分页状态
+   */
   useEffect(() => {
     setPage([0, 0]);
   }, [sentences]);
 
+  // 无例句时不渲染组件
   if (!sentences || !Array.isArray(sentences) || sentences.length === 0) {
     return null;
   }
 
+  // 计算当前例句索引（处理循环切换）
   const currentSentenceIndex =
     ((page % sentences.length) + sentences.length) % sentences.length;
   const currentSentence = sentences[currentSentenceIndex];
 
+  /**
+   * 切换例句
+   * @param newDirection 切换方向：1为下一页，-1为上一页
+   */
   const paginate = (newDirection: number) => {
     setPage([page + newDirection, newDirection]);
   };
 
+  // 状态变量提取
   const isTranslationVisible = showTranslation;
-  const isHidingWord = hideWordInSentence; // [!!]
-  const targetWord = currentWord?.text || ''; // [!!]
+  const isHidingWord = hideWordInSentence;
+  const targetWord = currentWord?.text || '';
 
   return (
-    // [!! 关键修改 2 !!] 在根元素上添加 mb-4 (margin-bottom)
     <div
       className={`w-full max-w-lg mx-auto flex flex-col items-center mb-4 ${className}`}
     >
       <div className="relative w-full flex items-center justify-center min-h-[80px]">
-        {/* 上一页按钮 (不变) */}
+        {/* 上一页按钮（仅当例句数量大于1时显示） */}
         {sentences.length > 1 && (
           <button
             onClick={() => paginate(-1)}
@@ -136,7 +160,7 @@ const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
           </button>
         )}
 
-        {/* 中间卡片区域 */}
+        {/* 例句动画容器 */}
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={page}
@@ -152,6 +176,7 @@ const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
             className="w-full px-10"
           >
             <div className="text-center">
+              {/* 英文例句渲染 */}
               <div className="flex items-center justify-center">
                 <SentenceRenderer
                   sentence={currentSentence}
@@ -160,10 +185,9 @@ const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
                 />
               </div>
 
+              {/* 中文翻译（带显示/隐藏动画） */}
               <AnimatePresence>
                 {isTranslationVisible && (
-                  // [!! 关键修改 1 !!] 将 mt-1 改为 mt-2 (增加空隙)
-                  // 并且同步上一版的样式修改（颜色）
                   <motion.p
                     className="text-gray-700 dark:text-gray-300 text-xs sm:text-base mt-2"
                     initial={{ opacity: 0, y: -5 }}
@@ -179,7 +203,7 @@ const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
           </motion.div>
         </AnimatePresence>
 
-        {/* 下一页按钮 (不变) */}
+        {/* 下一页按钮（仅当例句数量大于1时显示） */}
         {sentences.length > 1 && (
           <button
             onClick={() => paginate(1)}
@@ -191,7 +215,7 @@ const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
         )}
       </div>
 
-      {/* 分页圆点 (不变) */}
+      {/* 分页指示器（仅当例句数量大于1时显示） */}
       {sentences.length > 1 && (
         <div className="flex justify-center space-x-1.5 mt-3">
           {sentences.map((_, index) => (

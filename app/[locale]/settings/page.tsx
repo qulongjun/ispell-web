@@ -1,88 +1,46 @@
-'use client';
+/*
+ * @Date: 2025-11-08 12:00:00
+ * @LastEditTime: 2025-11-08 18:05:55
+ * @Description: 系统设置页面服务器组件
+ */
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-// [!! 修改 !!] 导入 useAppContext
-import { useAppContext } from '@/contexts/app.context';
-import { useTranslations } from 'next-intl';
-import { Loader2, MessageSquareWarning } from 'lucide-react';
-
-// 导入重构后的设置表单
-import SettingsForm from '@/components/settings';
-// 导入公共组件
-import SectionCard from '@/components/common/SectionCard';
-// [!! 移除 !!] 不再需要 FeedbackModal
-// import FeedbackModal from '@/components/feedback';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+// 导入客户端交互组件
+import SettingsContent from './SettingsContent';
 
 /**
- * 系统设置页面
- * 参考 ProfilePage 布局，用于管理应用偏好设置
+ * 生成页面元数据（用于SEO优化）
+ * 标题格式与全站保持一致：[页面名称] | 爱拼词 - 免费好用的语言学习平台
+ * @param params 包含当前语言locale的Promise对象（需先解析）
+ * @returns 包含标题和描述的元数据对象
  */
-export default function SettingsPage() {
-  // [!! 修改 !!] 获取 openFeedbackModal
-  const { user, isLoggedIn, isLoading, openFeedbackModal } = useAppContext();
-  const router = useRouter();
-  const t = useTranslations('Settings'); // 使用 'Settings' 命名空间
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  // 解析params获取locale
+  const { locale } = await params;
+  // 获取Settings命名空间的翻译文本
+  const t = await getTranslations({ locale, namespace: 'Settings' });
+  // 获取公共metadata命名空间的翻译文本
+  const tCommon = await getTranslations({ locale, namespace: 'metadata' });
 
-  // [!! 移除 !!] 移除了本地状态
-  // const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  return {
+    title: `${t('metadata.title')} | ${tCommon('title')}`,
+    description: t('metadata.description'),
+  };
+}
 
-  // 身份验证保护 (与 ProfilePage 相同)
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      router.push('/');
-    }
-  }, [isLoading, isLoggedIn, router]);
-
-  // 加载状态显示 (与 ProfilePage 相同)
-  if (isLoading || !isLoggedIn || !user) {
-    return (
-      <div className="flex min-h-[60vh] justify-center items-center">
-        <Loader2 className="h-12 w-12 animate-spin text-gray-400" />
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* 页面标题 (参考 ProfilePage) */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {t('pageTitle')}
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400">
-            {t('pageDescription')}
-          </p>
-        </div>
-
-        {/* 设置卡片 (参考 ProfilePage) */}
-        <div className="space-y-6 pb-16">
-          {/* 第一个卡片：系统设置表单 */}
-          <SectionCard title={t('sectionTitles.appSettings')}>
-            {/* 从 'components/settings/index.tsx' 导入的 SettingsForm 
-              (确保该文件已被重构，只导出表单)
-            */}
-            <SettingsForm />
-          </SectionCard>
-
-          {/* 第二个卡片：问题反馈 */}
-          <SectionCard title={t('feedbackCardTitle')}>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {t('feedbackCardDescription')}
-              </p>
-              <button
-                onClick={openFeedbackModal} // [!! 修改 !!] 调用 Context 的方法
-                className="inline-flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              >
-                <MessageSquareWarning className="w-4 h-4" />
-                <span>{t('feedbackBtn')}</span>
-              </button>
-            </div>
-          </SectionCard>
-        </div>
-      </div>
-    </>
-  );
+/**
+ * 系统设置页面服务器组件
+ * 作为页面入口，引入客户端交互组件并传递locale参数
+ */
+export default function SettingsPage({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  return <SettingsContent locale={params.locale} />;
 }

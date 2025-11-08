@@ -1,9 +1,10 @@
-'use client';
 /*
  * @Date: 2025-10-28 21:48:19
- * @LastEditTime: 2025-10-31 14:44:05
+ * @LastEditTime: 2025-11-08 23:02:01
  * @Description: 网站的主题（外观模式）切换按钮组件
  */
+'use client';
+
 import React from 'react';
 import { Sun, Moon, Laptop } from 'lucide-react'; // 导入用于不同主题的图标
 import { useAppContext } from '@/contexts/app.context'; // 导入全局应用上下文

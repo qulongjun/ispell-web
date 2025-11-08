@@ -1,15 +1,11 @@
 /*
  * @Date: 2025-11-01 11:19:57
- * @LastEditTime: 2025-11-04 15:06:43
- * @Description: [!! 已更新 !!] 认证相关类型定义，以匹配安全的用户数据结构
+ * @LastEditTime: 2025-11-08 23:48:36
+ * @Description: 认证相关类型定义
  */
 
 /**
  * 用户核心信息接口 (安全)
- *
- * 这是从后端 API (如 /user/profile 或 /auth/login)
- * 接收到的净化后的用户信息。
- * 它不包含敏感信息，如密码或完整的手机号（除非必要）。
  */
 export interface User {
   id: number;
@@ -56,29 +52,4 @@ export interface User {
 export interface Tokens {
   accessToken: string; // 访问令牌（接口请求时携带，短期有效）
   refreshToken: string; // 刷新令牌（用于获取新的访问令牌，长期有效）
-}
-
-/**
- * 登录响应数据接口 (可选的辅助类型)
- * 后端 /auth/login 接口的响应结构
- */
-export interface LoginResponse {
-  user: User; // 登录用户的安全信息
-  accessToken: string;
-  refreshToken: string;
-}
-
-/**
- * [已弃用]
- * 此类型仅用于后端 Prisma 内部查询，
- * 不应在前端使用，因为它包含敏感数据。
- *
- * @deprecated
- */
-export interface ThirdPartyBinding {
-  id: number;
-  provider: string;
-  providerUserId: string;
-  userId: number;
-  createdAt: string;
 }

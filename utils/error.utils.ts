@@ -1,10 +1,9 @@
 /*
  * @Date: 2025-11-01 11:33:28
- * @Description: 错误处理通用工具 (已更新)
+ * @Description: 错误处理通用工具
  */
 
 /**
- * [!! 新增 !!]
  * 前端自定义 API 错误类
  * 包含从后端接收的 HTTP 状态码和自定义业务代码
  */
@@ -30,7 +29,6 @@ export class ApiError extends Error {
 }
 
 /**
- * [!! 修改 !!]
  * 处理 API 响应错误。
  * 此函数现在解析后端的 { code, message, data } 结构并抛出一个 ApiError。
  * @param response - 接口响应对象

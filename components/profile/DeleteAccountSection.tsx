@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-11-04 14:06:53
- * @LastEditTime: 2025-11-04 18:36:04
- * @Description:
+ * @LastEditTime: 2025-11-08 23:11:42
+ * @Description: 删除账户组件 
  */
 'use client';
 

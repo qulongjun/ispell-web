@@ -1,19 +1,12 @@
 /*
  * @Date: 2025-11-01 00:07:58
- * @LastEditTime: 2025-11-08 11:37:06
- * @Description: 认证表单通用Hook (已重构为 ApiError 和 i18n)
+ * @Description: 认证表单通用Hook
  */
 
-// React核心Hooks导入
 import { useState, useEffect, useCallback } from 'react';
-
-// 国际化工具导入
 import { useTranslations } from 'next-intl';
-
-// [!! 1. 新增 !!] 导入 ApiError
 import { ApiError } from '@/utils/error.utils';
 
-// [!! 2. 修改 !!] 导入重构后的 authService 和常量
 import {
   apiSendCode, // 发送验证码的API接口
   getInitialCountdown, // 初始化倒计时
@@ -31,7 +24,7 @@ type UseAuthFormReturn = {
   setApiError: (error: string | null) => void;
   countdown: number;
   handleGetCode: (emailOrPhone: string) => Promise<string | null>; // 成功返回 null, 失败返回 string
-  translateAndSetApiError: (error: unknown) => string | null; // [!!] 接收 unknown
+  translateAndSetApiError: (error: unknown) => string | null;
   clearErrors: () => void;
 };
 
@@ -39,17 +32,13 @@ type UseAuthFormReturn = {
  * 认证表单通用逻辑Hook
  */
 export const useAuthForm = (): UseAuthFormReturn => {
-  // 错误信息翻译工具（基于当前语言环境）
   const t_err = useTranslations('Errors');
 
-  // 状态管理
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [countdown, setCountdown] = useState(getInitialCountdown); // 立即执行函数
+  const [countdown, setCountdown] = useState(getInitialCountdown);
 
-  /**
-   * 倒计时驱动逻辑 (不变)
-   */
+  // 倒计时驱动逻辑
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (countdown > 0) {
@@ -63,18 +52,20 @@ export const useAuthForm = (): UseAuthFormReturn => {
   }, [countdown]);
 
   /**
-   * [!! 3. 重大修改 !!]
-   * 翻译并设置API错误信息
-   * 功能：将 ApiError 或 Error 翻译为当前语言，更新 apiError 状态
-   * @param error - catch 块中捕获的 'unknown' 错误
-   * @returns 翻译后的错误信息
+   * 翻译并设置API错误信息。
+   * (将 'unknown' error 转化为可显示的 string)
    */
   const translateAndSetApiError = useCallback(
     (error: unknown): string | null => {
+      if (error === null || typeof error === 'undefined') {
+        setApiError(null);
+        return null;
+      }
+
       let translated: string;
 
       if (error instanceof ApiError) {
-        // 1. 是我们定义的 ApiError
+        // 1. 是我们定义的 ApiError (从 code 查找 i18n)
         translated = t_err(`e${error.code}`, {
           defaultValue: t_err('unknownError'),
         });
@@ -94,56 +85,44 @@ export const useAuthForm = (): UseAuthFormReturn => {
         translated = t_err('unknownError');
       }
 
-      setApiError(translated);
+      setApiError(translated); // 只有在有错误时才设置
       return translated;
     },
-    [t_err] // 依赖 t_err
+    [t_err]
   );
 
   /**
-   * [!! 4. 重大修改 !!]
    * 发送验证码
-   * 功能：调用API发送验证码，处理 ApiError
-   * @param emailOrPhone - 接收验证码的邮箱或手机号
    * @returns Promise<错误信息|null> - 失败时返回翻译后的错误信息，成功返回null
    */
   const handleGetCode = useCallback(
     async (emailOrPhone: string): Promise<string | null> => {
-      setApiError(null); // 清除旧错误
-      setIsLoading(true); // 开始加载
+      setApiError(null);
+      setIsLoading(true);
       let errorMsg: string | null = null;
 
       try {
-        // [!!] apiSendCode 成功时不返回, 失败时抛出 ApiError
         await apiSendCode(emailOrPhone);
-
-        // [!!] 成功逻辑:
         setCountdown(COUNTDOWN_SECONDS);
         localStorage.setItem(COUNTDOWN_TIMESTAMP_KEY, Date.now().toString());
-        // [!!] 成功时返回 null
         return null;
       } catch (error) {
-        // [!!] 失败逻辑:
-        // [!!] (修复) 我们在这里只翻译错误，但不显示 Toast
-        // [!!] Toast 应该由 UI 层 (Modal) 决定
         errorMsg = translateAndSetApiError(error);
       } finally {
         setIsLoading(false);
       }
-      // [!!] 失败时返回翻译后的错误
       return errorMsg;
     },
-    [translateAndSetApiError] // 依赖新的错误处理器
+    [translateAndSetApiError]
   );
 
   /**
-   * 清除所有错误信息 (不变)
+   * 清除所有错误信息
    */
   const clearErrors = useCallback(() => {
     setApiError(null);
   }, []);
 
-  // 暴露状态与方法供外部组件使用
   return {
     isLoading,
     setIsLoading,

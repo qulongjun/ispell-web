@@ -1,9 +1,9 @@
-'use client';
 /*
  * @Date: 2025-10-26 10:02:25
- * @LastEditTime: 2025-11-07 22:26:17
- * @Description: 单词导航 (达到列表两端时隐藏按钮及其图标)
+ * @LastEditTime: 2025-11-08 23:12:28
+ * @Description: 单词导航
  */
+'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import DefinitionDisplay from '../common/DefinitionDisplay';
@@ -34,7 +34,6 @@ export default function WordNavigation() {
 
   return (
     <div className="w-full max-w-7xl flex justify-between items-center mb-4 sm:mb-12 mt-4 sm:mt-10 space-x-2 sm:space-x-8">
-     
       {!isPrevDisabled && (
         <button
           onClick={handlePrev}
@@ -54,14 +53,12 @@ export default function WordNavigation() {
         </button>
       )}
 
-     
       {!isNextDisabled && (
         <button
           onClick={handleNext}
           disabled={isNextDisabled}
           className="flex-1 min-w-0 flex items-center space-x-1 sm:space-x-2 transition-all duration-300"
         >
-          {/* 这个 div 也会被隐藏 */}
           <div className="text-right flex-1 min-w-0">
             <p className={wordTextStyle}>{nextWordDisplay}</p>
             <DefinitionDisplay

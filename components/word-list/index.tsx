@@ -1,9 +1,10 @@
-'use client';
 /*
  * @Date: 2025-10-27 21:54:27
- * @LastEditTime: 2025-11-01 18:23:10
- * @Description: 单词列表的入口组件，负责管理抽屉状态
+ * @LastEditTime: 2025-11-08 23:18:36
+ * @Description: 单词列表的入口组件
  */
+'use client';
+
 import { useState } from 'react';
 import { List } from 'lucide-react'; // 导入列表图标
 import WordListDrawer from './WordListDrawer'; // 导入抽屉组件
@@ -12,14 +13,12 @@ import WordListDrawer from './WordListDrawer'; // 导入抽屉组件
  * 单词列表入口组件
  * @description
  * 该组件渲染一个固定的触发按钮（列表图标）。
- * 它内部管理 `WordListDrawer` 组件的显示/隐藏状态。
  */
 const WordList = () => {
   // 状态：用于控制单词列表抽屉 (WordListDrawer) 是否打开
   const [isWordListOpen, setIsWordListOpen] = useState(false);
 
   return (
-    // 使用 React Fragment (<>) 来包裹多个顶级元素
     <>
       {/* 触发按钮 */}
       <button

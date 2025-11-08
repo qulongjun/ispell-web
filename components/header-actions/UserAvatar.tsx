@@ -1,15 +1,14 @@
 /*
  * @Date: 2025-10-28 21:48:48
- * @LastEditTime: 2025-11-07 20:21:10
- * @Description: 顶部导航栏用户头像组件 (已修正拼写错误)
+ * @LastEditTime: 2025-11-08 23:03:14
+ * @Description: 顶部导航栏用户头像组件
  */
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAppContext } from '@/contexts/app.context';
-// 导入图标 (Settings, UserCog, LogOut, LayoutList)
-import { Settings, UserCog, LogOut, LayoutList } from 'lucide-react';
+import { Settings, UserCog, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { resolveCdnUrl } from '@/utils/cdn.utils';
 
@@ -80,7 +79,6 @@ const UserAvatar: React.FC = () => {
           onError={(e) => {
             (e.target as HTMLImageElement).src = '/images/user/default.png';
           }}
-          // [!! 修正 !!] 移除了上一版中多余的 'D' 字符
         />
       </button>
 

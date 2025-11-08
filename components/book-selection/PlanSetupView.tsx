@@ -1,20 +1,18 @@
-'use client';
 /*
  * @Date: 2025-10-30 10:24:15
- * @LastEditTime: 2025-11-06 23:44:09
- * @Description: 学习计划设置视图 ([!! 已修改 !!] 限制每日单词数最大值 + 添加单词列表)
+ * @LastEditTime: 2025-11-08 22:43:26
+ * @Description: 学习计划设置视图组件，用于创建或编辑书籍的学习计划，支持选择计划类型、学习顺序和复习策略等配置
  */
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-hot-toast';
 import { useAppContext } from '@/contexts/app.context';
-// [!! 修改 !!] 导入 Book 和 PlanDetails (根据您的类型文件)
+import { List } from 'lucide-react';
 import type { Book, PlanDetails } from '@/types/book.types';
 
-// [!! 1. 新增导入 !!]
-import { List } from 'lucide-react'; // 导入图标
-import BookWordsModal from './BookWordsModal'; // 导入新模态框 (请检查路径)
+import BookWordsModal from './BookWordsModal';
 
 /** 预设的计划天数 */
 const PRESET_DAYS = [15, 30, 45, 60, 75, 90];
@@ -33,7 +31,7 @@ const REVIEW_STRATEGIES: Array<{ id: ReviewStrategyId; recommended: boolean }> =
 
 /** 计划设置视图的 Props */
 interface PlanSetupViewProps {
-  book: Book; // [!!] 此类型来自您提供的文件
+  book: Book;
   onStart: (plan: PlanDetails) => void;
   onCancel: () => void;
   initialPlan?: PlanDetails | null;
@@ -48,11 +46,9 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
   const { isLoggedIn, openLoginModal } = useAppContext();
   const t = useTranslations('BookSelection');
 
-  // [!! 2. 新增状态 !!]
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
 
-  // --- 状态管理 ---
-  // (这些类型 'preset' 等完全匹配您提供的 PlanDetails 类型)
+  // 状态管理
   const [planType, setPlanType] = useState<
     'preset' | 'customDays' | 'customWords'
   >(initialPlan?.type || 'preset');
@@ -74,7 +70,7 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
 
   const isEditing = !!initialPlan;
 
-  // --- 当初始计划变化时重置表单 ---
+  // 当初始计划变化时重置表单
   useEffect(() => {
     if (initialPlan) {
       setPlanType(initialPlan.type);
@@ -104,11 +100,11 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
     }
   }, [initialPlan]);
 
-  // --- [!! 1. 修改 !!] 处理数字输入 (增加 max 参数) ---
+  // 处理数字输入
   const handleNumericChange = (
     setter: React.Dispatch<React.SetStateAction<string>>,
     value: string,
-    max: number | undefined = undefined // 增加可选的 max 参数
+    max: number | undefined = undefined
   ) => {
     if (value === '') {
       setter('');
@@ -116,17 +112,15 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
     }
     const num = parseInt(value, 10);
     if (!isNaN(num) && num > 0) {
-      // 检查是否超过最大值
       if (max !== undefined && num > max) {
-        setter(max.toString()); // 如果超过，则设置为最大值
+        setter(max.toString());
       } else {
-        setter(num.toString()); // 否则，设置为有效值
+        setter(num.toString());
       }
     }
-    // 忽略 0 或无效输入
   };
 
-  // --- 计算派生数据 ---
+  // 计算派生数据
   let wordsPerDay: number = 0;
   let totalDays: number = 0;
   if (planType === 'preset' && presetDays > 0) {
@@ -137,15 +131,13 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
     totalDays = Math.ceil(book.totalWords / Number(customWords));
   }
 
-  // --- 按钮点击处理（区分登录状态） ---
+  // 按钮点击处理
   const handleConfirmClick = () => {
     if (!isLoggedIn) {
-      // 未登录：直接打开登录弹窗
       openLoginModal();
       return;
     }
 
-    // 已登录：验证并提交计划
     let planBase: Omit<PlanDetails, 'reviewStrategy' | 'learningOrder'>;
 
     if (planType === 'preset') {
@@ -160,7 +152,6 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
     } else {
       const wordsNum = Number(customWords);
       if (isNaN(wordsNum) || wordsNum <= 0 || wordsNum > book.totalWords) {
-        // [!!] 增加校验
         toast.error(t('PlanSetupView.errors.invalidCustomWords'));
         return;
       }
@@ -188,11 +179,8 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
     : t('PlanSetupView.buttons.loginToCreate');
 
   return (
-    // [!! 3. 添加 Fragment 容器 !!]
     <>
-      {/* 样式保持上一次修改的结果 (带边框和背景) */}
       <div className="flex flex-col p-4 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
-        {/* [!! 4. 修改标题区域 !!] */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {isEditing
@@ -200,18 +188,16 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
               : t('PlanSetupView.titles.createPlan', { bookName: book.name })}
           </h3>
 
-          {/* [!! 5. 新增按钮 !!] */}
           <button
             onClick={() => setIsWordModalOpen(true)}
             className="flex items-center px-3 py-1 text-xs rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-            // 提示：您需要添加 "PlanSetupView.buttons.viewWords" 到您的语言包
             title={t('PlanSetupView.buttons.viewWords', {
               count: book.totalWords,
             })}
           >
             <List className="w-3 h-3 mr-1.5" />
             {t('PlanSetupView.buttons.viewWords', {
-              count: book.totalWords, // [!!] 使用 book.totalWords
+              count: book.totalWords,
             })}
           </button>
         </div>
@@ -281,7 +267,6 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
                   type="number"
                   value={customDays}
                   onChange={(e) =>
-                    // [!! 修改 !!] 不传递 max
                     handleNumericChange(setCustomDays, e.target.value)
                   }
                   onFocus={() => setPlanType('customDays')}
@@ -318,7 +303,6 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
                     {t('PlanSetupView.customPlan.dailyWords')}
                   </span>
                 </label>
-                {/* [!! 2. 修改 !!] 添加 max 属性并更新 onChange */}
                 <input
                   type="number"
                   value={customWords}
@@ -326,7 +310,7 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
                     handleNumericChange(
                       setCustomWords,
                       e.target.value,
-                      book.totalWords // [!!] 使用 book.totalWords
+                      book.totalWords
                     )
                   }
                   onFocus={() => setPlanType('customWords')}
@@ -334,7 +318,7 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
                   className="w-28 text-center p-1 rounded bg-gray-200 dark:bg-gray-600 disabled:opacity-50"
                   placeholder={t('PlanSetupView.placeholders.words')}
                   min="1"
-                  max={book.totalWords} // [!!] 使用 book.totalWords
+                  max={book.totalWords}
                 />
               </div>
               {planType === 'customWords' && totalDays > 0 && (
@@ -422,14 +406,12 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
 
         {/* 操作按钮 */}
         <div className="pt-8 flex space-x-3">
-          {/* 取消按钮 */}
           <button
             onClick={onCancel}
             className="flex-1 py-3 rounded-lg bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-100 font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-500"
           >
             {t('PlanSetupView.buttons.cancel')}
           </button>
-          {/* 确认/登录按钮 */}
           <button
             onClick={handleConfirmClick}
             className={`flex-1 py-3 rounded-lg font-medium transition-colors bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-300`}
@@ -439,12 +421,11 @@ const PlanSetupView: React.FC<PlanSetupViewProps> = ({
         </div>
       </div>
 
-      {/* [!! 6. 渲染新模态框 !!] */}
       <BookWordsModal
         isOpen={isWordModalOpen}
         onClose={() => setIsWordModalOpen(false)}
-        listCode={book.listCode} // [!!] 使用 book.listCode
-        bookName={book.name} // [!!] 使用 book.name
+        listCode={book.listCode}
+        bookName={book.name}
       />
     </>
   );

@@ -1,66 +1,48 @@
-'use client';
+/*
+ * @Date: 2025-11-09 11:00:00
+ * @LastEditTime: 2025-11-08 18:02:02
+ * @Description: 个性化设置页面服务器组件
+ * 负责页面元数据生成和客户端组件引入
+ * 路径：/profile
+ */
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppContext } from '@/contexts/app.context';
-import toast from 'react-hot-toast';
-import { useTranslations } from 'next-intl';
-import { Loader2 } from 'lucide-react';
-import ProfileInfoSection from '@/components/profile/ProfileInfoSection';
-import ChangePasswordSection from '@/components/profile/ChangePasswordSection';
-import AccountBindingsSection from '@/components/profile/AccountBindingsSection';
-import DeleteAccountSection from '@/components/profile/DeleteAccountSection';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+// 导入客户端交互组件
+import ProfileContent from './ProfileContent';
 
 /**
- * 个性化设置页面组件
- * 整合个人资料、密码修改、账号绑定和账户删除功能模块
+ * 生成页面元数据（用于SEO优化）
+ * 标题格式与全站保持一致：[页面名称] | 爱拼词 - 免费好用的语言学习平台
+ * @param params 包含当前语言locale的Promise对象（需先解析）
+ * @returns 包含标题和描述的元数据对象
  */
-export default function ProfilePage() {
-  const { user, isLoggedIn, isLoading, logout } = useAppContext();
-  const router = useRouter();
-  const t = useTranslations('Profile');
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  // 解析params获取locale
+  const { locale } = await params;
+  // 获取Profile命名空间的翻译文本
+  const t = await getTranslations({ locale, namespace: 'Profile' });
+  // 获取公共metadata命名空间的翻译文本
+  const tCommon = await getTranslations({ locale, namespace: 'metadata' });
 
-  // 身份验证保护 - 未登录用户自动跳转
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      router.push('/');
-    }
-  }, [isLoading, isLoggedIn, router]);
+  return {
+    title: `${t('metadata.title')} | ${tCommon('title')}`,
+    description: t('metadata.description'),
+  };
+}
 
-  // 加载状态显示
-  if (isLoading || !isLoggedIn || !user) {
-    return (
-      <div className="flex min-h-[60vh] justify-center items-center">
-        <Loader2 className="h-12 w-12 animate-spin text-gray-400" />
-      </div>
-    );
-  }
-
-  // 检查账户状态 - 已删除账户处理
-  if (user.status !== 'ACTIVE') {
-    toast.error('账户已被删除');
-    logout();
-    router.push('/');
-    return null;
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {t('pageTitle')}
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          {t('pageDescription')}
-        </p>
-      </div>
-
-      <div className="space-y-6 pb-16">
-        <ProfileInfoSection user={user} />
-        <ChangePasswordSection user={user} />
-        <AccountBindingsSection boundProviders={user.boundProviders || []} />
-        <DeleteAccountSection user={user} />
-      </div>
-    </div>
-  );
+/**
+ * 个性化设置页面服务器组件
+ * 作为页面入口，引入客户端交互组件并传递必要参数
+ */
+export default function ProfilePage({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  return <ProfileContent locale={params.locale} />;
 }

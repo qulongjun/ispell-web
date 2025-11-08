@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-10-28 22:05:53
- * @LastEditTime: 2025-11-07 21:18:47
- * @Description: SpellingContext (添加演示模式支持)
+ * @LastEditTime: 2025-11-08 23:45:29
+ * @Description: 拼写学习上下文，管理单词学习会话状态、用户设置和学习进度，包含演示模式支持
  */
 'use client';
 
@@ -22,7 +22,7 @@ import { DisplayMode, SpeechConfig, Stats, Word } from '@/types/word.types';
 import toast from 'react-hot-toast';
 import { PlanDetails } from '@/types/book.types';
 
-// (本地存储 Key 和加载函数... 保持不变)
+// 本地存储键名常量定义
 const SETTINGS_KEYS = {
   SPEECH_CONFIG: 'ispell_speechConfig',
   IS_CUSTOM_SPEECH: 'ispell_isCustomSpeech',
@@ -32,6 +32,12 @@ const SETTINGS_KEYS = {
   SHOW_SENTENCE_TRANSLATION: 'ispell_showSentenceTranslation',
 };
 
+/**
+ * 从本地存储加载数据
+ * @param key 存储键名
+ * @param defaultValue 默认值
+ * @returns 加载的数据或默认值
+ */
 const loadFromLocalStorage = <T,>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') {
     return defaultValue;
@@ -45,12 +51,20 @@ const loadFromLocalStorage = <T,>(key: string, defaultValue: T): T => {
   }
 };
 
+/**
+ * 格式化时间为 MM:SS 格式
+ * @param seconds 秒数
+ * @returns 格式化后的时间字符串
+ */
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
+/**
+ * 拼写上下文类型定义
+ */
 export interface SpellingContextType {
   words: Word[];
   currentIndex: number;
@@ -64,7 +78,7 @@ export interface SpellingContextType {
   isSessionComplete: boolean;
   showSentenceTranslation: boolean;
   hideWordInSentence: boolean;
-  isDemoMode: boolean; // [!! 新增 !!] 导出演示模式状态
+  isDemoMode: boolean; // 演示模式状态
   handleNext: () => void;
   handlePrev: () => void;
   startTimer: () => void;
@@ -83,15 +97,24 @@ export interface SpellingContextType {
   setHasMadeMistake: (value: boolean) => void;
 }
 
+// 创建上下文
 const SpellingContext = createContext<SpellingContextType | undefined>(
   undefined
 );
 
+/**
+ * 拼写上下文提供者属性定义
+ */
 interface SpellingProviderProps {
   children: ReactNode;
 }
 
+/**
+ * 拼写上下文提供者组件
+ * 管理拼写学习的所有状态和业务逻辑
+ */
 export const SpellingProvider = ({ children }: SpellingProviderProps) => {
+  // 从应用上下文获取所需状态和方法
   const {
     currentBookId,
     learningTrigger,
@@ -106,7 +129,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
   const [words, setWords] = useState<Word[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
-  // (设置状态... 保持不变)
+  // 设置状态 - 从本地存储初始化
   const [showSentences, setShowSentences] = useState<boolean>(() =>
     loadFromLocalStorage<boolean>(SETTINGS_KEYS.SHOW_SENTENCES, false)
   );
@@ -123,6 +146,8 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
   const [hideWordInSentence, setHideWordInSentence] = useState<boolean>(() =>
     loadFromLocalStorage<boolean>(SETTINGS_KEYS.HIDE_WORD_IN_SENTENCE, true)
   );
+
+  // 语音配置 - 合并默认值和存储值
   const defaultSpeechConfig: SpeechConfig = {
     lang: 'en-GB',
     rate: 0.8,
@@ -142,10 +167,11 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     loadFromLocalStorage<boolean>(SETTINGS_KEYS.IS_CUSTOM_SPEECH, false)
   );
 
+  // 会话状态
   const [isSessionComplete, setIsSessionComplete] = useState<boolean>(false);
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(false); // [!! 新增 !!] 演示模式状态
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false); // 演示模式状态
 
-  // (统计状态... 保持不变)
+  // 统计状态
   const [startTime, setStartTime] = useState<number | null>(null);
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [failCount, setFailCount] = useState<number>(0);
@@ -155,12 +181,15 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
   const [hasMadeMistake, _setHasMadeMistake] = useState<boolean>(false);
   const hasMadeMistakeRef = useRef<boolean>(false);
 
+  /**
+   * 更新错误状态（同步更新状态和引用）
+   */
   const setHasMadeMistake = useCallback((value: boolean) => {
     _setHasMadeMistake(value);
     hasMadeMistakeRef.current = value;
   }, []);
 
-  // (useEffects for localStorage... 保持不变)
+  // 本地存储同步副作用 - 当设置变化时保存到本地存储
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -173,6 +202,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [speechConfig]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -185,6 +215,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [isCustomSpeech]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -197,6 +228,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [displayMode]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -212,6 +244,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [hideWordInSentence]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -224,6 +257,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [showSentences]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -240,7 +274,9 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     }
   }, [showSentenceTranslation]);
 
-  // (startTimer, resetSession... 保持不变)
+  /**
+   * 开始计时
+   */
   const startTimer = useCallback(() => {
     setStartTime((prevStartTime) => {
       if (prevStartTime === null) {
@@ -250,6 +286,10 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     });
   }, []);
 
+  /**
+   * 重置学习会话
+   * @param wordsToLoad 新的单词列表
+   */
   const resetSession = useCallback(
     (wordsToLoad: Word[]) => {
       setWords(wordsToLoad);
@@ -266,14 +306,17 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     [startTimer, setHasMadeMistake]
   );
 
-  // (loadWordsForSession... 保持不变)
+  /**
+   * 为学习会话加载单词
+   * @param listCode 单词列表标识
+   * @param action 学习动作
+   */
   const loadWordsForSession = useCallback(
     async (listCode: string, action: LearningAction) => {
       if (!listCode) return;
-      const currentLearningList = learningList;
-      const currentPlan = currentLearningList.find(
-        (p) => p.listCode === listCode
-      );
+
+      // 查找当前学习计划
+      const currentPlan = learningList.find((p) => p.listCode === listCode);
       if (!currentPlan) {
         console.warn(
           '[Spelling Context] loadWordsForSession: 未找到计划。 learningList 可能尚未刷新。'
@@ -282,11 +325,14 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         endLearningSession();
         return;
       }
+
+      // 计算需要加载的新单词和复习单词数量
       let dueNewCount = 0;
       let dueReviewCount = 0;
       const totalDueNew = currentPlan.progress.dueNewCount || 0;
       const totalDueReview = currentPlan.progress.dueReviewCount || 0;
       const learnedToday = currentPlan.progress.learnedTodayCount || 0;
+
       if (action === 'activate') {
         dueNewCount = Math.max(0, totalDueNew - learnedToday);
         dueReviewCount = totalDueReview;
@@ -298,6 +344,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
           action === 'reset' ? currentPlan.plan : (action as PlanDetails);
         const totalWords = currentPlan.book.totalWords;
         const remainingNewWords = 0 || totalWords;
+
         if (plan.type === 'customWords' && plan.value > 0) {
           dueNewCount = Math.min(plan.value, remainingNewWords);
         } else if (
@@ -311,16 +358,23 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         }
         dueReviewCount = action === 'reset' ? 0 : totalDueReview;
       }
+
+      // 无复习策略时不加载复习单词
       if (currentPlan.plan.reviewStrategy === 'NONE') {
         dueReviewCount = 0;
       }
+
       console.log(
         `[Spelling Context] 计算配额: new=${dueNewCount}, review=${dueReviewCount}`
       );
+
+      // 无单词可学时标记会话完成
       if (dueNewCount === 0 && dueReviewCount === 0) {
         setIsSessionComplete(true);
         return;
       }
+
+      // 加载单词数据
       try {
         const data = await fetchLearningWords(
           listCode,
@@ -345,7 +399,10 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     [learningList, endLearningSession, resetSession]
   );
 
-  // [!! 核心修改 !!] 监听触发器，并设置 isDemoMode
+  /**
+   * 监听学习触发器，初始化学习会话或演示模式
+   * 当mistakeReviewTrigger的planId为0时进入演示模式
+   */
   useEffect(() => {
     if (!isLearningSessionActive) {
       // 会话结束时，重置演示模式
@@ -357,14 +414,16 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       console.log(
         `[Spelling Context] 监听到 mistakeReviewTrigger，加载 ${mistakeReviewTrigger.words.length} 个错题...`
       );
-      // [!! 新增 !!] 检查 planId 是否为 0 (演示模式的约定)
+
+      // 检查 planId 是否为 0 (演示模式的约定)
       if (mistakeReviewTrigger.planId === 0) {
         console.log('[Spelling Context] 进入演示模式 (DEMO MODE).');
         setIsDemoMode(true);
       } else {
-        // 这是真实的错题集复习
+        // 真实的错题集复习
         setIsDemoMode(false);
       }
+
       resetSession(mistakeReviewTrigger.words);
     } else if (learningTrigger && learningTrigger.listCode) {
       const { listCode, action } = learningTrigger;
@@ -373,8 +432,10 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         listCode,
         action
       );
-      // [!! 新增 !!] 确保常规学习重置演示模式
+
+      // 常规学习重置演示模式
       setIsDemoMode(false);
+
       if (action !== null) {
         loadWordsForSession(listCode, action);
       }
@@ -387,12 +448,14 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     resetSession,
   ]);
 
-  // (useEffect for speechSupported, timer... 保持不变)
+  // 检测浏览器是否支持语音合成
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setSpeechSupported(!!window.speechSynthesis);
     }
   }, []);
+
+  // 学习会话计时器
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (startTime && isLearningSessionActive) {
@@ -403,7 +466,10 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     return () => clearInterval(timer);
   }, [startTime, isLearningSessionActive]);
 
-  // (handleWordFailure... 保持不变, 它不涉及后端)
+  /**
+   * 处理单词拼写失败
+   * 将当前单词加入本轮错题列表
+   */
   const handleWordFailure = useCallback(() => {
     const word = words[currentIndex];
     if (!word) return;
@@ -416,12 +482,15 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     });
   }, [words, currentIndex]);
 
-  // (handleNext, handlePrev... 保持不变)
+  /**
+   * 导航到下一个单词
+   */
   const handleNext = useCallback(() => {
     if (hasMadeMistakeRef.current) {
       handleWordFailure();
     }
     setHasMadeMistake(false);
+
     if (currentIndex < words.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
@@ -442,6 +511,10 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     handleWordFailure,
     setHasMadeMistake,
   ]);
+
+  /**
+   * 导航到上一个单词
+   */
   const handlePrev = useCallback(() => {
     if (hasMadeMistakeRef.current) {
       handleWordFailure();
@@ -450,28 +523,39 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
   }, [handleWordFailure, setHasMadeMistake]);
 
-  // (incrementInputCount, incrementCorrectCount... 保持不变)
+  /**
+   * 增加错误尝试次数
+   */
   const incrementInputCount = useCallback(() => {
     setFailCount((prev) => prev + 1);
   }, []);
+
+  /**
+   * 增加正确拼写次数
+   */
   const incrementCorrectCount = useCallback(() => {
     setSuccessCount((prev) => prev + 1);
   }, []);
 
-  // [!! 核心修改 !!] 阻止演示模式下的进度更新
+  /**
+   * 更新单词学习进度
+   * 演示模式下会拦截此操作，不发送到后端
+   * @param quality 学习质量
+   */
   const updateWordProgressInContext = useCallback(
     async (quality: number) => {
-      // [!! 新增 !!] 演示模式拦截
+      // 演示模式拦截
       if (isDemoMode) {
         console.log('[Spelling Context] 演示模式：跳过进度同步。');
         return;
       }
-      // [!! 修改 !!] 演示模式下的单词 progressId 为 null，也会在这里被拦截
+
       const word = words[currentIndex];
       if (!word || !word.progressId) {
         console.warn('无法更新进度：缺少 word、progressId，或处于演示模式。');
         return;
       }
+
       const progressId = word.progressId as number;
       try {
         console.log(
@@ -485,12 +569,15 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         });
       }
     },
-    [words, currentIndex, isDemoMode] // [!! 新增 !!] 依赖 isDemoMode
+    [words, currentIndex, isDemoMode]
   );
 
-  // [!! 核心修改 !!] 阻止演示模式下推进章节
+  /**
+   * 推进到下一章
+   * 演示模式下会拦截此操作
+   */
   const handleAdvanceToNextChapter = useCallback(async () => {
-    // [!! 新增 !!] 演示模式拦截
+    // 演示模式拦截
     if (isDemoMode) {
       console.log('[Spelling Context] 演示模式：无法开启新章节。');
       toast.error('演示模式无法开启新章节');
@@ -502,6 +589,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       toast.error('未找到当前计划。');
       return;
     }
+
     try {
       console.log(`[Spelling Context] Advancing plan ${currentPlan.planId}`);
       await advancePlan(currentPlan.planId);
@@ -513,17 +601,22 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       console.error('推进章节失败:', error);
       toast.error((error as Error).message || '开启新章节失败。');
     }
-  }, [currentBookId, refreshAllData, learningList, isDemoMode]); // [!! 新增 !!] 依赖 isDemoMode
+  }, [currentBookId, refreshAllData, learningList, isDemoMode]);
 
-  // [!! 核心修改 !!] 退出时重置演示模式
+  /**
+   * 返回首页并结束当前学习会话
+   * 退出时重置演示模式
+   */
   const handleReturnToHome = useCallback(async () => {
     endLearningSession();
     setWords([]);
     setIsSessionComplete(false);
-    setIsDemoMode(false); // [!! 新增 !!] 显式重置
+    setIsDemoMode(false); // 显式重置演示模式
   }, [endLearningSession]);
 
-  // (stats, currentWord... 保持不变)
+  /**
+   * 计算学习统计数据（记忆化）
+   */
   const stats = useMemo<Stats>(() => {
     const totalAttempts = failCount + successCount;
     const accuracyNum =
@@ -539,10 +632,15 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       accuracy,
     };
   }, [timeElapsed, failCount, successCount, currentBookId, learningList]);
+
+  /**
+   * 当前单词（记忆化）
+   */
   const currentWord = useMemo<Word | undefined>(() => {
     return words[currentIndex];
   }, [words, currentIndex]);
 
+  // 上下文值
   const contextValue: SpellingContextType = {
     words,
     currentIndex,
@@ -556,7 +654,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     isSessionComplete,
     showSentenceTranslation,
     hideWordInSentence,
-    isDemoMode, // [!! 新增 !!]
+    isDemoMode,
     handleNext,
     handlePrev,
     startTimer,
@@ -582,6 +680,9 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
   );
 };
 
+/**
+ * 自定义Hook：获取拼写上下文
+ */
 export const useSpelling = (): SpellingContextType => {
   const context = useContext(SpellingContext);
   if (context === undefined) {

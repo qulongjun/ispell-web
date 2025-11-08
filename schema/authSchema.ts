@@ -1,11 +1,8 @@
 /*
  * @Date: 2025-11-07
  * @Description: 认证相关的 Zod 校验 Schemas
- * [!! 关键 !!] 此文件必须在顶部声明 'use client'
- * 以确保 Zod schema 对象在客户端组件中被正确 hydrate，
- * 防止 "def.fn is not a function" 错误。
  */
-'use client'; // <--- 必须在第一行
+'use client';
 
 import { z } from 'zod';
 

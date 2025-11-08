@@ -1,14 +1,11 @@
 /*
  * @Date: 2025-10-26 11:10:22
- * @LastEditTime: 2025-11-02 23:04:47
- * @Description: 文本转语音工具函数（优化版：非阻塞预加载）
+ * @LastEditTime: 2025-11-08 23:26:38
+ * @Description: 文本转语音工具函数
  */
 
 import { AccentType, GenderType } from '@/types/word.types';
 
-// 1. 导入新类型
-
-// 2. 更新 SpeechOptions 接口
 export interface SpeechOptions {
   text: string;
   lang?: string;
@@ -22,7 +19,6 @@ export interface SpeechOptions {
   onError?: (error: SpeechSynthesisErrorEvent) => void;
 }
 
-// --- 优化点 1: 缓存和预加载逻辑 ---
 let voicesCache: SpeechSynthesisVoice[] = [];
 let isVoicesLoaded = false;
 // 用于确保 loadVoices 只被调用一次的 Promise
@@ -55,7 +51,6 @@ const loadVoices = (): Promise<SpeechSynthesisVoice[]> => {
           'voiceschanged',
           updateVoices
         );
-        // console.log("Voices loaded successfully:", voicesCache.length);
         resolve(voicesCache);
       }
     };
@@ -66,15 +61,12 @@ const loadVoices = (): Promise<SpeechSynthesisVoice[]> => {
     const initialVoices = window.speechSynthesis.getVoices();
     if (initialVoices.length > 0) {
       updateVoices(); // 直接调用来设置缓存和状态
-    } else {
-      // console.log("Waiting for 'voiceschanged' event...");
     }
   });
 
   return loadVoicesPromise;
 };
 
-// --- 优化点 2: 立即“预热”语音列表 ---
 // 在模块加载时就触发，而不是在第一次播放时
 if (typeof window !== 'undefined' && window.speechSynthesis) {
   loadVoices()
@@ -86,7 +78,7 @@ if (typeof window !== 'undefined' && window.speechSynthesis) {
     });
 }
 
-// 3. (保持) 定义硬编码的语音名称优先级列表
+// 定义硬编码的语音名称优先级列表
 const PREFERRED_VOICES: Record<string, string[]> = {
   'en-GB-male': [
     'Daniel', // Safari
@@ -145,15 +137,12 @@ const PREFERRED_VOICES: Record<string, string[]> = {
   ],
 };
 
-// --- 优化点 3: 查找函数改为同步 ---
-// 它不再等待加载，只检查当前缓存
 const findVoiceByAccentAndGender = (
   accent: AccentType = 'en-US',
   gender: GenderType = 'auto'
 ): SpeechSynthesisVoice | null => {
   // 如果缓存未就绪，立即返回 null
   if (!isVoicesLoaded || voicesCache.length === 0) {
-    // console.warn("findVoice: Cache not ready. Using default.");
     return null;
   }
 
@@ -173,13 +162,11 @@ const findVoiceByAccentAndGender = (
   for (const name of preferredNames) {
     const foundVoice = availableVoices.find((voice) => voice.name === name);
     if (foundVoice) {
-      // console.log(`Found preferred voice for ${targetKey}: ${name}`);
       return foundVoice;
     }
   }
 
   // 回退查找
-  // console.warn(`No preferred voice found for ${targetKey}. Trying fallback...`);
   const fallbackGenderKeyword = targetGender === 'male' ? 'male' : 'female';
   const fallbackVoice = availableVoices.find(
     (voice) =>
@@ -188,18 +175,15 @@ const findVoiceByAccentAndGender = (
   );
 
   if (fallbackVoice) {
-    // console.log(`Found fallback voice for ${targetKey}: ${fallbackVoice.name}`);
     return fallbackVoice;
   }
 
   // 再次回退
   const accentFallback = availableVoices.find((voice) => voice.lang === accent);
   if (accentFallback) {
-    // console.warn(`No gender-specific voice found for ${targetKey}. Using first voice for ${accent}: ${accentFallback.name}`);
     return accentFallback;
   }
 
-  // console.warn(`No voice found for ${accent} at all. Using browser default.`);
   return null;
 };
 
@@ -250,8 +234,6 @@ export function playPronunciation(options: SpeechOptions) {
   if (onEnd) utterance.addEventListener('end', onEnd);
   if (onError) utterance.addEventListener('error', onError);
 
-  // --- 优化点 5: 同步查找并设置语音 ---
-  // 移除了 try/catch 和 Promise.race
   const specificVoice = findVoiceByAccentAndGender(accent, gender);
 
   if (specificVoice) {
@@ -260,15 +242,10 @@ export function playPronunciation(options: SpeechOptions) {
     console.log(
       `Using voice: ${specificVoice.name} | Lang: ${specificVoice.lang}`
     );
-  } else {
-    // console.log(`Using default voice for lang ${utterance.lang}`);
   }
 
-  // --- 优化点 6: 立即播放 ---
   if (window.speechSynthesis.speaking) {
     window.speechSynthesis.cancel(); // 打断上一个
   }
   window.speechSynthesis.speak(utterance); // 立即排队播放
-
-  // 不再返回 Promise.resolve()
 }

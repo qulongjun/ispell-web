@@ -1,16 +1,15 @@
+/*
+ * @Date: 2025-11-01 10:40:35
+ * @LastEditTime: 2025-11-08 22:19:26
+ * @Description: 登录弹窗组件
+ */
 'use client';
 
-/**
- * 登录弹窗组件
- * (已更新为从 authSchema.ts 导入 schemas)
- */
-
-// 外部库导入
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 
-// 图标组件导入
+// 图标组件：用于表单和交互元素
 import {
   X,
   Mail,
@@ -21,37 +20,30 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
-// 全局上下文导入
+// 全局上下文：获取登录状态、弹窗控制方法和登录逻辑
 import { useAppContext } from '@/contexts/app.context';
-import { ApiError } from '@/utils/error.utils';
 
-// [!! 关键修改 1: 拆分 Imports !!]
-// 从 authService 导入 API 函数
-import {
-  apiLogin,
-  apiSendCode,
-  getInitialCountdown,
-  COUNTDOWN_TIMESTAMP_KEY,
-  COUNTDOWN_SECONDS,
-} from '@/services/authService';
-// 从 authSchema 导入 Zod Schemas
+// 登录接口：处理登录请求
+import { apiLogin } from '@/services/authService';
+// 表单校验规则：使用Zod进行客户端表单验证
 import {
   loginCodeSchema,
   loginPasswordSchema,
   emailPhoneSchema,
 } from '@/schema/authSchema';
-// [!! 修改结束 !!]
 
-// 自定义Hooks导入
+// 自定义Hooks：复用认证表单逻辑（验证码倒计时、错误处理等）
+import { useAuthForm } from '@/hooks/useAuthForm';
+// 自定义Hooks：复用第三方登录逻辑
 import { useOAuth } from '@/hooks/useOAuth';
 
-// 本地组件导入
+// 第三方登录组件：集成社交账号登录功能
 import ThirdPartyLogins from './ThirdPartyLogins';
 
-// 登录模式类型：支持验证码登录/密码登录
+// 登录模式类型：支持验证码登录和密码登录两种模式
 type LoginMode = 'password' | 'code';
 
-// 表单字段错误提示类型：对应各表单字段的校验错误
+// 表单字段错误提示类型：存储各字段的校验错误信息
 type FormErrors = {
   emailOrPhone?: string[];
   password?: string[];
@@ -59,75 +51,66 @@ type FormErrors = {
   agreePolicy?: string[];
 };
 
+/**
+ * 登录弹窗组件
+ * 提供用户登录界面，支持两种登录模式切换，包含表单验证、登录逻辑和状态管理
+ * 依赖全局上下文控制显示状态，登录成功后更新全局登录状态
+ */
 const LoginModal: React.FC = () => {
-  // 全局状态
+  // 从全局上下文获取弹窗状态控制和登录相关方法
   const { isLoginModalOpen, closeLoginModal, openRegisterModal, login } =
     useAppContext();
 
-  // 多语言翻译
+  // 多语言翻译：分别获取登录弹窗和错误信息的翻译
   const t = useTranslations('LoginModal');
   const t_err = useTranslations('Errors');
 
-  // 表单模式状态
+  // 登录模式状态：默认验证码登录
   const [mode, setMode] = useState<LoginMode>('code');
 
-  // 表单字段状态
-  const [emailOrPhone, setEmailOrPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [code, setCode] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
-  const [agreePolicy, setAgreePolicy] = useState(false);
+  // 表单字段状态管理
+  const [emailOrPhone, setEmailOrPhone] = useState(''); // 邮箱/手机号
+  const [password, setPassword] = useState(''); // 密码（仅密码登录模式）
+  const [code, setCode] = useState(''); // 验证码（仅验证码登录模式）
+  const [rememberMe, setRememberMe] = useState(false); // 记住登录状态（控制持久化）
+  const [agreePolicy, setAgreePolicy] = useState(false); // 服务协议勾选状态
 
-  // 表单校验错误状态
+  // 表单校验错误状态：存储各字段的验证错误信息
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isShaking, setIsShaking] = useState(false);
-  
-  // 认证表单共享逻辑 (从 useAuthForm 移入)
-  const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [countdown, setCountdown] = useState(getInitialCountdown());
 
-  // OAuth Hook
+  // 表单震动动画状态：验证失败时触发表单震动提示
+  const [isShaking, setIsShaking] = useState(false);
+
+  // 认证表单共享逻辑：加载状态、验证码倒计时、错误处理等
+  const {
+    isLoading, // 操作加载状态
+    setIsLoading, // 更新加载状态
+    apiError, // 接口返回的错误信息
+    setApiError, // 更新接口错误信息
+    countdown, // 验证码倒计时
+    handleGetCode, // 发送验证码接口调用
+    translateAndSetApiError, // 转换并设置接口错误信息
+    clearErrors, // 清除错误信息
+  } = useAuthForm();
+
+  // 第三方登录逻辑：处理社交账号登录
   const { handleOAuthClick } = useOAuth({
-    login,
-    closeModal: closeLoginModal,
-    setIsLoading,
-    translateAndSetApiError: (error: unknown) => {
-      let msg = t_err('unknownError');
-      if (error instanceof ApiError) {
-        msg = t_err(`e${error.code}`, { defaultValue: msg });
-      } else if (error instanceof Error) {
-        if (error.message.includes('Invalid state')) {
-          msg = t_err('e2006');
-        } else {
-          msg = t_err('e2007');
-        }
-      } else if (typeof error === 'string') {
-         msg = t_err(error, { defaultValue: error });
-      }
-      setApiError(msg);
-    },
+    login, // 全局登录方法
+    closeModal: closeLoginModal, // 关闭弹窗方法
+    setIsLoading, // 更新加载状态
+    translateAndSetApiError, // 错误信息处理
   });
 
-  // [!! 关键修改 2: 修复 !!]
-  // 这里的 useMemo 现在可以正常工作，因为它导入的 emailPhoneSchema
-  // 来自一个 'use client' 文件
+  // 缓存邮箱/手机号字段校验结果：避免输入时频繁解析schema，优化性能
   const isEmailPhoneValid = useMemo(
     () => emailPhoneSchema.safeParse(emailOrPhone).success,
     [emailOrPhone]
   );
-  
-  // 倒计时
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
 
-  // 弹窗打开时重置表单状态
+  /**
+   * 弹窗打开时重置表单状态
+   * 确保每次打开弹窗时表单为空且无残留错误信息
+   */
   useEffect(() => {
     if (isLoginModalOpen) {
       setTimeout(() => {
@@ -138,23 +121,27 @@ const LoginModal: React.FC = () => {
         setAgreePolicy(false);
         setRememberMe(false);
         setErrors({});
-        setApiError(null);
+        clearErrors();
         setIsShaking(false);
-        setCountdown(getInitialCountdown());
       }, 100);
     }
-  }, [isLoginModalOpen]);
+  }, [isLoginModalOpen, clearErrors]);
 
-  // 键盘快捷键：ESC键关闭弹窗
+  /**
+   * 键盘快捷键：ESC键关闭弹窗
+   * 提升用户操作便捷性
+   */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         closeLoginModal();
       }
     };
+
     if (isLoginModalOpen) {
       document.addEventListener('keydown', handleKeyDown);
     }
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
@@ -165,16 +152,20 @@ const LoginModal: React.FC = () => {
     return null;
   }
 
-  // 阻止事件冒泡
+  // 阻止事件冒泡：避免点击弹窗内部触发遮罩层的关闭逻辑
   const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
-  // 发送验证码
+  /**
+   * 发送验证码处理
+   * 先校验邮箱/手机号格式，通过后调用接口发送验证码
+   */
   const handleGetCodeClick = async () => {
     setErrors({});
     setApiError(null);
+    // 校验邮箱/手机号格式
     const emailValidation = emailPhoneSchema.safeParse(emailOrPhone);
-
     if (!emailValidation.success) {
+      // 整理并显示格式错误
       setErrors((prev) => ({
         ...prev,
         emailOrPhone: emailValidation.error.issues.map((i) => t_err(i.message)),
@@ -182,51 +173,46 @@ const LoginModal: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
-    try {
-      await apiSendCode(emailOrPhone);
+    // 调用发送验证码接口
+    const errorMsg = await handleGetCode(emailOrPhone);
+    if (errorMsg === null) {
       toast.success(t_err('sendCodeSuccess'));
-      setCountdown(COUNTDOWN_SECONDS);
-      localStorage.setItem(COUNTDOWN_TIMESTAMP_KEY, Date.now().toString());
-    } catch (error) {
-      console.error('Send code failed:', error);
-      if (error instanceof ApiError) {
-        const message = t_err(`e${error.code}`, {
-          defaultValue: t_err('unknownError'),
-        });
-        toast.error(message);
-      } else {
-        toast.error(t_err('unknownError'));
-      }
-    } finally {
-      setIsLoading(false);
+    } else {
+      toast.error(errorMsg);
     }
   };
 
-  // 切换到注册弹窗
+  /**
+   * 切换到注册弹窗
+   * 关闭当前登录弹窗，打开注册弹窗
+   */
   const switchToRegister = () => {
     closeLoginModal();
     openRegisterModal();
   };
 
-  // 登录表单提交
+  /**
+   * 登录表单提交处理
+   * 1. 客户端表单验证（根据当前登录模式选择校验规则）
+   * 2. 准备请求参数并调用登录接口
+   * 3. 处理登录成功/失败逻辑
+   */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setApiError(null);
 
-    // 1. 客户端表单校验
+    // 1. 客户端表单验证
     const formData = { emailOrPhone, password, code, agreePolicy };
     const schema = mode === 'password' ? loginPasswordSchema : loginCodeSchema;
     const validation = schema.safeParse(formData);
 
+    // 校验失败：显示错误并触发表单震动
     if (!validation.success) {
       const fieldErrors: FormErrors = {};
       for (const issue of validation.error.issues) {
         const path = issue.path[0] as keyof FormErrors;
-        if (!fieldErrors[path]) {
-          fieldErrors[path] = [];
-        }
+        if (!fieldErrors[path]) fieldErrors[path] = [];
         fieldErrors[path].push(t_err(issue.message));
       }
       setErrors(fieldErrors);
@@ -259,42 +245,34 @@ const LoginModal: React.FC = () => {
       const { user, accessToken, refreshToken } = await apiLogin(payload);
       toast.success(t('loginSuccess'));
 
-      // 4. 登录成功
+      // 登录成功：更新全局登录状态（传递rememberMe控制持久化）
       login(user, { accessToken, refreshToken }, rememberMe);
 
-      setTimeout(() => {
-        closeLoginModal();
-      }, 1000);
+      // 延迟关闭弹窗，确保用户看到成功提示
+      setTimeout(() => closeLoginModal(), 1000);
     } catch (error) {
-      // 5. 处理接口错误
-      console.error('Login failed:', error);
-      if (error instanceof ApiError) {
-        const message = t_err(`e${error.code}`, {
-          defaultValue: t_err('unknownError'),
-        });
-        setApiError(message);
-      } else {
-        setApiError(t_err('unknownError'));
-      }
+      // 处理接口错误
+      translateAndSetApiError(error);
     } finally {
+      // 结束加载状态
       setIsLoading(false);
     }
   };
 
   return (
-    // 核心修改：z-40 → z-60
+    // 弹窗遮罩层：固定全屏，半透明背景，居中对齐
     <div
       className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={closeLoginModal}
       aria-modal="true"
       role="dialog"
     >
+      {/* 弹窗主体：白色背景，阴影效果，限制最大宽度 */}
       <div
         className="relative m-4 w-full max-w-md rounded-lg bg-white p-8 shadow-2xl dark:bg-gray-900"
         onClick={stopPropagation}
       >
-        {/* ... (其余 JSX 代码与您提供的文件 100% 相同) ... */}
-        {/* 关闭按钮 */}
+        {/* 关闭按钮：右上角，点击关闭弹窗 */}
         <button
           onClick={closeLoginModal}
           className="absolute top-4 right-4 rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
@@ -302,7 +280,7 @@ const LoginModal: React.FC = () => {
           <X className="h-5 w-5" />
         </button>
 
-        {/* 标题 */}
+        {/* 弹窗标题 */}
         <h2 className="mb-6 text-center text-2xl font-semibold text-gray-900 dark:text-white">
           {t('title')}
         </h2>
@@ -326,6 +304,7 @@ const LoginModal: React.FC = () => {
                 }`}
               />
             </div>
+            {/* 邮箱/手机号错误提示 */}
             {errors.emailOrPhone && (
               <p className="mt-1 text-xs text-red-500">
                 {errors.emailOrPhone[0]}
@@ -374,7 +353,7 @@ const LoginModal: React.FC = () => {
                     type="button"
                     onClick={handleGetCodeClick}
                     disabled={!isEmailPhoneValid || isLoading || countdown > 0}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-3 py-1 text-sm text-gray-600 transition-opacity hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent dark:text-gray-300 dark:hover:bg-gray-700 dark:disabled:text-gray-600 dark:disabled:hover:bg-transparent"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-3 py-1 text-sm text-gray-600 transition-opacity hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent dark:text-gray-300 dark:hover:bg-gray-700 dark:disabled:text-gray-600"
                   >
                     {countdown > 0
                       ? t('resendCode', { seconds: countdown })
@@ -383,11 +362,10 @@ const LoginModal: React.FC = () => {
                 </>
               )}
             </div>
-            {/* 密码错误提示 */}
+            {/* 密码/验证码错误提示 */}
             {errors.password && (
               <p className="mt-1 text-xs text-red-500">{errors.password[0]}</p>
             )}
-            {/* 验证码错误提示 */}
             {errors.code && (
               <p className="mt-1 text-xs text-red-500">{errors.code[0]}</p>
             )}
@@ -459,7 +437,7 @@ const LoginModal: React.FC = () => {
             )}
           </div>
 
-          {/* 接口错误提示 */}
+          {/* 接口错误提示（如账号密码错误、验证码失效等） */}
           <div className="flex items-center justify-center space-x-2 text-sm text-red-500 h-5">
             {apiError && (
               <>

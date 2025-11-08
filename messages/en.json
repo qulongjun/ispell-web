@@ -1,7 +1,8 @@
 {
   "metadata": {
     "title": "iSpell - Free and Effective Language Learning Platform",
-    "description": "A free language learning platform focused on vocabulary memorization and review, helping you master new words efficiently."
+    "description": "A free language learning platform focused on vocabulary memorization and review, helping you master new words efficiently.",
+    "siteName": "iSpell"
   },
   "Locale": {
     "en": "English",
@@ -34,7 +35,7 @@
     "privacy": "Privacy Policy"
   },
   "RegisterModal": {
-    "title": "Register New Account",
+    "title": "Join Us",
     "confirmPassword": "Confirm Password",
     "registerSubmit": "Register",
     "registerSuccess": "Registration successful, welcome!",
@@ -251,6 +252,10 @@
     }
   },
   "Settings": {
+    "metadata": {
+      "title": "System Settings",
+      "description": "Manage iSpell app preferences, including language, theme mode, and other personalized options."
+    },
     "pageTitle": "System Settings",
     "pageDescription": "Manage your application preferences",
     "sectionTitles": {
@@ -437,6 +442,10 @@
     "donate": "Donation"
   },
   "Profile": {
+    "metadata": {
+      "title": "Profile Settings",
+      "description": "Manage your personal information, password, and account bindings."
+    },
     "pageTitle": "Profile Settings",
     "pageDescription": "Manage your personal information, password, and account bindings",
     "profileInfo": {
@@ -539,6 +548,10 @@
       "closeCertificate": "Close certificate view",
       "closePublicity": "Close publicity",
       "viewPublicity": "View donation publicity"
+    },
+    "metadata": {
+      "title": "Donation",
+      "description": "Support iSpell's public welfare projects through donations to aid language learning education for children in remote areas."
     }
   },
   "FeedbackModal": {
@@ -578,7 +591,173 @@
     "changelogLink": "Changelog",
     "feedbackLink": "Feedback"
   },
+  "Terms": {
+    "metadata": {
+      "title": "Terms of Service",
+      "description": "Terms of Service for the iSpell platform."
+    },
+    "title": "Terms of Service",
+    "lastUpdated": "Last Updated: {date}",
+    "welcome": "Welcome to iSpell! To ensure you can better utilize our platform, please carefully read and thoroughly understand these “Terms of Service” (hereinafter referred to as “these Terms”).",
+    "acceptance": "By registering, logging in, or using this service, you fully read, understand, and accept all content of these Terms and agree to be bound by them.",
+    "section1": {
+      "title": "1. Account Registration and Use",
+      "p1": "You confirm that before starting the registration process or using this service, you possess the civil capacity commensurate with your actions as stipulated by the laws of the People's Republic of China.",
+      "p2": "You are responsible for properly safeguarding your account information (including email) and password. You shall be fully legally responsible for all activities under your account.",
+      "p3": "You agree to provide true, accurate, timely, and complete registration information when using this service, and to update it promptly."
+    },
+    "section2": {
+      "title": "2. Service Content",
+      "intro": "iSpell is a language learning platform, providing services including but not limited to:",
+      "list1": "Word book browsing and selection;",
+      "list2": "Creation and management of personalized learning plans (by days or by word count);",
+      "list3": "Word memorization and spelling practice based on intelligent review algorithms (SRS);",
+      "list4": "Authentication login via third-party services (WeChat, QQ, Google, GitHub).",
+      "freeService": "We currently provide basic services for **free**, but reserve the right to charge for some or all services in the future. Any fee changes will be notified to you in advance via announcement or email."
+    },
+    "section3": {
+      "title": "3. User Conduct Code",
+      "intro": "You must not use this service to engage in the following activities:",
+      "list1": "Publish, transmit, disseminate, or store content that violates national laws, endangers national security and unity, social stability, public order and morality, social ethics, or any inappropriate, insulting, defamatory, obscene, or violent content;",
+      "list2": "Infringe upon the legitimate rights of others, such as reputation rights, portrait rights, intellectual property rights, trade secrets, etc.;",
+      "list3": "Use any scrapers, bots, or other automated means to access or crawl data from this platform;",
+      "list4": "Reverse engineer, reverse assemble, reverse compile, or otherwise attempt to discover the source code of this platform;",
+      "list5": "Any other acts that violate laws and regulations."
+    },
+    "section4": {
+      "title": "4. Intellectual Property",
+      "p1": "All intellectual property rights of this platform (including the \"iSpell\" brand, Logo, icons, software, interface design, learning content, etc.) are legally owned by the platform owner.",
+      "p2": "Without written permission, you may not copy, modify, transmit, sell, or (reverse) engineer any of our services or software in any form."
+    },
+    "section5": {
+      "title": "5. Third-Party Services",
+      "p1": "This service may contain links to third-party websites or services (e.g., WeChat, QQ, Google, GitHub OAuth authentication). You understand and agree that these third-party services are not controlled by us, and we are not responsible for their content, privacy policies, or practices."
+    },
+    "section6": {
+      "title": "6. Disclaimer and Limitation of Liability",
+      "p1": "This service is provided on an “as is” and “as available” basis. We do not guarantee that the service will meet all your requirements, nor do we guarantee that the service will be uninterrupted, completely secure, or error-free.",
+      "p2": "To the maximum extent permitted by law, iSpell shall not be liable for any direct, indirect, incidental, special, or punitive damages arising from your use of (or inability to use) this service."
+    },
+    "section7": {
+      "title": "7. Modification of Terms",
+      "p1": "We reserve the right to modify these Terms at any time. The modified Terms will be published on this page and will replace the old version. We recommend that you review these Terms regularly. Your continued use of this service after the Terms have been modified constitutes your acceptance of the modified Terms."
+    },
+    "section8": {
+      "title": "8. Contact Us",
+      "p1": "If you have any questions about these Terms, please contact us via:",
+      "contactLabel": "Email:",
+      "email": "support@ispell.com"
+    }
+  },
+  "Privacy": {
+    "metadata": {
+      "title": "Privacy Policy",
+      "description": "Privacy Policy for the iSpell platform."
+    },
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated: {date}",
+    "intro": {
+      "p1": "Thank you for using iSpell! We deeply understand the importance of personal information to you and will do our utmost to protect the security and reliability of your personal information. We are committed to maintaining your trust and adhering to the following principles to protect your personal information: consistency of rights and responsibilities, clear purpose, consent-based choice, minimum necessary usage, security assurance, subject participation, openness, and transparency.",
+      "p2": "This “Privacy Policy” (hereinafter referred to as “this Policy”) is intended to explain how we collect, use, store, and share your personal information, and how you can access, update, delete, and protect this information."
+    },
+    "section1": {
+      "title": "1. How We Collect and Use Your Information",
+      "intro": "When you use our services, we adhere to the “minimum necessary” principle and collect and use the following information related to you:",
+      "list1": {
+        "title": "Information You Provide",
+        "content": "When you register an account, you need to provide your **email address** as the login name. When you log in with a password, you need to set a password, and we will store your password using **one-way hash encryption**."
+      },
+      "list2": {
+        "title": "Third-Party Service Information",
+        "content": "If you choose to log in using a third-party account (such as WeChat, QQ, Google, GitHub), you authorize us to obtain publicly registered information from that third-party platform (such as **nickname, avatar**)."
+      },
+      "list3": {
+        "title": "Service Usage Information",
+        "content": "To provide the core word memorization function, we will record your **learning data**, including your word book selection, learning plan settings (such as daily word count), word mastery status, and review progress."
+      },
+      "list4": {
+        "title": "Device and Technical Information",
+        "content": "We may automatically collect certain technical information, such as IP address, browser type, and operating system. We use `localStorage` or `sessionStorage` to store your authentication status (using `localStorage` if you select “Remember Me”) and app preferences (such as theme settings)."
+      }
+    },
+    "section2": {
+      "title": "2. How We Use Your Information",
+      "intro": "We strictly comply with the provisions of laws and regulations and agreements with users, and use the collected information for the following purposes:",
+      "list1": {
+        "title": "Providing Core Services",
+        "content": "Used for identity verification (login, registration, password reset), and to store and synchronize your learning progress."
+      },
+      "list2": {
+        "title": "Sending Important Notifications",
+        "content": "When you register or reset your password, we need to use your email address to send you a **verification code** through a third-party service provider such as **Tencent Cloud**."
+      },
+      "list3": {
+        "title": "Maintenance and Improvement",
+        "content": "Used to analyze the usage of our services to troubleshoot, improve functionality, and user experience."
+      },
+      "list4": {
+        "title": "Security Assurance",
+        "content": "Used to prevent, detect, and investigate fraud, security threats, illegal acts, or breaches of agreements, policies, or rules with us or our affiliates, to protect your legitimate rights, those of other users, or ours."
+      }
+    },
+    "section3": {
+      "title": "3. Sharing, Transfer, and Public Disclosure of Information",
+      "p1": "We **will not** sell your personal information to any company, organization, or individual.",
+      "intro": "We will only share your personal information in the following circumstances:",
+      "list1": {
+        "title": "With Your Explicit Consent",
+        "content": "We will share your personal information with other parties after obtaining your explicit consent."
+      },
+      "list2": {
+        "title": "Sharing with Authorized Partners",
+        "content": "Solely for the purpose stated in this Policy, some of our services will be provided by authorized partners (e.g., Tencent Cloud for SMS and email services). We will only share your information for legitimate, proper, necessary, specific, and explicit purposes, and only share the information necessary to provide the service."
+      },
+      "list3": {
+        "title": "Legal Requirements",
+        "content": "We may share your personal information externally based on the requirements of laws, regulations, legal procedures, or mandatory requirements from government authorities."
+      }
+    },
+    "section4": {
+      "title": "4. Your Rights",
+      "intro": "In accordance with relevant Chinese laws, regulations, and standards, we ensure that you exercise the following rights over your personal information:",
+      "list1": {
+        "title": "Access and Correction",
+        "content": "You have the right to access and correct your account information (e.g., nickname, avatar)."
+      },
+      "list2": {
+        "title": "Deletion",
+        "content": "You can clear your local device's session information (`sessionStorage`) by “Log Out”. If you checked “Remember Me”, you will also need to manually clear the data in your browser's `localStorage`."
+      },
+      "list3": {
+        "title": "Account Deletion",
+        "content": "You can contact us at any time to request account deletion. Upon receiving your request, we will stop providing services to you and delete or anonymize your personal information (unless otherwise stipulated by laws and regulations)."
+      }
+    },
+    "section5": {
+      "title": "5. Information Storage and Security",
+      "p1": "We have implemented industry-standard security protection measures to safeguard the personal information you provide, preventing unauthorized access, public disclosure, use, modification, damage, or loss of data.",
+      "p2": "For example, we use **Bcrypt hash encryption** to store your **password** in a one-way encrypted format, ensuring that your original password cannot be retrieved even if the database is leaked."
+    },
+    "section6": {
+      "title": "6. Children's Privacy",
+      "p1": "Our services are primarily intended for adults. Children (whom we consider to be anyone under the age of 14) should not create their own user accounts without the consent of a parent or guardian."
+    },
+    "section7": {
+      "title": "7. Policy Changes",
+      "p1": "We reserve the right to modify this Policy at any time. The modified Policy will be published on this page and will replace the old version. We recommend that you review this Policy regularly. Your continued use of this service after the Policy has been modified constitutes your acceptance of the modified Policy."
+    },
+    "section8": {
+      "title": "8. Contact Us",
+      "p1": "If you have any questions about this Privacy Policy, please contact us via:",
+      "contactLabel": "Email:",
+      "email": "privacy@ispell.com"
+    }
+  },
   "Changelog": {
+    "metadata": {
+      "title": "Changelog",
+      "description": "Version update records for the iSpell platform, including new features, bug fixes, and performance optimizations."
+    },
     "title": "Changelog",
     "description": "See what new improvements we've made",
     "types": {
