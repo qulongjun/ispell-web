@@ -13,7 +13,7 @@ declare global {
 export const API_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.ispell.net/api';
 
-// --- 认证存储工具（核心修复：兼容 localStorage/sessionStorage） ---
+// --- 认证存储工具 ---
 interface AuthStorage {
   getAccessToken: () => string | null;
   setAccessToken: (token: string, isPersistent: boolean) => void;
@@ -22,19 +22,16 @@ interface AuthStorage {
 }
 
 const authStorage: AuthStorage = {
-  // 优先从 sessionStorage 读取（未勾选记住我），再读 localStorage（勾选记住我）
   getAccessToken: () => {
     return (
       sessionStorage.getItem('accessToken') ||
       localStorage.getItem('accessToken')
     );
   },
-  // 根据是否持久化选择存储方式（登录时传递的 rememberMe 决定）
   setAccessToken: (token: string, isPersistent: boolean) => {
     const storage = isPersistent ? localStorage : sessionStorage;
     storage.setItem('accessToken', token);
   },
-  // 优先从 sessionStorage 读取 refreshToken
   getRefreshToken: () => {
     return (
       sessionStorage.getItem('refreshToken') ||
@@ -65,7 +62,6 @@ const subscribeTokenRefresh = (cb: RefreshCallback) => {
 };
 
 const onRefreshed = (token: string, isPersistent: boolean) => {
-  // 刷新后同步更新存储的 token（保持原存储方式）
   authStorage.setAccessToken(token, isPersistent);
   refreshSubscribers.forEach((cb) => cb(token));
   refreshSubscribers = [];
@@ -73,6 +69,7 @@ const onRefreshed = (token: string, isPersistent: boolean) => {
 
 /**
  * 刷新 Access Token
+ * 核心逻辑：如果刷新失败，强制全局登出。
  * @returns {Promise<string>} 新的 Access Token
  */
 const refreshTokenRequest = async (): Promise<string> => {
@@ -87,20 +84,18 @@ const refreshTokenRequest = async (): Promise<string> => {
   isRefreshing = true;
   const refreshToken = authStorage.getRefreshToken();
 
+  // [!! 关键登出逻辑 1 !!] Refresh Token 丢失
   if (!refreshToken) {
     authStorage.clearTokens();
-    // 强制全局退出
     if (typeof window !== 'undefined' && window.appContextLogout) {
       window.appContextLogout();
     }
-    // 核心修复：async 函数中直接 throw 错误，而非 return Promise.reject
     throw new Error('Refresh token missing.');
   }
 
   try {
-    // 检查当前 token 存储在哪个位置（判断是否持久化）
     const isPersistent = !!localStorage.getItem('refreshToken');
-    // 调用后端 /auth/token/refresh 接口
+    
     const response = await fetch(`${API_URL}/auth/token/refresh`, {
       method: 'POST',
       headers: {
@@ -112,32 +107,37 @@ const refreshTokenRequest = async (): Promise<string> => {
     const data = await response.json();
     isRefreshing = false;
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Token refresh failed.');
+    // [!! 关键登出逻辑 2 !!] 检查刷新失败状态 (403/401 或 code 不为 0)
+    if (!response.ok || data.code !== 0) {
+        const error = data.message || 'Token refresh failed.';
+
+        // 强制登出
+        authStorage.clearTokens();
+        if (typeof window !== 'undefined' && window.appContextLogout) {
+          window.appContextLogout();
+        }
+        throw new Error(error);
     }
 
-    const newAccessToken: string = data.accessToken;
-    // 通知所有等待的请求（传递持久化状态）
+    // [!! 关键修正 !!] 从 data.data 中获取 accessToken
+    const newAccessToken: string = data.data.accessToken; 
+    
+    // 通知所有等待的请求
     onRefreshed(newAccessToken, isPersistent);
     return newAccessToken;
   } catch (error) {
-    // 刷新失败，强制登出
+    // 3. 捕获任何网络或解析错误，强制登出
     isRefreshing = false;
     authStorage.clearTokens();
     if (typeof window !== 'undefined' && window.appContextLogout) {
       window.appContextLogout();
     }
-    // 直接 throw 错误，保持 async 函数错误处理逻辑
     throw error;
   }
 };
 
 /**
  * 封装的 fetch 函数，处理认证、Token 续期和刷新
- * @param {string} endpoint - API 路径 (相对于 /api)
- * @param {RequestInit} options - Fetch 选项
- * @param {boolean} requireAuth - 是否需要认证 (默认 true)
- * @returns {Promise<Response>}
  */
 const apiClient = async (
   endpoint: string,
@@ -174,10 +174,10 @@ const apiClient = async (
       if (!originalRequest._retry) {
         originalRequest._retry = true;
 
-        // 尝试刷新 Token
+        // 尝试刷新 Token (如果失败，refreshTokenRequest 内部会抛出错误并执行登出)
         const newRefreshedToken = await refreshTokenRequest();
 
-        // 重新设置请求头
+        // 刷新成功，重新设置请求头
         originalRequest.options.headers = {
           ...(originalRequest.options.headers as Record<string, string>),
           Authorization: `Bearer ${newRefreshedToken}`,
@@ -186,6 +186,11 @@ const apiClient = async (
         // 重新发送请求
         response = await fetch(url, originalRequest.options);
       } else {
+        // [!! 关键登出逻辑 3 !!] 刷新重试失败，强制登出
+         authStorage.clearTokens();
+         if (typeof window !== 'undefined' && window.appContextLogout) {
+           window.appContextLogout();
+         }
         throw new Error(
           'Unauthorized or Forbidden access after token refresh attempt.'
         );
@@ -194,6 +199,7 @@ const apiClient = async (
 
     return response;
   } catch (error) {
+    // 捕获任何网络错误或由 refreshTokenRequest 抛出的错误
     throw error;
   }
 };

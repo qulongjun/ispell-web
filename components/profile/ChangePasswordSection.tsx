@@ -1,3 +1,8 @@
+/*
+ * @Date: 2025-11-03 15:12:52
+ * @LastEditTime: 2025-11-08 10:42:02
+ * @Description: 
+ */
 'use client';
 
 import React, { useState, useEffect, FormEvent } from 'react';
@@ -13,18 +18,31 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { User } from '@/types/auth.types';
+import { ApiError } from '@/utils/error.utils'; // [!!] 导入 ApiError
+
+// [!! 关键修改 1: 拆分 Imports !!]
 import {
   apiResetPassword,
+  apiSendCode, // [!!] 需要导入 apiSendCode
   COUNTDOWN_TIMESTAMP_KEY,
+  COUNTDOWN_SECONDS, // [!!] 导入 COUNTDOWN_SECONDS
+  getInitialCountdown, // [!!] 导入 getInitialCountdown
+} from '@/services/authService';
+// [!!] 从 authSchema 导入
+import {
   passwordSchema,
   codeSchema,
-} from '@/services/authService';
+  changePasswordSchema, // [!!] 导入在 authSchema.ts 中定义的新 schema
+} from '@/schema/authSchema';
+// [!! 修改结束 !!]
+
 import { z } from 'zod';
-import { useAuthForm } from '@/hooks/useAuthForm';
+// [!!] 不再需要 useAuthForm，我们将在此处实现逻辑
+// import { useAuthForm } from '@/hooks/useAuthForm'; 
 import { useTranslations } from 'next-intl';
 
 /**
- * 表单提交按钮组件
+ * 表单提交按钮组件 (不变)
  */
 const FormButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
   children,
@@ -41,7 +59,7 @@ const FormButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
 );
 
 /**
- * 验证码按钮组件
+ * 验证码按钮组件 (不变)
  */
 const CodeButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
   children,
@@ -61,18 +79,7 @@ const CodeButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
   </button>
 );
 
-// 密码修改表单验证规则
-const changePasswordSchema = z
-  .object({
-    code: codeSchema,
-    newPassword: passwordSchema,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'passwordsMismatch',
-    path: ['confirmPassword'],
-  });
-
+// [!!] Zod schema 已从 authSchema.ts 导入
 type FormErrors = {
   code?: string[];
   newPassword?: string[];
@@ -83,10 +90,6 @@ interface ChangePasswordSectionProps {
   user: User;
 }
 
-/**
- * 密码修改/设置组件
- * 支持已设置密码用户修改密码和第三方登录用户首次设置密码
- */
 const ChangePasswordSection: React.FC<ChangePasswordSectionProps> = ({
   user,
 }) => {
@@ -94,16 +97,11 @@ const ChangePasswordSection: React.FC<ChangePasswordSectionProps> = ({
   const tErr = useTranslations('Errors');
   const tCommon = useTranslations('common');
 
-  const {
-    isLoading,
-    setIsLoading,
-    apiError,
-    setApiError,
-    countdown,
-    handleGetCode,
-    translateAndSetApiError,
-    clearErrors,
-  } = useAuthForm();
+  // [!! 修改 !!] 移入 useAuthForm 的状态
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(getInitialCountdown());
+  // [!! 修改结束 !!]
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isShaking, setIsShaking] = useState(false);
@@ -117,13 +115,24 @@ const ChangePasswordSection: React.FC<ChangePasswordSectionProps> = ({
     ? t('contactLabel_email')
     : t('contactLabel_phone');
 
+  // [!! 新增 !!] 倒计时
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+  
   // 清除错误状态
   useEffect(() => {
-    clearErrors();
+    setApiError(null);
     setErrors({});
-  }, [clearErrors]);
+  }, []);
 
   /**
+   * [!! 修改 !!]
    * 发送验证码处理
    */
   const handleSendCode = async () => {
@@ -131,15 +140,31 @@ const ChangePasswordSection: React.FC<ChangePasswordSectionProps> = ({
       toast.error(tErr('noEmailORPhone'));
       return;
     }
-    const errorMsg = await handleGetCode(contactIdentifier);
-    if (errorMsg) {
-      toast.error(errorMsg);
-    } else {
+    
+    setIsLoading(true);
+    setApiError(null);
+    try {
+      await apiSendCode(contactIdentifier);
       toast.success(tErr('sendCodeSuccess'));
+      setCountdown(COUNTDOWN_SECONDS);
+      localStorage.setItem(COUNTDOWN_TIMESTAMP_KEY, Date.now().toString());
+    } catch (error) {
+       console.error('Send code failed:', error);
+      if (error instanceof ApiError) {
+        const message = tErr(`e${error.code}`, {
+          defaultValue: tErr('unknownError'),
+        });
+        toast.error(message);
+      } else {
+        toast.error(tErr('unknownError'));
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   /**
+   * [!! 修改 !!]
    * 提交密码修改表单
    */
   const handleSubmit = async (e: FormEvent) => {
@@ -175,7 +200,7 @@ const ChangePasswordSection: React.FC<ChangePasswordSectionProps> = ({
       await apiResetPassword({
         emailOrPhone: contactIdentifier,
         password: newPassword,
-        confirmPassword: confirmPassword,
+        confirmPassword: confirmPassword, // [!!] 确保 apiResetPassword 接受
         code: code,
       });
       toast.success(
@@ -184,15 +209,19 @@ const ChangePasswordSection: React.FC<ChangePasswordSectionProps> = ({
       setCode('');
       setNewPassword('');
       setConfirmPassword('');
-      localStorage.removeItem(COUNTDOWN_TIMESTAMP_KEY);
+      localStorage.removeItem(COUNTDOWN_TIMESTAMP_KEY); // 清除倒计时
+      setCountdown(0);
     } catch (error) {
-      let errorMessage = tErr('unknownError');
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
+      // [!! 修改 !!]
+      console.error('Reset password failed:', error);
+      if (error instanceof ApiError) {
+        const message = tErr(`e${error.code}`, {
+          defaultValue: tErr('unknownError'),
+        });
+        setApiError(message);
+      } else {
+        setApiError(tErr('unknownError'));
       }
-      translateAndSetApiError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -205,6 +234,7 @@ const ChangePasswordSection: React.FC<ChangePasswordSectionProps> = ({
     : t('setPasswordDescription');
 
   return (
+    // ... (其余 JSX 代码与您提供的文件 100% 相同) ...
     <SectionCard
       title={title}
       footer={

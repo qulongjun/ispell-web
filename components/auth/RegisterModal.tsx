@@ -21,24 +21,27 @@ import {
   AlertCircle,
   Key,
 } from 'lucide-react';
-// 认证服务 & Zod 验证
+import { ApiError } from '@/utils/error.utils';
+
+// [!! 关键修改 1: 拆分 Imports !!]
+// 从 authService 导入 API 函数
 import {
   apiRegister,
-  registerSchema,
-  emailPhoneSchema,
+  apiSendCode,
+  getInitialCountdown,
+  COUNTDOWN_TIMESTAMP_KEY,
+  COUNTDOWN_SECONDS,
 } from '@/services/authService';
+// 从 authSchema 导入 Zod Schemas
+import { registerSchema, emailPhoneSchema } from '@/schema/authSchema';
+// [!! 修改结束 !!]
+
 // 自定义 Hooks
-import { useAuthForm } from '@/hooks/useAuthForm'; // 处理 API 加载、错误、验证码倒计时
 import { useOAuth } from '@/hooks/useOAuth'; // 处理第三方登录逻辑
 // 子组件
 import ThirdPartyLogins from './ThirdPartyLogins';
 
 // --- 2. Types ---
-
-/**
- * 定义表单的行内错误状态类型
- * 键名需要与 Zod 模式和 `useState` 中的字段名匹配
- */
 type FormErrors = {
   emailOrPhone?: string[];
   password?: string[];
@@ -51,15 +54,12 @@ type FormErrors = {
 
 const RegisterModal: React.FC = () => {
   // --- 4. Hooks & Context ---
-
-  // 从全局上下文获取状态和方法
   const { isRegisterModalOpen, closeRegisterModal, openLoginModal, login } =
     useAppContext();
 
-  // 国际化翻译函数
-  const t = useTranslations('LoginModal'); // 通用翻译
-  const t_reg = useTranslations('RegisterModal'); // 注册专用翻译
-  const t_err = useTranslations('Errors'); // 错误信息翻译
+  const t = useTranslations('LoginModal');
+  const t_reg = useTranslations('RegisterModal');
+  const t_err = useTranslations('Errors');
 
   // 表单字段状态
   const [emailOrPhone, setEmailOrPhone] = useState('');
@@ -68,45 +68,54 @@ const RegisterModal: React.FC = () => {
   const [code, setCode] = useState('');
   const [agreePolicy, setAgreePolicy] = useState(false);
 
-  // 客户端行内校验错误状态
+  // 认证表单逻辑 (从 useAuthForm 移入)
   const [errors, setErrors] = useState<FormErrors>({});
-  // 表单震动效果状态
   const [isShaking, setIsShaking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(getInitialCountdown());
 
-  // 自定义 Hook: 共享认证表单逻辑
-  const {
-    isLoading, // API 请求加载状态
-    setIsLoading,
-    apiError, // *仅用于* API 返回的错误
-    setApiError,
-    countdown, // 验证码倒计时
-    handleGetCode, // 获取验证码的方法
-    translateAndSetApiError, // 翻译 API 错误
-    clearErrors, // 清除 API 错误
-  } = useAuthForm();
-
-  // 自定义 Hook: 共享 OAuth 登录逻辑
+  // OAuth Hook
   const { handleOAuthClick } = useOAuth({
-    login, // 登录成功后的回调
+    login,
     closeModal: closeRegisterModal,
     setIsLoading,
-    translateAndSetApiError,
+    translateAndSetApiError: (error: unknown) => {
+      let msg = t_err('unknownError');
+      if (error instanceof ApiError) {
+        msg = t_err(`e${error.code}`, { defaultValue: msg });
+      } else if (error instanceof Error) {
+        if (error.message.includes('Invalid state')) {
+          msg = t_err('e2006');
+        } else {
+          msg = t_err('e2007');
+        }
+      } else if (typeof error === 'string') {
+        msg = t_err(error, { defaultValue: error });
+      }
+      setApiError(msg);
+    },
   });
 
   // --- 5. Memoization ---
-
-  // 缓存邮箱/手机号字段的有效性，用于控制 "获取验证码" 按钮的禁用状态
+  // [!! 关键修改 2: 修复 !!]
   const isEmailPhoneValid = useMemo(
     () => emailPhoneSchema.safeParse(emailOrPhone).success,
     [emailOrPhone]
   );
 
   // --- 6. Effects ---
+  // 倒计时
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
 
-  /**
-   * 效果: 每次弹窗打开时，重置所有表单状态。
-   * 使用 setTimeout 避免在关闭动画中看到状态重置的闪烁。
-   */
+  // 重置
   useEffect(() => {
     if (isRegisterModalOpen) {
       setTimeout(() => {
@@ -116,15 +125,14 @@ const RegisterModal: React.FC = () => {
         setCode('');
         setAgreePolicy(false);
         setErrors({});
-        clearErrors(); // 清除 `useAuthForm` 中的 `apiError`
+        setApiError(null);
         setIsShaking(false);
-      }, 100); // 延迟 100ms
+        setCountdown(getInitialCountdown());
+      }, 100);
     }
-  }, [isRegisterModalOpen, clearErrors]); // `clearErrors` 已在 useAuthForm 中 memoized
+  }, [isRegisterModalOpen]);
 
-  /**
-   * 效果: 允许用户按 'Escape' 键关闭弹窗。
-   */
+  // ESC 键
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -140,26 +148,17 @@ const RegisterModal: React.FC = () => {
   }, [isRegisterModalOpen, closeRegisterModal]);
 
   // --- 7. Render Guard ---
-
-  // 如果弹窗未打开，不渲染任何内容
   if (!isRegisterModalOpen) {
     return null;
   }
 
   // --- 8. Event Handlers ---
-
-  /**
-   * 阻止事件冒泡到父级 `div` (背景遮罩)
-   * 防止点击弹窗内容时触发 `closeRegisterModal`
-   */
   const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
-  /**
-   * 处理 "获取验证码" 按钮点击
-   */
+  // 获取验证码
   const handleGetCodeClick = async () => {
-    setErrors({}); // 清除旧的行内错误
-    // 1. 客户端校验邮箱/手机号
+    setErrors({});
+    setApiError(null);
     const emailValidation = emailPhoneSchema.safeParse(emailOrPhone);
     if (!emailValidation.success) {
       setErrors((prev) => ({
@@ -168,34 +167,39 @@ const RegisterModal: React.FC = () => {
       }));
       return;
     }
-    // 2. 调用 `useAuthForm` 中的方法
-    const errorMsg = await handleGetCode(emailOrPhone);
 
-    // 3. 根据结果显示 Toast
-    if (errorMsg) {
-      toast.error(errorMsg); // API 错误 Toast
-    } else {
-      toast.success(t_err('sendCodeSuccess')); // 成功 Toast
+    setIsLoading(true);
+    try {
+      await apiSendCode(emailOrPhone);
+      toast.success(t_err('sendCodeSuccess'));
+      setCountdown(COUNTDOWN_SECONDS);
+      localStorage.setItem(COUNTDOWN_TIMESTAMP_KEY, Date.now().toString());
+    } catch (error) {
+      console.error('Send code failed:', error);
+      if (error instanceof ApiError) {
+        const message = t_err(`e${error.code}`, {
+          defaultValue: t_err('unknownError'),
+        });
+        toast.error(message);
+      } else {
+        toast.error(t_err('unknownError'));
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  /**
-   * 切换到登录弹窗
-   */
+  // 切换到登录
   const switchToLogin = () => {
     closeRegisterModal();
     openLoginModal();
   };
 
-  /**
-   * 处理注册表单提交
-   */
+  // 提交注册
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault(); // 阻止表单默认的 HTML 提交行为
-
-    // 1. 重置状态
-    setErrors({}); // 清除所有客户端行内错误
-    setApiError(null); // 清除所有旧的 *API* 错误
+    e.preventDefault();
+    setErrors({});
+    setApiError(null);
 
     // 2. 客户端 Zod 校验
     const formData = {
@@ -207,10 +211,9 @@ const RegisterModal: React.FC = () => {
     };
     const validation = registerSchema.safeParse(formData);
 
-    // 3. 处理客户端校验失败
+    // 3. 客户端校验失败
     if (!validation.success) {
       const fieldErrors: FormErrors = {};
-      // 格式化 Zod 错误，以便设置到 `errors` 状态
       for (const issue of validation.error.issues) {
         const path = issue.path[0] as keyof FormErrors;
         if (!fieldErrors[path]) {
@@ -218,17 +221,13 @@ const RegisterModal: React.FC = () => {
         }
         fieldErrors[path].push(t_err(issue.message));
       }
-
-      // 关键: 只设置 `errors` 状态，用于显示行内错误
       setErrors(fieldErrors);
-
-      // 触发 "震动" 效果
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
-      return; // 终止提交
+      return;
     }
 
-    // 4. 客户端校验成功，准备 API 调用
+    // 4. 客户端校验成功
     setIsLoading(true);
     const payload = {
       emailOrPhone: validation.data.emailOrPhone,
@@ -239,40 +238,36 @@ const RegisterModal: React.FC = () => {
     // 5. 执行 API 调用
     try {
       await apiRegister(payload);
-
-      // 6. 处理 API 成功
+      // 6. API 成功
       toast.success(t_reg('registerSuccess'));
-      // 延迟 1 秒后切换到登录弹窗
       setTimeout(() => {
         switchToLogin();
       }, 1000);
     } catch (error) {
-      // 7. 处理 API 失败
-      let errorMessage = 'An unknown error occurred';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
+      // 7. API 失败
+      console.error('Registration failed:', error);
+      if (error instanceof ApiError) {
+        const message = t_err(`e${error.code}`, {
+          defaultValue: t_err('unknownError'),
+        });
+        setApiError(message);
+      } else {
+        setApiError(t_err('unknownError'));
       }
-      // 关键: 将 *API* 错误设置到按钮上方的 `apiError` 槽中
-      translateAndSetApiError(errorMessage);
     } finally {
-      // 8. 无论成功失败，都停止加载状态
       setIsLoading(false);
     }
   };
 
   // --- 9. JSX Render ---
-
   return (
-    // 背景遮罩，点击时关闭弹窗
+    // ... (其余 JSX 代码与您提供的文件 100% 相同) ...
     <div
       className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={closeRegisterModal}
       aria-modal="true"
       role="dialog"
     >
-      {/* 弹窗容器，通过 stopPropagation 阻止点击时关闭 */}
       <div
         className="relative m-4 w-full max-w-md rounded-lg bg-white p-8 shadow-2xl dark:bg-gray-900"
         onClick={stopPropagation}
@@ -443,7 +438,6 @@ const RegisterModal: React.FC = () => {
           </div>
 
           {/* API 错误提示槽 */}
-          {/* 这个位置 *只* 显示来自服务器的错误 (例如 "用户已存在") */}
           <div className="flex items-center justify-center space-x-2 text-sm text-red-500 h-5">
             {apiError && (
               <>

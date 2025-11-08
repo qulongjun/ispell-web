@@ -1,27 +1,25 @@
 /*
  * @Date: 2025-11-06
- * @Description: 用户反馈 API 服务
+ * @Description: 用户反馈 API 服务 (已更新为 code/message/data 结构)
  */
 
 import apiClient from '@/utils/api.utils';
-import { handleApiError } from '@/utils/error.utils';
+// [!! 新增 !!] 导入 ApiError 和 handleApiError
+import { handleApiError, ApiError } from '@/utils/error.utils';
 
-// 定义反馈类型，与后端和 i18n 保持一致
+// 定义反馈类型 (不变)
 export type FeedbackType = 'WORD' | 'FUNCTION' | 'BUG' | 'SUGGESTION';
 
-// [!! 新增 !!] 为 API 请求体定义一个强类型接口
+// (不变)
 interface FeedbackPayload {
   type: FeedbackType;
   content: string;
-  contactEmail?: string; // 联系邮箱是可选的
+  contactEmail?: string;
 }
 
 /**
+ * [!! 重大修改 !!]
  * 提交新的用户反馈
- * [!! 修改 !!] 此接口现在是公开的 (auth not required)
- * @param type 反馈类型
- * @param content 反馈内容
- * @param contactEmail (可选) 匿名用户的联系邮箱
  */
 export async function submitFeedback(
   type: FeedbackType,
@@ -31,8 +29,6 @@ export async function submitFeedback(
   const endpoint = '/feedback';
   console.log(`[Feedback Service] 提交反馈: ${type}`);
 
-  // [!! 修改 !!] 使用强类型接口构建请求体
-  // 使用展开运算符有条件地添加 contactEmail
   const bodyPayload: FeedbackPayload = {
     type,
     content,
@@ -40,8 +36,10 @@ export async function submitFeedback(
   };
 
   try {
-    // [!! 修改 !!]
-    // 假设 apiClient 第三个参数 `false` 表示这是一个公开接口，不需要强制 token
+    // [!! 1. 关键修复 !!]
+    // 第三个参数 (requireAuth) 必须为 false。
+    // 这告诉 apiClient: "如果请求失败了(401/403)，不要尝试刷新Token。"
+    // apiClient 仍会(正确地)附加
     const response = await apiClient(
       endpoint,
       {
@@ -51,16 +49,27 @@ export async function submitFeedback(
         },
         body: JSON.stringify(bodyPayload),
       },
-      true // [!!] 标记为公开访问
+      false // [!!] 必须是 false (代表此路由是公开的)
     );
 
+    // [!! 2. 关键修复 !!] 先检查 response.ok
     if (!response.ok) {
+      // e.g. 400 (Validation failed) or 403 (Invalid Token)
       await handleApiError(response, 'Failed to submit feedback.');
     }
 
-    return response.json();
+    // [!! 3. 关键修复 !!] 只有在 OK 之后才调用 .json()
+    const data = await response.json();
+
+    // [!! 4. 关键修复 !!] 检查业务代码
+    if (data.code === 0) {
+      return data.data; // 返回后端 success() 中的 data
+    } else {
+      // 抛出业务错误
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(`[Feedback Service Error] 提交反馈失败:`, error);
-    throw error;
+    throw error; // 向上抛出 (ApiError)
   }
 }

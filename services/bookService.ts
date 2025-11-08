@@ -1,71 +1,75 @@
 /*
  * @Date: 2025-10-29 21:17:59
- * @LastEditTime: 2025-11-06 23:46:02
- * @Description: 书籍相关 API 服务
+ * @Description: 书籍相关 API 服务 (已更新为 code/message/data 结构)
  */
 
 import apiClient from '@/utils/api.utils';
-import { handleApiError } from '@/utils/error.utils';
+// [!! 修改 !!] 导入 ApiError
+import { handleApiError, ApiError } from '@/utils/error.utils';
 import type { Language } from '@/types/book.types';
 import { SimpleWord } from '@/types/word.types';
 
 /**
+ * [!! 已修复 !!]
  * 获取完整的三级书籍层级结构（语言→书籍→章节）
- * @returns 书籍层级数据数组（按语言分组）
- * @throws {Error} - 接口调用失败时抛出错误
  */
 export async function fetchBookHierarchy(): Promise<Language[]> {
   const endpoint = '/books/hierarchy';
   console.log(`[Book Service] Fetching book hierarchy: ${endpoint}`);
 
   try {
-    // 无需认证，公开访问接口
     const response = await apiClient(endpoint, { method: 'GET' }, false);
 
+    // [!! 1. 关键修复 !!] 先检查 response.ok
     if (!response.ok) {
       await handleApiError(response, 'Failed to fetch book hierarchy.');
     }
 
-    const data: Language[] = await response.json();
-    console.log(
-      `[Book Service] Fetched book hierarchy successfully, total languages: ${data.length}`
-    );
+    // [!! 2. 关键修复 !!] 只有在 OK 之后才调用 .json()
+    const data = await response.json();
 
-    return data;
+    // [!! 3. 关键修复 !!] 检查业务代码
+    if (data.code === 0) {
+      return data.data; // 返回 Language[]
+    } else {
+      // 抛出业务错误
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(`[Book Service Error] Fetch book hierarchy failed:`, error);
-    throw error;
+    throw error; // 向上抛出 (可能是 ApiError)
   }
 }
 
 /**
- * [!! 新增函数 !!]
+ * [!! 已修复 !!]
  * 获取指定书本（listCode）的完整单词列表
- * @param listCode - 单词书的唯一标识
- * @returns 单词列表
- * @throws {Error} - 接口调用失败时抛出错误
  */
 export async function getWordsByBook(listCode: string): Promise<SimpleWord[]> {
   const endpoint = `/books/${listCode}/words`;
   console.log(`[Book Service] Fetching words for book: ${endpoint}`);
 
   try {
-    // 无需认证，公开访问接口
     const response = await apiClient(endpoint, { method: 'GET' }, false);
 
+    // [!! 1. 关键修复 !!] 先检查 response.ok
     if (!response.ok) {
+      // e.g. 404 Not Found
       await handleApiError(response, 'Failed to fetch book words.');
     }
 
-    // 后端返回 { words: [...] } 结构
-    const data: { words: SimpleWord[] } = await response.json();
-    console.log(
-      `[Book Service] Fetched ${data.words.length} words for ${listCode}.`
-    );
+    // [!! 2. 关键修复 !!] 只有在 OK 之后才调用 .json()
+    const data = await response.json();
 
-    return data.words; // 返回单词数组
+    // [!! 3. 关键修复 !!] 检查业务代码
+    if (data.code === 0) {
+      // 后端返回 { data: { words: [...] } }
+      return data.data.words; // 返回 SimpleWord[]
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(`[Book Service Error] Fetch book words failed:`, error);
-    throw error;
+    throw error; // 向上抛出 (ApiError)
   }
 }

@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-11-03 15:12:28
- * @LastEditTime: 2025-11-04 18:34:35
+ * @LastEditTime: 2025-11-08 11:56:19
  * @Description: 个人资料信息设置组件
  */
 'use client';
@@ -242,15 +242,17 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ user }) => {
               onChange={handleFileChange}
               className="hidden"
             />
-            <div
-              className="ml-4 text-sm text-gray-500 dark:text-gray-400"
-              dangerouslySetInnerHTML={{ __html: t('avatarHint') }}
-            />
-            {avatarFile && (
-              <p className="mt-1 text-xs text-green-600 dark:text-green-400">
-                ${t('chooseAvatar')}: {avatarFile.name}
-              </p>
-            )}
+            <div className="flex flex-col">
+              <div
+                className="ml-4 text-sm text-gray-500 dark:text-gray-400"
+                dangerouslySetInnerHTML={{ __html: t('avatarHint') }}
+              />
+              {avatarFile && (
+                <p className="ml-4 mt-1 text-xs text-green-600 dark:text-green-400">
+                  {t('chooseAvatar')}: {avatarFile.name}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 

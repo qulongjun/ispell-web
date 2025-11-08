@@ -1,28 +1,24 @@
 /*
  * @Date: 2025-10-30 14:56:46
- * @LastEditTime: 2025-11-01 11:40:07
- * @Description: 单词学习相关 API 服务
+ * @Description: 单词学习相关 API 服务 (已更新为 code/message/data 结构)
  */
 
 import apiClient from '@/utils/api.utils';
-import { handleApiError } from '@/utils/error.utils';
+// [!! 修改 !!] 导入 ApiError
+import { handleApiError, ApiError } from '@/utils/error.utils';
 import type { Word } from '@/types/word.types';
 
 /**
- * 今日学习单词扩展类型（包含学习进度状态和进度 ID）
+ * 今日学习单词扩展类型 (不变)
  */
 export interface LearningWord extends Word {
-  progressStatus: 'NEW' | 'REVIEW' | 'MASTERED' | string; // 学习状态
-  progressId: number; // 单词进度记录 ID
+  progressStatus: 'NEW' | 'REVIEW' | 'MASTERED' | string;
+  progressId: number;
 }
 
 /**
+ * [!! 已修复 !!]
  * 获取今日学习和复习的单词列表
- * @param listCode - 当前激活的单词书编码
- * @param dueNewCount - 今日剩余新词学习配额
- * @param dueReviewCount - 今日剩余复习单词配额
- * @returns 今日待学习/复习的单词列表
- * @throws {Error} - 接口调用失败时抛出错误
  */
 export async function fetchLearningWords(
   listCode: string,
@@ -35,32 +31,37 @@ export async function fetchLearningWords(
   try {
     const response = await apiClient(endpoint, { method: 'GET' });
 
+    // [!! 1. 关键修复 !!] 先检查 response.ok
     if (!response.ok) {
+      // e.g. 404 (PLAN_NOT_FOUND)
       await handleApiError(response, "Failed to fetch today's learning words.");
     }
 
+    // [!! 2. 关键修复 !!] 只有在 OK 之后才调用 .json()
     const data = await response.json();
-    const words: LearningWord[] = data.words || [];
-    console.log(
-      `[Word Service] Fetched today's words successfully: total=${words.length}`
-    );
 
-    return words;
+    // [!! 3. 关键修复 !!] 检查业务代码
+    if (data.code === 0) {
+      const words: LearningWord[] = data.data.words || [];
+      console.log(
+        `[Word Service] Fetched today's words successfully: total=${words.length}`
+      );
+      return words; // [!!] 返回 data.data.words
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(
       `[Word Service Error] Fetch today's learning words failed:`,
       error
     );
-    throw error;
+    throw error; // 向上抛出 (ApiError)
   }
 }
 
 /**
+ * [!! 已修复 !!]
  * 更新单词学习进度
- * @param progressId - 单词进度记录 ID
- * @param quality - 回答质量（1=错误，5=正确）
- * @returns 更新后的单词进度数据
- * @throws {Error} - 接口调用失败时抛出错误
  */
 export async function updateWordProgress(progressId: number, quality: number) {
   const endpoint = `/words/progress/${progressId}`;
@@ -75,21 +76,29 @@ export async function updateWordProgress(progressId: number, quality: number) {
       body: JSON.stringify({ quality }),
     });
 
+    // [!! 1. 关键修复 !!] 先检查 response.ok
     if (!response.ok) {
+      // e.g. 400 (Validation) or 404 (PROGRESS_NOT_FOUND)
       await handleApiError(response, 'Failed to update word progress.');
     }
 
+    // [!! 2. 关键修复 !!] 只有在 OK 之后才调用 .json()
     const data = await response.json();
-    console.log(
-      `[Word Service] Updated word progress successfully: progressId=${progressId}`
-    );
 
-    return data;
+    // [!! 3. 关键修复 !!] 检查业务代码
+    if (data.code === 0) {
+      console.log(
+        `[Word Service] Updated word progress successfully: progressId=${progressId}`
+      );
+      return data.data; // [!!] 返回 data.data
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(
       `[Word Service Error] Update word progress failed: progressId=${progressId}`,
       error
     );
-    throw error;
+    throw error; // 向上抛出 (ApiError)
   }
 }

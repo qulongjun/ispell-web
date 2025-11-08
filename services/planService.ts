@@ -1,19 +1,18 @@
 /*
  * @Date: 2025-10-29 23:14:16
- * @LastEditTime: 2025-11-07 09:48:43
- * @Description: 学习计划相关 API 服务 (已添加错题集管理)
+ * @Description: 学习计划相关 API 服务 (已更新为 code/message/data 结构)
  */
 
 import apiClient from '@/utils/api.utils';
-import { handleApiError } from '@/utils/error.utils';
+// [!! 修改 !!] 导入 ApiError
+import { handleApiError, ApiError } from '@/utils/error.utils';
 import type { LearningPlan, PlanDetails } from '@/types/book.types';
 // 假设 Word 类型定义在 @/types/word.types
 import type { Definition, Pronunciation, Word } from '@/types/word.types';
 
 /**
+ * [!! 已修复 !!]
  * 获取用户所有激活的学习计划
- * @returns 用户的学习计划列表
- * @throws {Error} - 接口调用失败或未认证时抛出错误
  */
 export async function fetchLearningList(): Promise<LearningPlan[]> {
   const endpoint = '/plans';
@@ -25,20 +24,22 @@ export async function fetchLearningList(): Promise<LearningPlan[]> {
     await handleApiError(response, 'Failed to fetch learning list.');
   }
 
-  const data: LearningPlan[] = await response.json();
-  console.log(
-    `[Plan Service] Fetched learning plans successfully, total: ${data.length}`
-  );
+  const data = await response.json();
 
-  return data;
+  if (data.code === 0) {
+    const learningList: LearningPlan[] = data.data;
+    console.log(
+      `[Plan Service] Fetched learning plans successfully, total: ${learningList.length}`
+    );
+    return learningList;
+  } else {
+    throw new ApiError(data.message, data.code, response.status);
+  }
 }
 
 /**
+ * [!! 已修复 !!]
  * 创建或更新学习计划
- * @param listCode - 单词书编码（如 cet4_core）
- * @param plan - 学习计划详情（包含计划类型、数值、复习策略、学习顺序）
- * @returns 操作后的学习计划数据
- * @throws {Error} - 接口调用失败时抛出错误
  */
 export async function savePlan(listCode: string, plan: PlanDetails) {
   const endpoint = '/plans';
@@ -65,16 +66,18 @@ export async function savePlan(listCode: string, plan: PlanDetails) {
   }
 
   const data = await response.json();
-  console.log(`[Plan Service] Saved learning plan successfully`);
 
-  return data;
+  if (data.code === 0) {
+    console.log(`[Plan Service] Saved learning plan successfully`);
+    return data.data;
+  } else {
+    throw new ApiError(data.message, data.code, response.status);
+  }
 }
 
 /**
+ * [!! 已修复 !!]
  * 删除学习计划（取消学习）
- * @param planId - 学习计划 ID
- * @returns 操作结果提示
- * @throws {Error} - 接口调用失败时抛出错误
  */
 export async function deletePlan(planId: number): Promise<{ message: string }> {
   const endpoint = `/plans/${planId}`;
@@ -86,27 +89,19 @@ export async function deletePlan(planId: number): Promise<{ message: string }> {
     await handleApiError(response, 'Failed to delete learning plan.');
   }
 
-  // 处理 204 No Content 响应（无返回体）
-  if (response.status === 204) {
-    console.log(
-      `[Plan Service] Deleted learning plan successfully: planId=${planId}`
-    );
-    return { message: 'Plan deleted successfully' };
-  }
-
+  // 虽然后端返回 200，但依然需要解析 body 来检查 code
   const data = await response.json();
-  console.log(
-    `[Plan Service] Deleted learning plan successfully: planId=${planId}`
-  );
 
-  return data;
+  if (data.code === 0) {
+    return { message: data.message || 'Plan deleted successfully' };
+  } else {
+    throw new ApiError(data.message, data.code, response.status);
+  }
 }
 
 /**
- * 重置学习计划（清空学习进度，重新开始）
- * @param planId - 学习计划 ID
- * @returns 重置后的学习计划数据
- * @throws {Error} - 接口调用失败时抛出错误
+ * [!! 已修复 !!]
+ * 重置学习计划
  */
 export async function resetPlan(planId: number) {
   const endpoint = `/plans/${planId}/reset`;
@@ -119,18 +114,20 @@ export async function resetPlan(planId: number) {
   }
 
   const data = await response.json();
-  console.log(
-    `[Plan Service] Reset learning plan successfully: planId=${planId}`
-  );
 
-  return data;
+  if (data.code === 0) {
+    console.log(
+      `[Plan Service] Reset learning plan successfully: planId=${planId}`
+    );
+    return data.data;
+  } else {
+    throw new ApiError(data.message, data.code, response.status);
+  }
 }
 
 /**
- * 激活学习计划（设置为当前正在学习的计划）
- * @param planId - 学习计划 ID
- * @returns 激活后的学习计划数据
- * @throws {Error} - 接口调用失败时抛出错误
+ * [!! 已修复 !!]
+ * 激活学习计划
  */
 export async function activatePlan(planId: number) {
   const endpoint = `/plans/${planId}/activate`;
@@ -143,18 +140,17 @@ export async function activatePlan(planId: number) {
   }
 
   const data = await response.json();
-  console.log(
-    `[Plan Service] Activated learning plan successfully: planId=${planId}`
-  );
 
-  return data;
+  if (data.code === 0) {
+    return data.data;
+  } else {
+    throw new ApiError(data.message, data.code, response.status);
+  }
 }
 
 /**
+ * [!! 已修复 !!]
  * 推进学习计划到下一天
- * @param planId - 学习计划 ID
- * @returns 推进后的学习计划数据
- * @throws {Error} - 接口调用失败时抛出错误
  */
 export async function advancePlan(planId: number) {
   const endpoint = `/plans/${planId}/advance`;
@@ -168,11 +164,15 @@ export async function advancePlan(planId: number) {
     }
 
     const data = await response.json();
-    console.log(
-      `[Plan Service] Advanced learning plan successfully: planId=${planId}`
-    );
 
-    return data;
+    if (data.code === 0) {
+      console.log(
+        `[Plan Service] Advanced learning plan successfully: planId=${planId}`
+      );
+      return data.data;
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(
       `[Plan Service Error] Advance learning plan failed: planId=${planId}`,
@@ -182,13 +182,11 @@ export async function advancePlan(planId: number) {
   }
 }
 
-/**
- * 定义从后端获取的按天单词数据类型
- */
+// ... (PlanDayWord/PlanDayWords types unchanged) ...
 export type PlanDayWord = {
   id: number;
-  word: string; // 后端 'text' 映射而来
-  definitions: Definition[] | null; // 后端 'definitions' JSON
+  word: string;
+  definitions: Definition[] | null;
   pronunciation?: Pronunciation[];
 };
 
@@ -198,9 +196,8 @@ export type PlanDayWords = {
 };
 
 /**
+ * [!! 已修复 !!]
  * 获取计划的按天单词列表
- * @param planId 计划ID
- * @returns Promise<PlanDayWords[]>
  */
 export async function getPlanWordsByDay(
   planId: number
@@ -215,9 +212,15 @@ export async function getPlanWordsByDay(
       await handleApiError(response, 'Failed to fetch plan words.');
     }
 
-    const data: PlanDayWords[] = await response.json();
-    console.log(`[Plan Service] Fetched plan words successfully.`);
-    return data;
+    const data = await response.json();
+
+    if (data.code === 0) {
+      const words: PlanDayWords[] = data.data;
+      console.log(`[Plan Service] Fetched plan words successfully.`);
+      return words;
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(
       `[Plan Service Error] Fetching plan words failed: planId=${planId}`,
@@ -227,11 +230,9 @@ export async function getPlanWordsByDay(
   }
 }
 
-// --- [!! 新增 !!] 错题集服务 ---
+// --- 错题集服务 ---
 
-/**
- * 错题集条目类型 (来自后端)
- */
+// ... (MistakeEntry type unchanged) ...
 export interface MistakeEntry {
   id: number;
   planId: number;
@@ -243,6 +244,7 @@ export interface MistakeEntry {
 }
 
 /**
+ * [!! 已修复 !!]
  * 1. 获取指定计划的错题集列表
  */
 export const getMistakes = async (planId: number): Promise<MistakeEntry[]> => {
@@ -250,10 +252,18 @@ export const getMistakes = async (planId: number): Promise<MistakeEntry[]> => {
   console.log(`[Plan Service] Fetching mistakes for plan: ${planId}`);
   try {
     const response = await apiClient(endpoint, { method: 'GET' });
+
     if (!response.ok) {
       await handleApiError(response, 'Failed to fetch mistakes.');
     }
-    return response.json();
+
+    const data = await response.json();
+
+    if (data.code === 0) {
+      return data.data;
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(`[Plan Service Error] Fetching mistakes failed:`, error);
     throw error;
@@ -261,6 +271,7 @@ export const getMistakes = async (planId: number): Promise<MistakeEntry[]> => {
 };
 
 /**
+ * [!! 已修复 !!]
  * 2. 获取错题集复习单词列表
  */
 export const getMistakeReviewWords = async (
@@ -272,11 +283,19 @@ export const getMistakeReviewWords = async (
   );
   try {
     const response = await apiClient(endpoint, { method: 'GET' });
+
     if (!response.ok) {
       await handleApiError(response, 'Failed to fetch mistake review words.');
     }
-    // 后端返回 { words: [...] } 结构
-    return response.json();
+
+    const data = await response.json();
+
+    if (data.code === 0) {
+      // 后端返回 { data: { words: [...] } } 结构
+      return data.data;
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(
       `[Plan Service Error] Fetching mistake review words failed:`,
@@ -287,6 +306,7 @@ export const getMistakeReviewWords = async (
 };
 
 /**
+ * [!! 已修复 !!]
  * 3. 从错题集移除单个单词
  */
 export const removeMistake = async (
@@ -299,10 +319,18 @@ export const removeMistake = async (
   );
   try {
     const response = await apiClient(endpoint, { method: 'DELETE' });
+
     if (!response.ok) {
       await handleApiError(response, 'Failed to remove mistake.');
     }
-    return response.json();
+
+    const data = await response.json();
+
+    if (data.code === 0) {
+      return { message: data.message || 'Mistake removed successfully' };
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(`[Plan Service Error] Removing mistake failed:`, error);
     throw error;
@@ -310,6 +338,7 @@ export const removeMistake = async (
 };
 
 /**
+ * [!! 已修复 !!]
  * 4. 清空计划的错题集
  */
 export const clearMistakes = async (
@@ -319,10 +348,18 @@ export const clearMistakes = async (
   console.log(`[Plan Service] Clearing all mistakes for plan: ${planId}`);
   try {
     const response = await apiClient(endpoint, { method: 'DELETE' });
+
     if (!response.ok) {
       await handleApiError(response, 'Failed to clear mistakes.');
     }
-    return response.json();
+
+    const data = await response.json();
+
+    if (data.code === 0) {
+      return { message: data.message || 'Mistakes cleared successfully' };
+    } else {
+      throw new ApiError(data.message, data.code, response.status);
+    }
   } catch (error) {
     console.error(`[Plan Service Error] Clearing mistakes failed:`, error);
     throw error;

@@ -1,13 +1,7 @@
 'use client';
 /*
  * @Date: 2025-11-06
- * @LastEditTime: 2025-11-07 20:36:23
- * @Description: 用户反馈模态框 (V6 - 由 AppContext 统一管理状态)
- *
- * [!! 重构 !!]
- * 1. 移除了 'isOpen' 和 'onClose' props。
- * 2. 导入 'useAppContext' 并从中获取 'isFeedbackModalOpen' 和 'closeFeedbackModal'。
- * 3. 组件现在是自管理的，只需在全局布局中渲染一次。
+ * @Description: 用户反馈模态框 (已更新为 i18n 错误处理)
  */
 
 import React, { useState } from 'react';
@@ -24,11 +18,11 @@ import {
 import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 
-// [!! 修改 !!] 导入 AppContext 并移除 props
 import { useAppContext } from '@/contexts/app.context';
 import { FeedbackType, submitFeedback } from '@/services/feedbackService';
 
-// [!! 移除 !!] 移除了 interface FeedbackModalProps
+// [!! 新增 !!] 导入 ApiError
+import { ApiError } from '@/utils/error.utils';
 
 const FEEDBACK_TYPE_CONFIG: { id: FeedbackType; icon: React.ElementType }[] = [
   { id: 'BUG', icon: Bug },
@@ -37,47 +31,62 @@ const FEEDBACK_TYPE_CONFIG: { id: FeedbackType; icon: React.ElementType }[] = [
   { id: 'WORD', icon: FileText },
 ];
 
-// [!! 修改 !!] 移除了 props
 const FeedbackModal: React.FC = () => {
   const t = useTranslations('FeedbackModal');
-  // [!! 修改 !!] 从 Context 获取状态和关闭方法
+  // [!! 新增 !!] 导入 Errors 翻译
+  const t_err = useTranslations('Errors');
+
   const { isLoggedIn, isFeedbackModalOpen, closeFeedbackModal } =
     useAppContext();
 
-  // 默认选中 'WORD'
   const [type, setType] = useState<FeedbackType>('WORD');
   const [content, setContent] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 清理表单
+  // 清理表单 (不变)
   const handleClose = () => {
     if (isSubmitting) return;
-    closeFeedbackModal(); // [!! 修改 !!] 调用 Context 的方法
+    closeFeedbackModal();
     setTimeout(() => {
-      // 重置为 'WORD'
       setType('WORD');
       setContent('');
       setContactEmail('');
     }, 300);
   };
 
-  // 提交表单 (逻辑不变)
+  /**
+   * [!! 重大修改 !!]
+   * 提交表单
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || !content.trim()) return;
 
     setIsSubmitting(true);
     try {
+      // [!!] submitFeedback 现在会抛出 ApiError
       await submitFeedback(
         type,
         content,
         !isLoggedIn ? contactEmail : undefined
       );
+
+      // 成功
       toast.success(t('submitSuccess'));
       handleClose();
     } catch (error) {
-      toast.error(t('submitError'));
+      // [!! 失败 !!]
+      console.error('Feedback submission failed:', error);
+      if (error instanceof ApiError) {
+        // e.g. code 6000 -> t_err('e6000')
+        const message = t_err(`e${error.code}`, {
+          defaultValue: t('submitError'),
+        });
+        toast.error(message);
+      } else {
+        toast.error(t('submitError'));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -85,7 +94,6 @@ const FeedbackModal: React.FC = () => {
 
   return (
     <AnimatePresence>
-      {/* [!! 修改 !!] 使用 Context 的 'isFeedbackModalOpen' */}
       {isFeedbackModalOpen && (
         <>
           {/* 遮罩层 (z-50) (不变) */}
@@ -99,21 +107,12 @@ const FeedbackModal: React.FC = () => {
             aria-hidden="true"
           />
 
-          {/* [!! 关键修复 1 !!]
-           * 新增一个全屏的、负责居中的 Flex 容器
-           * 它位于 z-[51]，在遮罩之上
-           */}
+          {/* 居中容器 (z-[51]) (不变) */}
           <div
             className="fixed inset-0 z-[51] flex items-center justify-center p-4"
-            onClick={handleClose} // 点击外部区域（p-4）也可以关闭
+            onClick={handleClose}
           >
-            {/* [!! 关键修复 2 !!]
-             * 模态框面板
-             * 1. 移除了 'fixed inset-0 m-auto'
-             * 2. 添加了 'relative' 和 'w-full'
-             * 3. 'max-w-2xl' 现在将生效
-             * 4. 'max-h-[90vh]' 将生效 (90% 屏幕高，比 50% 合理)
-             */}
+            {/* 模态框面板 (不变) */}
             <motion.div
               initial={{ opacity: 0, y: 50, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -122,14 +121,11 @@ const FeedbackModal: React.FC = () => {
               className="relative w-full max-w-2xl h-auto max-h-[90vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl flex flex-col"
               role="dialog"
               aria-modal="true"
-              onClick={(e) => e.stopPropagation()} // 阻止点击面板时关闭
+              onClick={(e) => e.stopPropagation()}
             >
               {/* 头部 (不变) */}
               <div className="flex items-center justify-between p-4 pl-5 shrink-0 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-3">
-                  <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-full">
-                    <MessageSquareWarning className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {t('title')}
                   </h2>
@@ -144,16 +140,14 @@ const FeedbackModal: React.FC = () => {
                 </button>
               </div>
 
-              {/* [!! 关键修复 3 !!]
-               * 保持 'min-h-0'，确保 form 在 max-h 约束下能正确收缩
-               */}
+              {/* 表单 (不变) */}
               <form
                 onSubmit={handleSubmit}
                 className="flex-1 flex flex-col overflow-hidden min-h-0"
               >
-                {/* 内部滚动区 */}
+                {/* 内部滚动区 (不变) */}
                 <div className="flex-1 p-5 space-y-5 overflow-y-auto">
-                  {/* 1. 反馈类型 (小卡片) (不变) */}
+                  {/* 1. 反馈类型 (不变) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       {t('typeLabel')}
@@ -195,7 +189,7 @@ const FeedbackModal: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* 2. 反馈内容 (5行) (不变) */}
+                  {/* 2. 反馈内容 (不变) */}
                   <div>
                     <label
                       htmlFor="feedbackContent"
