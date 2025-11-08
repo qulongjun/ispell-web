@@ -1,8 +1,10 @@
 /*
  * @Date: 2025-10-26 09:43:47
- * @LastEditTime: 2025-11-05 17:09:52
+ * @LastEditTime: 2025-11-07 21:52:10
  * @Description: 英文单词处理通用工具
  */
+
+import { Definition, Word } from '@/types/word.types';
 
 /**
  * 提取英文单词中所有元音字母的索引位置
@@ -213,4 +215,57 @@ export function findWordIndices(
   }
 
   return indices;
+}
+
+/**
+ * 将原始词库数据转换为 demo.json 格式
+ * @param {Array<Object>} sourceData 你的原始数据数组
+ * @returns {Array<Object>} 转换后的 Word 数组
+ */
+export function convertToDemoFormat(
+  sourceData: (Word & { word: string; wordId: string })[]
+) {
+  if (!Array.isArray(sourceData)) {
+    console.error('输入数据不是一个数组!');
+    return [];
+  }
+
+  return sourceData.map((item) => {
+    // 1. 处理释义 (translation)
+    // 将 [ {pos: 'adv', translation: '突然地'} ]
+    // 转换成 "adv. 突然地"
+    const translation = item.definitions
+      .map((def: Definition) => `${def.pos}. ${def.translation}`)
+      .join('; '); // 如果有多个释义，用分号隔开
+
+    // 2. 处理发音 (phonetic)
+    // 优先用美式，备用英式
+    const phonetic =
+      item.pronunciation?.us?.phonetic ||
+      item.pronunciation?.uk?.phonetic ||
+      ''; // 降级为空字符串
+
+    // 3. 处理例句 (sentences)
+    // 将 {en: '...', cn: '...'}
+    // 转换成 {text: '...', translation: '...'}
+    const sentences = (item.examples?.general || []) // 确保 general 存在
+      .map((ex) => ({
+        text: ex.en,
+        translation: ex.cn,
+      }))
+      // 过滤掉可能不完整的例句 (例如 "absent" 的 general 是空的)
+      .filter((s) => s.text && s.translation);
+
+    // 4. 组装成最终的 Word 对象
+    return {
+      wordId: item.wordId, // e.g., "CET4_14"
+      progressId: null, // 关键：演示模式
+      text: item.word, // e.g., "abruptly"
+      lang: 'en', // Hardcoded
+      phonetic: phonetic, // e.g., "ə'brʌptli"
+      definition: '', // 原始数据中没有英文释义，设为空
+      translation: translation, // e.g., "adv. 突然地"
+      sentences: sentences, // 转换后的例句数组
+    };
+  });
 }

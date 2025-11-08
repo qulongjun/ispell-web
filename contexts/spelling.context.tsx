@@ -1,9 +1,9 @@
-'use client';
 /*
  * @Date: 2025-10-28 22:05:53
- * @LastEditTime: 2025-11-05 17:48:00
- * @Description: SpellingContext (已添加本地持久化，并更新默认值)
+ * @LastEditTime: 2025-11-07 21:18:47
+ * @Description: SpellingContext (添加演示模式支持)
  */
+'use client';
 
 import React, {
   createContext,
@@ -22,7 +22,7 @@ import { DisplayMode, SpeechConfig, Stats, Word } from '@/types/word.types';
 import toast from 'react-hot-toast';
 import { PlanDetails } from '@/types/book.types';
 
-// [!! 关键新增 !!] 1. 定义本地存储的 Key
+// (本地存储 Key 和加载函数... 保持不变)
 const SETTINGS_KEYS = {
   SPEECH_CONFIG: 'ispell_speechConfig',
   IS_CUSTOM_SPEECH: 'ispell_isCustomSpeech',
@@ -32,15 +32,12 @@ const SETTINGS_KEYS = {
   SHOW_SENTENCE_TRANSLATION: 'ispell_showSentenceTranslation',
 };
 
-// [!! 关键新增 !!] 2. 定义一个安全的加载函数
 const loadFromLocalStorage = <T,>(key: string, defaultValue: T): T => {
-  // 仅在客户端（浏览器）执行
   if (typeof window === 'undefined') {
     return defaultValue;
   }
   try {
     const item = window.localStorage.getItem(key);
-    // 如果有存储的值，则解析它；否则返回默认值
     return item ? JSON.parse(item) : defaultValue;
   } catch (error) {
     console.warn(`Error reading localStorage key “${key}”:`, error);
@@ -48,7 +45,6 @@ const loadFromLocalStorage = <T,>(key: string, defaultValue: T): T => {
   }
 };
 
-// 时间格式化工具函数 (不变)
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -68,6 +64,7 @@ export interface SpellingContextType {
   isSessionComplete: boolean;
   showSentenceTranslation: boolean;
   hideWordInSentence: boolean;
+  isDemoMode: boolean; // [!! 新增 !!] 导出演示模式状态
   handleNext: () => void;
   handlePrev: () => void;
   startTimer: () => void;
@@ -109,11 +106,10 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
   const [words, setWords] = useState<Word[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
-  // [!! 关键修改 !!] 3. 使用 lazy initializer 从 localStorage 加载所有设置
+  // (设置状态... 保持不变)
   const [showSentences, setShowSentences] = useState<boolean>(() =>
     loadFromLocalStorage<boolean>(SETTINGS_KEYS.SHOW_SENTENCES, false)
   );
-
   const [showSentenceTranslation, setShowSentenceTranslation] =
     useState<boolean>(() =>
       loadFromLocalStorage<boolean>(
@@ -121,17 +117,12 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         true
       )
     );
-
-  // [!!] 默认值设为 'hideRandom'
   const [displayMode, setDisplayMode] = useState<DisplayMode>(() =>
     loadFromLocalStorage<DisplayMode>(SETTINGS_KEYS.DISPLAY_MODE, 'hideRandom')
   );
-
-  // [!!] 默认值设为 true (因为模式不再是 'full')
   const [hideWordInSentence, setHideWordInSentence] = useState<boolean>(() =>
     loadFromLocalStorage<boolean>(SETTINGS_KEYS.HIDE_WORD_IN_SENTENCE, true)
   );
-
   const defaultSpeechConfig: SpeechConfig = {
     lang: 'en-GB',
     rate: 0.8,
@@ -140,31 +131,27 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     accent: 'en-GB',
     gender: 'auto',
   };
-
   const [speechConfig, setSpeechConfig] = useState<SpeechConfig>(() => {
     const savedConfig = loadFromLocalStorage<Partial<SpeechConfig>>(
       SETTINGS_KEYS.SPEECH_CONFIG,
       {}
     );
-    // 合并默认配置和已存配置，确保所有字段都存在
     return { ...defaultSpeechConfig, ...savedConfig };
   });
-
   const [isCustomSpeech, setIsCustomSpeech] = useState<boolean>(() =>
     loadFromLocalStorage<boolean>(SETTINGS_KEYS.IS_CUSTOM_SPEECH, false)
   );
 
   const [isSessionComplete, setIsSessionComplete] = useState<boolean>(false);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false); // [!! 新增 !!] 演示模式状态
 
-  // (统计... 状态不变)
+  // (统计状态... 保持不变)
   const [startTime, setStartTime] = useState<number | null>(null);
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [failCount, setFailCount] = useState<number>(0);
   const [successCount, setSuccessCount] = useState<number>(0);
   const [speechSupported, setSpeechSupported] = useState<boolean>(true);
   const [failedWordsInSession, setFailedWordsInSession] = useState<Word[]>([]);
-
-  // (hasMadeMistake... 状态不变)
   const [hasMadeMistake, _setHasMadeMistake] = useState<boolean>(false);
   const hasMadeMistakeRef = useRef<boolean>(false);
 
@@ -173,7 +160,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     hasMadeMistakeRef.current = value;
   }, []);
 
-  // [!! 关键新增 !!] 4. 添加 useEffects 以便在状态更改时保存到 localStorage
+  // (useEffects for localStorage... 保持不变)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -186,7 +173,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [speechConfig]);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -199,7 +185,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [isCustomSpeech]);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -212,7 +197,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [displayMode]);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -228,7 +212,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [hideWordInSentence]);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -241,7 +224,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
     }
   }, [showSentences]);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -258,7 +240,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     }
   }, [showSentenceTranslation]);
 
-  // (startTimer, resetSession, loadWordsForSession, ... 其他函数保持不变)
+  // (startTimer, resetSession... 保持不变)
   const startTimer = useCallback(() => {
     setStartTime((prevStartTime) => {
       if (prevStartTime === null) {
@@ -284,15 +266,14 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     [startTimer, setHasMadeMistake]
   );
 
+  // (loadWordsForSession... 保持不变)
   const loadWordsForSession = useCallback(
     async (listCode: string, action: LearningAction) => {
       if (!listCode) return;
-
       const currentLearningList = learningList;
       const currentPlan = currentLearningList.find(
         (p) => p.listCode === listCode
       );
-
       if (!currentPlan) {
         console.warn(
           '[Spelling Context] loadWordsForSession: 未找到计划。 learningList 可能尚未刷新。'
@@ -301,13 +282,11 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         endLearningSession();
         return;
       }
-
       let dueNewCount = 0;
       let dueReviewCount = 0;
       const totalDueNew = currentPlan.progress.dueNewCount || 0;
       const totalDueReview = currentPlan.progress.dueReviewCount || 0;
       const learnedToday = currentPlan.progress.learnedTodayCount || 0;
-
       if (action === 'activate') {
         dueNewCount = Math.max(0, totalDueNew - learnedToday);
         dueReviewCount = totalDueReview;
@@ -319,7 +298,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
           action === 'reset' ? currentPlan.plan : (action as PlanDetails);
         const totalWords = currentPlan.book.totalWords;
         const remainingNewWords = 0 || totalWords;
-
         if (plan.type === 'customWords' && plan.value > 0) {
           dueNewCount = Math.min(plan.value, remainingNewWords);
         } else if (
@@ -333,34 +311,27 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         }
         dueReviewCount = action === 'reset' ? 0 : totalDueReview;
       }
-
       if (currentPlan.plan.reviewStrategy === 'NONE') {
         dueReviewCount = 0;
       }
-
       console.log(
         `[Spelling Context] 计算配额: new=${dueNewCount}, review=${dueReviewCount}`
       );
-
       if (dueNewCount === 0 && dueReviewCount === 0) {
-        // toast('今天没有学习或复习任务！', { icon: '🎉' });
         setIsSessionComplete(true);
         return;
       }
-
       try {
         const data = await fetchLearningWords(
           listCode,
           dueNewCount,
           dueReviewCount
         );
-
         if (data.length === 0) {
           toast('今天没有学习或复习任务！', { icon: '🎉' });
           setIsSessionComplete(true);
           return;
         }
-
         resetSession(data);
         console.log(
           `[Spelling Context] Loaded ${data.length} words for session.`
@@ -374,8 +345,11 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     [learningList, endLearningSession, resetSession]
   );
 
+  // [!! 核心修改 !!] 监听触发器，并设置 isDemoMode
   useEffect(() => {
     if (!isLearningSessionActive) {
+      // 会话结束时，重置演示模式
+      setIsDemoMode(false);
       return;
     }
 
@@ -383,6 +357,14 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       console.log(
         `[Spelling Context] 监听到 mistakeReviewTrigger，加载 ${mistakeReviewTrigger.words.length} 个错题...`
       );
+      // [!! 新增 !!] 检查 planId 是否为 0 (演示模式的约定)
+      if (mistakeReviewTrigger.planId === 0) {
+        console.log('[Spelling Context] 进入演示模式 (DEMO MODE).');
+        setIsDemoMode(true);
+      } else {
+        // 这是真实的错题集复习
+        setIsDemoMode(false);
+      }
       resetSession(mistakeReviewTrigger.words);
     } else if (learningTrigger && learningTrigger.listCode) {
       const { listCode, action } = learningTrigger;
@@ -391,6 +373,8 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         listCode,
         action
       );
+      // [!! 新增 !!] 确保常规学习重置演示模式
+      setIsDemoMode(false);
       if (action !== null) {
         loadWordsForSession(listCode, action);
       }
@@ -403,12 +387,12 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     resetSession,
   ]);
 
+  // (useEffect for speechSupported, timer... 保持不变)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setSpeechSupported(!!window.speechSynthesis);
     }
   }, []);
-
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (startTime && isLearningSessionActive) {
@@ -419,6 +403,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     return () => clearInterval(timer);
   }, [startTime, isLearningSessionActive]);
 
+  // (handleWordFailure... 保持不变, 它不涉及后端)
   const handleWordFailure = useCallback(() => {
     const word = words[currentIndex];
     if (!word) return;
@@ -431,6 +416,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     });
   }, [words, currentIndex]);
 
+  // (handleNext, handlePrev... 保持不变)
   const handleNext = useCallback(() => {
     if (hasMadeMistakeRef.current) {
       handleWordFailure();
@@ -456,7 +442,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     handleWordFailure,
     setHasMadeMistake,
   ]);
-
   const handlePrev = useCallback(() => {
     if (hasMadeMistakeRef.current) {
       handleWordFailure();
@@ -465,19 +450,26 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
   }, [handleWordFailure, setHasMadeMistake]);
 
+  // (incrementInputCount, incrementCorrectCount... 保持不变)
   const incrementInputCount = useCallback(() => {
     setFailCount((prev) => prev + 1);
   }, []);
-
   const incrementCorrectCount = useCallback(() => {
     setSuccessCount((prev) => prev + 1);
   }, []);
 
+  // [!! 核心修改 !!] 阻止演示模式下的进度更新
   const updateWordProgressInContext = useCallback(
     async (quality: number) => {
+      // [!! 新增 !!] 演示模式拦截
+      if (isDemoMode) {
+        console.log('[Spelling Context] 演示模式：跳过进度同步。');
+        return;
+      }
+      // [!! 修改 !!] 演示模式下的单词 progressId 为 null，也会在这里被拦截
       const word = words[currentIndex];
       if (!word || !word.progressId) {
-        console.error('无法更新进度：缺少 word 或 progressId');
+        console.warn('无法更新进度：缺少 word、progressId，或处于演示模式。');
         return;
       }
       const progressId = word.progressId as number;
@@ -493,10 +485,18 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         });
       }
     },
-    [words, currentIndex]
+    [words, currentIndex, isDemoMode] // [!! 新增 !!] 依赖 isDemoMode
   );
 
+  // [!! 核心修改 !!] 阻止演示模式下推进章节
   const handleAdvanceToNextChapter = useCallback(async () => {
+    // [!! 新增 !!] 演示模式拦截
+    if (isDemoMode) {
+      console.log('[Spelling Context] 演示模式：无法开启新章节。');
+      toast.error('演示模式无法开启新章节');
+      return;
+    }
+
     const currentPlan = learningList.find((p) => p.listCode === currentBookId);
     if (!currentPlan) {
       toast.error('未找到当前计划。');
@@ -506,7 +506,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       console.log(`[Spelling Context] Advancing plan ${currentPlan.planId}`);
       await advancePlan(currentPlan.planId);
       toast.success('已开启新章节！');
-
       if (refreshAllData) {
         await refreshAllData();
       }
@@ -514,14 +513,17 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       console.error('推进章节失败:', error);
       toast.error((error as Error).message || '开启新章节失败。');
     }
-  }, [currentBookId, refreshAllData, learningList]);
+  }, [currentBookId, refreshAllData, learningList, isDemoMode]); // [!! 新增 !!] 依赖 isDemoMode
 
+  // [!! 核心修改 !!] 退出时重置演示模式
   const handleReturnToHome = useCallback(async () => {
     endLearningSession();
     setWords([]);
     setIsSessionComplete(false);
+    setIsDemoMode(false); // [!! 新增 !!] 显式重置
   }, [endLearningSession]);
 
+  // (stats, currentWord... 保持不变)
   const stats = useMemo<Stats>(() => {
     const totalAttempts = failCount + successCount;
     const accuracyNum =
@@ -529,7 +531,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     const accuracy = Math.round(accuracyNum * 10) / 10;
     const currentPlan = learningList.find((p) => p.listCode === currentBookId);
     const masteredCount = currentPlan?.progress.masteredCount || 0;
-
     return {
       time: formatTime(timeElapsed),
       inputCount: totalAttempts,
@@ -538,7 +539,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       accuracy,
     };
   }, [timeElapsed, failCount, successCount, currentBookId, learningList]);
-
   const currentWord = useMemo<Word | undefined>(() => {
     return words[currentIndex];
   }, [words, currentIndex]);
@@ -556,6 +556,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     isSessionComplete,
     showSentenceTranslation,
     hideWordInSentence,
+    isDemoMode, // [!! 新增 !!]
     handleNext,
     handlePrev,
     startTimer,

@@ -14,13 +14,13 @@
   },
   "LoginModal": {
     "title": "ようこそ",
-    "emailOrPhone": "メールアドレスまたは電話番号",
+    "emailOrPhone": "メールアドレス",
     "password": "パスワード",
     "verificationCode": "認証コード",
-    "getCode": "コード取得",
+    "getCode": "コードを取得",
     "resendCode": "再送信 ({seconds}s)",
-    "rememberMe": "ログイン状態を保持",
-    "useCode": "コードでログイン",
+    "rememberMe": "ログイン状態を維持",
+    "useCode": "認証コードでログイン",
     "usePassword": "パスワードでログイン",
     "forgotPassword": "パスワードをお忘れですか？",
     "loginSubmit": "ログイン",
@@ -28,7 +28,7 @@
     "newUserHint": "新規ユーザーは自動的に登録されます",
     "registerNow": "今すぐ登録",
     "thirdParty": "または以下のアカウントでログイン",
-    "agreePolicyPrefix": "以下を読み、同意します",
+    "agreePolicyPrefix": "以下に同意します",
     "terms": "利用規約",
     "and": "および",
     "privacy": "プライバシーポリシー"
@@ -38,31 +38,35 @@
     "confirmPassword": "パスワード（確認用）",
     "registerSubmit": "登録",
     "registerSuccess": "登録が完了しました。ようこそ！",
-    "alreadyHaveAccount": "アカウントをお持ちですか？",
+    "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
     "loginNow": "今すぐログイン"
   },
   "ResetPasswordModal": {
     "title": "パスワードをリセット",
-    "newPassword": "新しいパスワード (8～16文字)",
+    "newPassword": "新しいパスワード (8-16桁)",
     "confirmNewPassword": "新しいパスワード（確認用）",
     "resetSubmit": "リセット",
-    "resetSuccess": "パスワードがリセットされました。新しいパスワードでログインしてください。",
+    "resetSuccess": "パスワードがリセットされました。新しいパスワードでログインしてください",
     "rememberPassword": "パスワードを思い出しましたか？",
     "loginNow": "今すぐログイン"
   },
   "LearningStart": {
-    "title": "学習の準備ができました",
-    "noActiveBookDescription": "本棚から学習する本を選びましょう！",
+    "title": "準備完了",
+    "noActiveBookDescription": "本棚から学習する本を選びましょう",
+    "noActiveBookDescription2": "あなたの指先には、世界を変える力があります。",
+    "testNow": "今すぐ体験",
     "browseBookshelfBtn": "本棚を見る",
     "openBookshelfBtn": "本棚を開く",
     "startLearningBtn": "学習を開始",
     "openNextChapterBtn": "次の章を開始",
-    "openingChapter": "開始中...",
+    "openingChapter": "開始しています...",
     "openNewChapterSuccess": "新しい章を開始しました！",
     "chapterProgress": "章の進捗： {current} / {total} 章",
     "todayProgressTitle": "今日の進捗",
     "todayTaskOnlyNew": "新規 {completed}/{total}",
     "todayTaskWithReview": "新規 {completedNew}/{totalNew} | 復習 {completedReview}/{totalReview}",
+    "congratsBookCompleteTitle": "おめでとうございます",
+    "congratsBookCompleteDesc": "{bookName} のすべての章を完了しました",
     "alt": {
       "selectBookIllustration": "本を選択するイラスト",
       "bookIllustration": "単語帳のイラスト"
@@ -77,11 +81,15 @@
       "totalWords": "全 {count} 語"
     },
     "LearningView": {
-      "currentActive": "学習中",
-      "noLearningBooks": "学習中の単語帳がありません。",
+      "currentActive": "現在学習中",
+      "noLearningBooks": "学習中の本がありません。本棚から選びましょう。",
+      "empty": {
+        "title": "本棚は空です",
+        "alt": "探索する宇宙飛行士のイラスト"
+      },
       "learningOrder": {
         "label": "順序",
-        "sequential": "収録順",
+        "sequential": "順番通り",
         "random": "ランダム"
       },
       "reviewStrategy": {
@@ -89,16 +97,18 @@
       },
       "buttons": {
         "active": "学習中",
-        "setAsCurrent": "学習中の本に設定",
-        "adjustPlan": "計画を調整",
+        "setAsCurrent": "プランを開始",
+        "adjustPlan": "プランを調整",
         "resetProgress": "進捗をリセット",
-        "cancelLearning": "学習を中止"
+        "cancelLearning": "学習を中止",
+        "viewPlanWords": "プラン表示",
+        "viewMistakes": "間違えた単語"
       }
     },
     "PlanSetupView": {
       "titles": {
-        "createPlan": "学習計画を作成: {bookName}",
-        "editPlan": "学習計画を編集: {bookName}"
+        "createPlan": "学習プランを作成: {bookName}",
+        "editPlan": "学習プランを編集: {bookName}"
       },
       "sectionTitles": {
         "generalPlan": "一般プラン",
@@ -108,8 +118,10 @@
       },
       "buttons": {
         "cancel": "キャンセル",
-        "createPlan": "計画を作成",
-        "updatePlan": "計画を更新"
+        "createPlan": "プラン作成",
+        "updatePlan": "プラン更新",
+        "loginToCreate": "ログインしてプラン作成",
+        "viewWords": "単語を表示"
       },
       "placeholders": {
         "days": "日数",
@@ -117,78 +129,112 @@
       },
       "errors": {
         "invalidCustomDays": "有効な日数を入力してください",
-        "invalidCustomWords": "有効な1日の単語数を入力してください"
+        "invalidCustomWords": "有効な1日の単語数を入力してください",
+        "needLogin": "学習プランを作成するにはログインしてください～"
       },
       "presetPlan": {
         "dayUnit": "日間",
         "wordsPerDay": "約 {count} 語/日"
       },
       "customPlan": {
-        "customDays": "日数を指定",
+        "customDays": "カスタム日数",
         "dailyWords": "1日の単語数",
-        "wordsPerDay": "計画: 約 {count} 語/日",
-        "totalDays": "計画: 約 {count} 日で完了"
+        "wordsPerDay": "プラン: 約 {count} 語/日",
+        "totalDays": "プラン: 約 {count} 日で完了"
       },
       "learningOrder": {
         "sequential": {
-          "name": "収録順",
-          "desc": "本の収録順で学習"
+          "name": "順番通り",
+          "desc": "本の順序で学習"
         },
         "random": {
           "name": "ランダム",
-          "desc": "全ての単語をシャッフル"
+          "desc": "すべての単語をシャッフル"
         }
       },
       "reviewStrategies": {
         "recommended": "推奨",
         "NONE": {
           "name": "復習なし",
-          "description": "新しい単語のみを学習し、復習は行いません。基礎がある場合や試験直前に適しています。"
+          "description": "新しい単語のみ学習し、復習はしません。基礎がある方や試験前の追い込みに適しています。"
         },
         "EBBINGHAUS": {
           "name": "エビングハウス",
-          "description": "エビングハウスの忘却曲線に基づき、忘却の節目（例：1, 2, 4, 7日後）に復習をスケジューリングします。"
+          "description": "エビングハウスの忘却曲線に基づき、主要な忘却時点（例：1、2、4、7日後）で賢く復習をスケジュールします。"
         },
         "SM2": {
           "name": "SM-2 アルゴリズム",
-          "description": "スマートな間隔反復（SRS）。あなたの回答に基づき、各単語の最適な復習タイミングを動的に調整します。"
+          "description": "スマートな間隔反復。あなたの回答に基づき、各単語の最適な復習タイミングを動的に調整します。"
         },
         "LEITNER": {
           "name": "ライトナーシステム",
-          "description": "古典的なフラッシュカードシステム。正解した単語は次のレベル（より長い間隔）へ、間違えた単語は最初のレベルに戻ります。"
+          "description": "古典的なカードボックスシステム。正解した単語は次のレベル（より長い間隔）に進み、間違えた単語は最初のレベルに戻ります。"
         }
       }
     },
     "BrowserView": {
-      "noBooksInCategory": "このカテゴリにはまだ書籍がありません。",
+      "noBooksInCategory": "このカテゴリには本がありません。",
       "aria": {
         "tabLabel": "{categoryName} カテゴリに切り替え",
         "bookRadiogroupLabel": "学習する単語帳を選択"
       }
+    },
+    "PlanWordsModal": {
+      "title": "単語プラン: {bookName}",
+      "loading": "単語プランを読み込み中...",
+      "error": "プランを読み込めませんでした。後でもう一度お試しください。",
+      "dayHeader": "{day} 日目",
+      "wordCount": "{count} 語",
+      "empty": "このプランには単語がありません。",
+      "close": "閉じる",
+      "searchPlaceholder": "{count} 語から検索...",
+      "noResults": "“{query}” を含む単語は見つかりませんでした"
+    },
+    "MistakeModal": {
+      "title": "間違えた単語: {bookName}",
+      "loading": "リストを読み込み中...",
+      "error": "リストを読み込めませんでした。後でもう一度お試しください。",
+      "empty": "素晴らしい！間違えた単語はありません。",
+      "emptyReview": "間違えた単語はありません。復習の必要はありません。",
+      "close": "閉じる",
+      "mistakeCount": "{count} 回間違えました",
+      "removeAria": "この単語を削除",
+      "removeSuccess": "削除しました",
+      "removeError": "削除に失敗しました",
+      "clearAll": "すべてクリア",
+      "clearAllSuccess": "リストをクリアしました",
+      "clearAllError": "クリアに失敗しました",
+      "clearAllConfirmTitle": "本当にすべてクリアしますか？",
+      "clearAllConfirmDesc": "この操作により、『{bookName}』で間違えた単語の記録がすべて削除されます。元に戻すことはできません。",
+      "clearAllConfirmBtn": "クリア",
+      "reviewAll": "すべて復習 ({count} 語)",
+      "strategyHint": "ヒント：正しくスペルすると間違いカウントが減り、0になるとリストから自動的に削除されます。"
     }
   },
   "Settings": {
+    "pageTitle": "システム設定",
+    "pageDescription": "アプリケーションの基本設定を管理します",
     "sectionTitles": {
-      "speechSettings": "音声設定",
-      "displaySettings": "単語の表示",
-      "sentenceSettings": "コンテンツ表示"
+      "appSettings": "アプリ設定"
     },
     "labels": {
       "speechSource": "発音ソース",
       "accent": "アクセント",
-      "speechRate": "再生速度",
+      "speechRate": "速度",
       "voiceGender": "声",
-      "displayMode": "モード",
-      "showSentences": "例文の表示"
+      "displayMode": "暗記モード",
+      "hideWordInSentence": "例文の単語を隠す",
+      "showSentences": "例文を表示",
+      "showSentenceTranslation": "例文の翻訳を表示"
     },
     "options": {
       "speechSource": {
-        "default": "デフォルト (API)",
-        "custom": "カスタム (ブラウザ)"
+        "default": "デフォルト",
+        "custom": "カスタム"
       },
       "accent": {
-        "american": "アメリカ英語",
-        "british": "イギリス英語"
+        "american": "アメリカ",
+        "british": "イギリス"
       },
       "gender": {
         "auto": "ランダム",
@@ -204,11 +250,16 @@
       }
     },
     "aria": {
-      "openSettings": "設定を開く",
-      "closeSettings": "設定を閉じる"
-    }
+      "openSettings": "設定"
+    },
+    "feedbackBtn": "フィードバック",
+    "feedbackCardTitle": "フィードバック",
+    "feedbackCardDescription": "問題が発生した場合や新しい提案がありますか？お気軽にお知らせください。"
   },
   "Words": {
+    "DefinitionDisplay": {
+      "noDefinition": "定義がありません"
+    },
     "WordList": {
       "drawer": {
         "title": "単語リスト",
@@ -223,7 +274,7 @@
       "timing": "時間",
       "attempts": "試行回数",
       "correctSpelling": "正解スペル",
-      "mastered": "習得済み",
+      "remainingWords": "残り単語",
       "accuracy": "正解率"
     },
     "Pronunciation": {
@@ -233,15 +284,12 @@
         "playUk": "イギリス英語の発音を再生",
         "playUs": "アメリカ英語の発音を再生"
       },
-      "unsupportedHint": "ブラウザは音声合成をサポートしていません"
+      "unsupportedHint": "ブラウザが音声機能に対応していません"
     },
     "Sentence": {
-      "show": "例文を表示",
-      "hide": "例文を隠す",
       "aria": {
-        "show": "例文を表示",
-        "hide": "例文を隠す",
-        "toggleTranslation": "翻訳の表示/非表示"
+        "prevSentence": "前の文",
+        "nextSentence": "次の文"
       }
     },
     "Relations": {
@@ -250,7 +298,7 @@
       "relatedWordsTitle": "関連語",
       "aria": {
         "show": "関連語を表示",
-        "hide": "関連語を隠す"
+        "hide": "関連語を非表示"
       }
     }
   },
@@ -258,38 +306,220 @@
     "Confirmation": {
       "confirm": "確認",
       "cancel": "キャンセル"
+    },
+    "buttons": {
+      "save": "保存",
+      "cancel": "キャンセル",
+      "confirm": "確認",
+      "delete": "削除",
+      "edit": "編集",
+      "bind": "連携",
+      "unbind": "連携解除"
+    },
+    "messages": {
+      "noChangesToSave": "保存する変更はありません",
+      "operationSuccess": "操作が成功しました",
+      "operationFailed": "操作に失敗しました。後でもう一度お試しください"
     }
   },
   "Errors": {
-    "invalidFormat": "有効なメールアドレスまたは電話番号を入力してください",
+    "invalidFormat": "有効なメールアドレスを入力してください",
     "min8": "パスワードは8文字以上である必要があります",
     "max16": "パスワードは16文字を超えることはできません",
     "length6": "認証コードは6桁である必要があります",
     "passwordsMismatch": "入力された2つのパスワードが一致しません",
     "agreePolicy": "利用規約とプライバシーポリシーに同意してください",
-    "invalidCode": "認証コードが無効か、期限切れです",
-    "invalidCredentials": "メールアドレス/電話番号またはパスワードが正しくありません",
-    "passwordNotSupported": "このアカウントはパスワードログインをサポートしていません。認証コードを使用してください。",
-    "userAlreadyExists": "このメールアドレスまたは電話番号は既に登録されています",
+    "invalidCode": "認証コードが無効か、有効期限が切れています",
+    "invalidCredentials": "メールアドレスまたはパスワードが正しくありません",
+    "passwordNotSupported": "このアカウントはパスワードログインに対応していません。認証コードを使用してください",
+    "infoNotComplete": "ユーザー情報が不完全なため、パスワードをリセットできません",
+    "userAlreadyExists": "このメールアドレスはすでに登録されています",
     "userNotFound": "このユーザーは存在しません",
-    "sendCodeFailed": "認証コードの送信に失敗しました。しばらくしてからもう一度お試しください。",
-    "sendCodeSuccess": "認証コードを送信しました。ご確認ください。",
-    "loginFailed": "ログインに失敗しました。しばらくしてからもう一度お試しください。",
-    "unknownError": "不明なエラーが発生しました。しばらくしてからもう一度お試しください。",
-    "oauthFailed": "サードパーティでのログインに失敗しました。しばらくしてからもう一度お試しください。",
-    "oauthStateMismatch": "セキュリティ検証に失敗しました。ページを更新してもう一度お試しください。"
+    "sendCodeFailed": "認証コードの送信に失敗しました。後でもう一度お試しください",
+    "sendCodeSuccess": "認証コードを送信しました。ご確認ください",
+    "noEmailORPhone": "認証コードを送信できるメールアドレスまたは電話番号がありません",
+    "loginFailed": "ログインに失敗しました。後でもう一度お試しください",
+    "unknownError": "不明なエラーが発生しました。後でもう一度お試しください",
+    "oauthFailed": "サードパーティでのログインに失敗しました。後でもう一度お試しください",
+    "oauthStateMismatch": "セキュリティ検証に失敗しました。ページを更新してもう一度お試しください",
+    "nicknameRequired": "ニックネームを入力してください",
+    "nicknameTooLong": "ニックネームは10文字を超えることはできません",
+    "avatarTooLarge": "アバターファイルは2MBを超えることはできません"
   },
   "Alt": {
     "wechat": "WeChatでログイン",
     "qq": "QQでログイン",
     "google": "Googleでログイン",
-    "github": "GitHubでログイン"
+    "github": "GitHubでログイン",
+    "userAvatar": "ユーザーアバター",
+    "changeAvatar": "アバターを変更"
   },
   "UserMenu": {
     "label": "ユーザーメニュー",
     "hello": "こんにちは",
     "profileSettings": "プロフィール設定",
     "systemSettings": "システム設定",
-    "logout": "ログアウト"
+    "logout": "ログアウト",
+    "changelog": "更新履歴",
+    "donate": "寄付"
+  },
+  "Profile": {
+    "pageTitle": "プロフィール設定",
+    "pageDescription": "個人情報、パスワード、アカウント連携を管理します",
+    "profileInfo": {
+      "title": "プロフィール",
+      "avatarLabel": "アバター",
+      "avatarHint": "アバターをクリックして画像を変更<br />JPG、PNG形式に対応、2MBまで",
+      "nicknameLabel": "ニックネーム",
+      "nicknamePlaceholder": "ニックネームを入力してください",
+      "saveSuccess": "プロフィールを更新しました",
+      "chooseAvatar": "アバターを選択しました"
+    },
+    "changePassword": {
+      "title": "パスワード変更",
+      "setPasswordTitle": "パスワード設定",
+      "description": "認証コードを使用してログインパスワードを変更します。",
+      "setPasswordDescription": "現在サードパーティアカウントでログインしており、パスワードが設定されていません。ここでログインパスワードを設定できます。",
+      "contactLabel_email": "メールアドレス",
+      "contactLabel_phone": "電話番号",
+      "verificationCodeLabel": "認証コード",
+      "verificationCodePlaceholder": "認証コードを入力",
+      "newPasswordLabel": "新しいパスワード",
+      "newPasswordPlaceholder": "8-16桁、英数字を含む",
+      "confirmPasswordLabel": "新しいパスワード（確認用）",
+      "confirmPasswordPlaceholder": "新しいパスワードを再入力",
+      "getCodeBtn": "コードを取得",
+      "resendCodeBtn": "{seconds}s 後に再試行",
+      "saveSuccess_change": "パスワードを変更しました",
+      "saveSuccess_set": "パスワードを設定しました"
+    },
+    "accountBindings": {
+      "title": "アカウント連携",
+      "description": "サードパーティアカウントと連携すると、そのアカウントで迅速にログインできます",
+      "github": "GitHub",
+      "google": "Google",
+      "bindBtn": "連携",
+      "unbindBtn": "連携解除",
+      "unbindConfirm": "{provider} との連携を解除してもよろしいですか？",
+      "unbindSuccess": "{provider} との連携を解除しました",
+      "bindFailed": "連携リンクの取得に失敗しました。後でもう一度お試しください"
+    },
+    "deleteAccount": {
+      "title": "危険な操作",
+      "sectionTitle": "アカウント削除",
+      "description": "慎重に操作してください。一度アカウントを削除すると、学習記録、個人設定、連携したサードパーティアカウントなど、すべてのデータが復元できなくなります。",
+      "deleteBtn": "アカウントを削除",
+      "modalTitle": "本当にアカウントを削除しますか？",
+      "warning": "この操作は元に戻すことができません！",
+      "deleteInfo1": "すべての学習プラン、進捗、個人情報が永久に削除されます。",
+      "deleteInfo2": "ニックネームとアバターがリセットされ、連携したサードパーティアカウントが解除されます。",
+      "confirmInputLabel": "削除を確認するため、ニックネーム「{nickname}」を入力してください。",
+      "confirmInputPlaceholder": "ニックネームを入力して確認",
+      "confirmDeleteBtn": "理解しました、削除します",
+      "deleteSuccess": "アカウントは正常に削除されました",
+      "deleteFailed": "削除に失敗しました。後でもう一度お試しください"
+    }
+  },
+  "Donation": {
+    "qrCode": {
+      "alipayTitle": "Alipayで寄付",
+      "wechatTitle": "WeChatで寄付",
+      "scanHint": "QRコードを長押しして寄付"
+    },
+    "footer": {
+      "thankYou": "皆様の善意とご支援に感謝いたします。より多くの子供たちに平等な学習機会を提供します"
+    },
+    "certificate": {
+      "closeLabel": "証明書表示を閉じる",
+      "altText": "寄付公示証明書の拡大画像"
+    },
+    "publicity": {
+      "title": "寄付収支の公示",
+      "closeLabel": "閉じる",
+      "totalDonation": "寄付総額",
+      "operationCost": "運営コスト",
+      "publicWelfareExpense": "公益支出",
+      "certificateLabel": "寄付公示証明書：",
+      "viewFullCert": "クリックして全証明書を表示",
+      "updateHint": "公示データは毎月更新され、すべての寄付が公開され透明であることを保証します。監督を歓迎します",
+      "empty": "公示データはまだありません。初月のデータは翌月初めに更新されます。"
+    },
+    "main": {
+      "title": "寄付",
+      "subtitle": "すべての農村の子供たちの健やかな成長を支援し、彼らの未来を輝かせましょう",
+      "desc1": "山々に囲まれた一部の遠隔地では、質の高い学習リソースが特に不足しており、ここの子供たちは外の世界を知る機会がほとんどありません。彼らは知識を探求することを渇望していますが、基本的な教材、設備、指導の不足により障害に直面しています。私たちは皆の力を集結させ、これらの子供たちのために未来への橋を築きたいと願っています。",
+      "desc2": "ウェブサイトの運営に必要な最低限の経費を除き、残りの寄付はすべて遠隔地の子供たちの学習支援に使用されます。"
+    },
+    "donateNow": {
+      "title": "今すぐ寄付",
+      "hint": "お好みの支払い方法を選択し、QRコードをスキャンして寄付を完了してください。すべての寄付は、遠隔地の子供たちに実質的な助けをもたらします。"
+    },
+    "instructions": {
+      "title": "寄付について",
+      "viewPublicityBtn": "寄付公示を表示",
+      "item1": "ウェブサイトの基本運営コスト（サーバー、ドメインなど）を除き、すべての寄付金は遠隔地の公益学習プロジェクトに使用されます",
+      "item2": "毎月寄付の収支明細を公示し、資金の透明性と追跡可能性を確保し、社会の監督を受け入れます",
+      "item3": "寄付金額に制限はありません。すべてのお金が子供たちへの実質的な助けとなります",
+      "item4": "運営コストは最低限に抑え、公益用途を最大化します"
+    },
+    "aria": {
+      "closeCertificate": "証明書表示を閉じる",
+      "closePublicity": "公示を閉じる",
+      "viewPublicity": "寄付公示を表示"
+    }
+  },
+  "FeedbackModal": {
+    "title": "フィードバック",
+    "close": "閉じる",
+    "typeLabel": "フィードバックの種類",
+    "contentLabel": "詳細内容",
+    "contentPlaceholder": "発生した問題や提案を詳しく説明してください（2000文字以内）",
+    "submitBtn": "送信",
+    "cancelBtn": "キャンセル",
+    "submitting": "送信中...",
+    "submitSuccess": "フィードバックありがとうございます！",
+    "submitError": "送信に失敗しました。後でもう一度お試しください。",
+    "types": {
+      "WORD": "語彙の問題",
+      "FUNCTION": "ウェブサイト機能",
+      "BUG": "不具合報告",
+      "SUGGESTION": "機能提案"
+    },
+    "contactLabel": "メールアドレス (任意)",
+    "contactPlaceholder": "返信が必要な場合...",
+    "contactHint": "ログインしていないユーザーは、連絡可能なメールアドレスを記入してください。"
+  },
+  "WordDisplay": {
+    "loginPrompt": "ログインして例文の表示、学習進捗の保存、間違えた単語の記録をご利用ください。"
+  },
+  "DonateBanner": {
+    "text": "すべての農村の子供たちの健やかな成長を支援し、彼らの未来を輝かせましょう。",
+    "link": "詳細を見る",
+    "closeAriaLabel": "寄付バナーを閉じる"
+  },
+  "Footer": {
+    "copyright": "iSpell. All rights reserved.",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー",
+    "donate": "寄付",
+    "changelogLink": "更新履歴",
+    "feedbackLink": "フィードバック"
+  },
+  "Changelog": {
+    "title": "更新履歴",
+    "description": "新機能と改善点をご覧ください。",
+    "types": {
+      "new": "新規",
+      "fix": "修正",
+      "refactor": "リファクタ",
+      "perf": "パフォーマンス",
+      "docs": "書籍"
+    },
+    "v1_0_0": {
+      "new1": "iSpell が正式にリリースされました！",
+      "new2": "メール/パスワード、メール認証コード、およびサードパーティ（GitHub、Google）認証によるログインをサポート。",
+      "new3": "単語の閲覧、プラン作成、スペル練習、スマート復習などのスペル・学習モジュールを実装。",
+      "docs1": "学生から留学まで、あらゆるシーンをカバーする67冊の英単語帳をリリース。"
+    }
   }
 }

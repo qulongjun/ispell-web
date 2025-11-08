@@ -1,7 +1,7 @@
 'use client';
 /*
  * @Date: 2025-10-31 10:21:20
- * @LastEditTime: 2025-11-07 16:24:25
+ * @LastEditTime: 2025-11-07 23:53:28
  * @Description: 捐赠页面 (已优化布局并添加公示空状态)
  */
 import React, { useState } from 'react';
@@ -252,7 +252,7 @@ const DonationPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
             {t('main.title')}
           </h1>
-          <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
             {t('main.subtitle')}
           </p>
         </div>
@@ -296,7 +296,7 @@ const DonationPage: React.FC = () => {
               {t('instructions.viewPublicityBtn')}
             </button>
           </div>
-          <div className="space-y-2 max-w-2xl mx-auto">
+          <div className="space-y-2 mx-auto">
             <DonationItem textKey="item1" />
             <DonationItem textKey="item2" />
             <DonationItem textKey="item3" />

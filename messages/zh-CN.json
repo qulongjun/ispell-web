@@ -52,7 +52,9 @@
   },
   "LearningStart": {
     "title": "准备就绪",
-    "noActiveBookDescription": "从书架挑选一本书，即刻开始学习！",
+    "noActiveBookDescription": "从书架挑选一本书，即刻开始学习",
+    "noActiveBookDescription2": "你的指尖，有改变世界的力量。",
+    "testNow": "立即体验",
     "browseBookshelfBtn": "逛逛书架",
     "openBookshelfBtn": "打开书架",
     "startLearningBtn": "开始学习",
@@ -79,6 +81,7 @@
       "totalWords": "共 {count} 词"
     },
     "LearningView": {
+      "title": "在学",
       "currentActive": "当前激活",
       "noLearningBooks": "您没有正在学习的书籍，去挑一本吧。",
       "empty": {
@@ -86,7 +89,7 @@
         "alt": "一个宇航员在探索的插图"
       },
       "learningOrder": {
-        "label": "顺序",
+        "label": "词序",
         "sequential": "顺序",
         "random": "乱序"
       },
@@ -101,6 +104,24 @@
         "cancelLearning": "取消学习",
         "viewPlanWords": "查看方案",
         "viewMistakes": "错题集"
+      },
+      "planDesc": {
+        "unavailable": "计划信息不可用",
+        "presetDays": "计划: {days} 天 (约 {wordsPerDay} 词/天)",
+        "customWords": "计划: {wordsPerDay} 词/天 (约 {days} 天)",
+        "unknown": "未知的计划"
+      },
+      "planProgress": {
+        "detailed": "进度: {current} / {total} 天 (约 {wordsPerDay} 词/天)",
+        "completed": "已完成学习"
+      },
+      "modals": {
+        "resetTitle": "重置进度",
+        "cancelTitle": "取消学习",
+        "resetDesc": "你确定要重置《{bookName}》的学习进度吗？",
+        "cancelDesc": "你确定要取消学习《{bookName}》吗？",
+        "resetConfirmBtn": "确认重置",
+        "cancelConfirmBtn": "取消学习"
       }
     },
     "PlanSetupView": {
@@ -207,6 +228,26 @@
       "clearAllConfirmBtn": "确认清空",
       "reviewAll": "复习全部 ({count} 词)",
       "strategyHint": "提示：拼写正确可降低拼错计数，次数为 0 时自动移出错题集。"
+    },
+    "toast": {
+      "creatingPlan": "正在创建计划...",
+      "createPlanSuccess": "计划已创建！",
+      "createPlanError": "创建计划失败，请稍后重试",
+      "updatingPlan": "正在更新计划...",
+      "updatePlanSuccess": "计划已更新！",
+      "updatePlanError": "更新计划失败，请稍后重试",
+      "activatingPlan": "正在激活计划...",
+      "activatePlanSuccess": "已切换激活计划",
+      "activatePlanError": "激活失败，请重试",
+      "mistakeListEmpty": "错题集是空的！",
+      "mistakeReviewStarted": "错题复习已开始！",
+      "mistakeReviewStartError": "启动复习失败，请重试",
+      "resettingProgress": "正在重置进度...",
+      "resetProgressSuccess": "学习进度已重置",
+      "resetProgressError": "重置失败，请稍后重试",
+      "cancellingPlan": "正在取消学习...",
+      "cancelPlanSuccess": "已取消学习该书籍",
+      "cancelPlanError": "取消学习失败，请稍后重试"
     }
   },
   "Settings": {
@@ -312,12 +353,16 @@
       "delete": "删除",
       "edit": "编辑",
       "bind": "绑定",
-      "unbind": "解除绑定"
+      "unbind": "解除绑定",
+      "retry": "重试"
     },
     "messages": {
       "noChangesToSave": "没有需要保存的更改",
       "operationSuccess": "操作成功",
       "operationFailed": "操作失败，请稍后再试"
+    },
+    "aria": {
+      "close": "关闭"
     }
   },
   "Errors": {
@@ -443,8 +488,8 @@
       "empty": "暂无公示数据，首月数据将在下月初更新。"
     },
     "main": {
-      "title": "助力偏远地区学子",
-      "subtitle": "致力于每个乡村孩子的健康成长，让孩子的未来发光发亮",
+      "title": "爱心捐赠",
+      "subtitle": "助力每个乡村孩子的健康成长，让孩子的未来发光发亮",
       "desc1": "群山环绕的一些偏远地区，优质的学习资源尤为稀缺，这里的孩子们没有多少能够了解外面世界的机会。他们渴望探索知识，却因缺乏基础的教材、设备和指导而面临阻碍。我们希望汇聚大家的力量，为这些孩子搭建通往未来的桥梁。",
       "desc2": "我们仅扣除维持网站运转的必要基础费用，剩余捐赠将全部用于支持偏远地区孩子的学习。"
     },
@@ -487,8 +532,11 @@
     "contactPlaceholder": "如果您希望我们回复您...",
     "contactHint": "未登录用户可填写邮箱，以便我们与您联系。"
   },
+  "WordDisplay": {
+    "loginPrompt": "登录以查看例句，保存学习进度和错题记录。"
+  },
   "DonateBanner": {
-    "text": "致力于每个乡村孩子的健康成长，让孩子的未来发光发亮。",
+    "text": "助力每个乡村孩子的健康成长，让孩子的未来发光发亮。",
     "link": "了解更多",
     "closeAriaLabel": "关闭捐赠横幅"
   },
@@ -502,13 +550,22 @@
   },
   "Changelog": {
     "title": "更新日志",
-    "description": "看看我们都做了哪些新改进。",
+    "description": "看看我们都做了哪些新改进",
     "types": {
       "new": "新增",
       "fix": "修复",
       "refactor": "重构",
       "perf": "性能",
       "docs": "书籍"
+    },
+    "v1_1_0": {
+      "new1": "新增「错题集」功能！系统会自动收集您拼写错误的单词，您可以随时在书架中针对错题进行专项复习。",
+      "refactor1": "优化「学习计划」体验。现在您可以在创建或调整计划时，点击“查看方案”来预览该计划下每日分配的全部单词。",
+      "refactor2": "优化「导航结构」。我们将“系统设置”（如主题、发音源等）移入了右上角的用户头像菜单中，使主界面更加简洁。",
+      "new2": "新增「问题反馈」渠道。无论您遇到词汇错误、网站漏洞，还是有很棒的功能建议，都可以通过反馈入口告诉我们。",
+      "new3": "新增「爱心捐赠」页面。我们承诺所有捐赠在扣除必要运营成本后，将全部用于助力偏远地区乡村孩子的健康与学习。",
+      "new4": "新增「游客体验」模式。未登录的用户现在也可以浏览所有单词书，并体验平台的“立即体验”基础拼写功能。",
+      "fix1": "修复了若干已知的用户体验问题和界面展示 Bug。"
     },
     "v1_0_0": {
       "new1": "iSpell 爱拼词正式发布！",

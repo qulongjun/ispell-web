@@ -14,11 +14,11 @@
   },
   "LoginModal": {
     "title": "歡迎",
-    "emailOrPhone": "信箱或手機號",
+    "emailOrPhone": "電子郵箱",
     "password": "密碼",
     "verificationCode": "驗證碼",
     "getCode": "獲取驗證碼",
-    "resendCode": "重新發送 ({seconds}s)",
+    "resendCode": "重新傳送 ({seconds}s)",
     "rememberMe": "記住我",
     "useCode": "驗證碼登入",
     "usePassword": "密碼登入",
@@ -42,17 +42,19 @@
     "loginNow": "立即登入"
   },
   "ResetPasswordModal": {
-    "title": "重設密碼",
+    "title": "重置密碼",
     "newPassword": "新密碼 (8-16位)",
     "confirmNewPassword": "確認新密碼",
-    "resetSubmit": "確認重設",
-    "resetSuccess": "密碼重設成功，請使用新密碼登入",
+    "resetSubmit": "確認重置",
+    "resetSuccess": "密碼重置成功，請使用新密碼登入",
     "rememberPassword": "記起密碼了？",
     "loginNow": "立即登入"
   },
   "LearningStart": {
-    "title": "學習準備就緒",
-    "noActiveBookDescription": "從書架挑選一本書，即刻開始學習！",
+    "title": "準備就緒",
+    "noActiveBookDescription": "從書架挑選一本書，即刻開始學習",
+    "noActiveBookDescription2": "你的指尖，有改變世界的力量。",
+    "testNow": "立即體驗",
     "browseBookshelfBtn": "逛逛書架",
     "openBookshelfBtn": "打開書架",
     "startLearningBtn": "開始學習",
@@ -63,6 +65,8 @@
     "todayProgressTitle": "今日進度",
     "todayTaskOnlyNew": "新學 {completed}/{total}",
     "todayTaskWithReview": "新學 {completedNew}/{totalNew} | 複習 {completedReview}/{totalReview}",
+    "congratsBookCompleteTitle": "恭喜",
+    "congratsBookCompleteDesc": "您已完成 {bookName} 所有章節",
     "alt": {
       "selectBookIllustration": "選擇書籍插圖",
       "bookIllustration": "單詞書插圖"
@@ -78,7 +82,11 @@
     },
     "LearningView": {
       "currentActive": "當前啟用",
-      "noLearningBooks": "你還沒有開始學習的書籍。",
+      "noLearningBooks": "您沒有正在學習的書籍，去挑一本吧。",
+      "empty": {
+        "title": "書架空空如也",
+        "alt": "一個太空人在探索的插圖"
+      },
       "learningOrder": {
         "label": "順序",
         "sequential": "順序",
@@ -89,10 +97,12 @@
       },
       "buttons": {
         "active": "已啟用",
-        "setAsCurrent": "設為當前",
+        "setAsCurrent": "啟用計畫",
         "adjustPlan": "調整計畫",
-        "resetProgress": "重設進度",
-        "cancelLearning": "取消學習"
+        "resetProgress": "重置進度",
+        "cancelLearning": "取消學習",
+        "viewPlanWords": "查看方案",
+        "viewMistakes": "錯題集"
       }
     },
     "PlanSetupView": {
@@ -109,7 +119,9 @@
       "buttons": {
         "cancel": "取消",
         "createPlan": "建立計畫",
-        "updatePlan": "更新計畫"
+        "updatePlan": "更新計畫",
+        "loginToCreate": "登入以建立計畫",
+        "viewWords": "查看單詞"
       },
       "placeholders": {
         "days": "天數",
@@ -117,7 +129,8 @@
       },
       "errors": {
         "invalidCustomDays": "請輸入有效的自訂天數",
-        "invalidCustomWords": "請輸入有效的每日單詞數"
+        "invalidCustomWords": "請輸入有效的每日單詞數",
+        "needLogin": "請先登入後再建立學習計畫～"
       },
       "presetPlan": {
         "dayUnit": "天",
@@ -154,7 +167,7 @@
           "description": "智能間隔重複，根據你的回答動態調整每個單詞的最佳複習時間。"
         },
         "LEITNER": {
-          "name": "萊特納",
+          "name": "萊布尼茨",
           "description": "經典的卡片盒系統，答對的單詞進入下一級（間隔更長），答錯的退回第一級。"
         }
       }
@@ -165,26 +178,59 @@
         "tabLabel": "切換到 {categoryName} 分類",
         "bookRadiogroupLabel": "選擇要學習的單詞書"
       }
+    },
+    "PlanWordsModal": {
+      "title": "單詞計畫: {bookName}",
+      "loading": "正在載入單詞計畫...",
+      "error": "無法載入計畫，請稍後重試。",
+      "dayHeader": "第 {day} 天",
+      "wordCount": "{count} 詞",
+      "empty": "該計畫中沒有單詞。",
+      "close": "關閉",
+      "searchPlaceholder": "搜尋 {count} 個單詞...",
+      "noResults": "未找到包含 “{query}” 的單詞"
+    },
+    "MistakeModal": {
+      "title": "錯題集: {bookName}",
+      "loading": "正在載入錯題集...",
+      "error": "無法載入錯題集，請稍後重試。",
+      "empty": "太棒了！錯題集是空的。",
+      "emptyReview": "錯題集是空的，無需複習。",
+      "close": "關閉",
+      "mistakeCount": "拼錯 {count} 次",
+      "removeAria": "移除此錯題",
+      "removeSuccess": "已移除錯題",
+      "removeError": "移除失敗",
+      "clearAll": "清空錯題集",
+      "clearAllSuccess": "錯題集已清空",
+      "clearAllError": "清空失敗",
+      "clearAllConfirmTitle": "確認清空錯題集嗎？",
+      "clearAllConfirmDesc": "此操作將永久刪除《{bookName}》的所有錯題記錄，無法撤銷。",
+      "clearAllConfirmBtn": "確認清空",
+      "reviewAll": "複習全部 ({count} 詞)",
+      "strategyHint": "提示：拼寫正確可降低拼錯計數，次數為 0 時自動移出錯題集。"
     }
   },
   "Settings": {
+    "pageTitle": "系統設定",
+    "pageDescription": "管理您的應用程式偏好設定",
     "sectionTitles": {
-      "speechSettings": "語音設定",
-      "displaySettings": "單詞隱藏",
-      "sentenceSettings": "內容顯示"
+      "appSettings": "應用設定"
     },
     "labels": {
       "speechSource": "發音源",
       "accent": "口音",
       "speechRate": "語速",
       "voiceGender": "聲音",
-      "displayMode": "模式",
-      "showSentences": "顯示例句"
+      "displayMode": "背誦模式",
+      "hideWordInSentence": "隱藏例句單詞",
+      "showSentences": "顯示例句",
+      "showSentenceTranslation": "顯示例句翻譯"
     },
     "options": {
       "speechSource": {
-        "default": "預設發音 (API)",
-        "custom": "自訂發音 (Browser)"
+        "default": "預設",
+        "custom": "自訂"
       },
       "accent": {
         "american": "美式",
@@ -198,17 +244,22 @@
       "displayMode": {
         "full": "預設",
         "hideVowels": "隱藏母音",
-        "hideConsonants": "隱藏子音",
+        "hideConsonants": "隱藏輔音",
         "hideRandom": "隨機隱藏",
         "hideAll": "全部隱藏"
       }
     },
     "aria": {
-      "openSettings": "打開設定",
-      "closeSettings": "關閉設定"
-    }
+      "openSettings": "設定"
+    },
+    "feedbackBtn": "問題回報",
+    "feedbackCardTitle": "問題回報",
+    "feedbackCardDescription": "遇到問題或有新建議？我們隨時傾聽。"
   },
   "Words": {
+    "DefinitionDisplay": {
+      "noDefinition": "暫無釋義"
+    },
     "WordList": {
       "drawer": {
         "title": "單詞列表",
@@ -223,7 +274,7 @@
       "timing": "計時",
       "attempts": "嘗試次數",
       "correctSpelling": "正確拼寫",
-      "mastered": "已掌握",
+      "remainingWords": "剩餘單詞",
       "accuracy": "正確率"
     },
     "Pronunciation": {
@@ -233,15 +284,12 @@
         "playUk": "播放英式發音",
         "playUs": "播放美式發音"
       },
-      "unsupportedHint": "瀏覽器不支持語音功能"
+      "unsupportedHint": "瀏覽器不支援語音功能"
     },
     "Sentence": {
-      "show": "顯示例句",
-      "hide": "隱藏例句",
       "aria": {
-        "show": "顯示例句",
-        "hide": "隱藏例句",
-        "toggleTranslation": "顯示/隱藏翻譯"
+        "prevSentence": "上一句",
+        "nextSentence": "下一句"
       }
     },
     "Relations": {
@@ -258,38 +306,220 @@
     "Confirmation": {
       "confirm": "確認",
       "cancel": "取消"
+    },
+    "buttons": {
+      "save": "儲存",
+      "cancel": "取消",
+      "confirm": "確認",
+      "delete": "刪除",
+      "edit": "編輯",
+      "bind": "綁定",
+      "unbind": "解除綁定"
+    },
+    "messages": {
+      "noChangesToSave": "沒有需要儲存的變更",
+      "operationSuccess": "操作成功",
+      "operationFailed": "操作失敗，請稍後再試"
     }
   },
   "Errors": {
-    "invalidFormat": "請輸入正確的信箱或手機號",
+    "invalidFormat": "請輸入正確的電子郵箱",
     "min8": "密碼必須至少為8位",
     "max16": "密碼不能超過16位",
     "length6": "驗證碼必須為6位",
     "passwordsMismatch": "兩次輸入的密碼不一致",
     "agreePolicy": "請同意服務條款和隱私政策",
     "invalidCode": "驗證碼無效或已過期",
-    "invalidCredentials": "信箱/手機號或密碼不正確",
-    "passwordNotSupported": "該帳戶不支持密碼登入，請使用驗證碼",
-    "userAlreadyExists": "該信箱或手機號已被註冊",
+    "invalidCredentials": "電子郵箱或密碼不正確",
+    "passwordNotSupported": "該帳戶不支援密碼登入，請使用驗證碼",
+    "infoNotComplete": "用戶資訊不完整，無法重置密碼",
+    "userAlreadyExists": "該郵箱已被註冊",
     "userNotFound": "該用戶不存在",
-    "sendCodeFailed": "驗證碼發送失敗，請稍後再試",
-    "sendCodeSuccess": "驗證碼已發送，請查收",
-    "loginFailed": "登入失敗，請稍後再試",
+    "sendCodeFailed": "驗證碼傳送失敗，請稍後再試",
+    "sendCodeSuccess": "驗證碼已傳送，請查收",
+    "noEmailORPhone": "沒有可用的郵箱或手機號來傳送驗證碼",
+    "loginFailed": "登入失敗，請稍後重試",
     "unknownError": "發生未知錯誤，請稍後再試",
     "oauthFailed": "第三方登入失敗，請稍後再試",
-    "oauthStateMismatch": "安全驗證失敗，請刷新頁面重試"
+    "oauthStateMismatch": "安全驗證失敗，請重新整理頁面重試",
+    "nicknameRequired": "請輸入暱稱",
+    "nicknameTooLong": "暱稱不能超過10個字元",
+    "avatarTooLarge": "頭像檔案不能超過 2MB"
   },
   "Alt": {
     "wechat": "使用微信登入",
     "qq": "使用QQ登入",
-    "google": "使用谷歌登入",
-    "github": "使用GitHub登入"
+    "google": "使用Google登入",
+    "github": "使用GitHub登入",
+    "userAvatar": "用戶頭像",
+    "changeAvatar": "更換頭像"
   },
   "UserMenu": {
-    "label": "用戶菜單",
+    "label": "用戶選單",
     "hello": "你好",
     "profileSettings": "個性設定",
     "systemSettings": "系統設定",
-    "logout": "登出"
+    "logout": "登出",
+    "changelog": "更新日誌",
+    "donate": "愛心捐贈"
+  },
+  "Profile": {
+    "pageTitle": "個性設定",
+    "pageDescription": "管理您的個人資訊、密碼和帳號綁定",
+    "profileInfo": {
+      "title": "個人資料",
+      "avatarLabel": "頭像",
+      "avatarHint": "點擊頭像更換圖片<br />支援 JPG、PNG 格式，不超過 2MB",
+      "nicknameLabel": "暱稱",
+      "nicknamePlaceholder": "請輸入您的暱稱",
+      "saveSuccess": "個人資料已更新",
+      "chooseAvatar": "已選擇頭像"
+    },
+    "changePassword": {
+      "title": "修改密碼",
+      "setPasswordTitle": "設定密碼",
+      "description": "透過驗證碼修改您的登入密碼。",
+      "setPasswordDescription": "您當前使用第三方帳號登入，尚未設定密碼。您可以透過此功能設定一個登入密碼。",
+      "contactLabel_email": "電子郵箱",
+      "contactLabel_phone": "手機號",
+      "verificationCodeLabel": "驗證碼",
+      "verificationCodePlaceholder": "請輸入驗證碼",
+      "newPasswordLabel": "新密碼",
+      "newPasswordPlaceholder": "8-16位，包含字母和數字",
+      "confirmPasswordLabel": "確認新密碼",
+      "confirmPasswordPlaceholder": "再次輸入新密碼",
+      "getCodeBtn": "獲取驗證碼",
+      "resendCodeBtn": "{seconds}s 後重試",
+      "saveSuccess_change": "密碼修改成功",
+      "saveSuccess_set": "密碼設定成功"
+    },
+    "accountBindings": {
+      "title": "帳號綁定",
+      "description": "綁定第三方帳號可使用對應帳號快速登入",
+      "github": "GitHub",
+      "google": "Google",
+      "bindBtn": "綁定",
+      "unbindBtn": "解除綁定",
+      "unbindConfirm": "確定要解除與{provider}的綁定嗎？",
+      "unbindSuccess": "已成功解除與{provider}的綁定",
+      "bindFailed": "獲取綁定連結失敗，請稍後再試"
+    },
+    "deleteAccount": {
+      "title": "危險操作",
+      "sectionTitle": "帳戶刪除",
+      "description": "請謹慎操作。一旦刪除帳戶，所有資料將無法恢復，包括您的學習記錄、個人設定和綁定的第三方帳號。",
+      "deleteBtn": "刪除我的帳戶",
+      "modalTitle": "您確定要刪除您的帳戶嗎？",
+      "warning": "這是一個無法撤銷的操作！",
+      "deleteInfo1": "您的所有學習計畫、進度和個人資訊都將被永久刪除。",
+      "deleteInfo2": "您的暱稱和頭像將被重置，綁定的第三方帳號將被解除。",
+      "confirmInputLabel": "請輸入您的暱稱 “{nickname}” 以確認刪除。",
+      "confirmInputPlaceholder": "輸入您的暱稱確認刪除",
+      "confirmDeleteBtn": "我已了解，確認刪除",
+      "deleteSuccess": "您的帳戶已成功刪除",
+      "deleteFailed": "刪除失敗，請稍後再試"
+    }
+  },
+  "Donation": {
+    "qrCode": {
+      "alipayTitle": "支付寶捐贈",
+      "wechatTitle": "微信捐贈",
+      "scanHint": "長按識別二維碼捐贈"
+    },
+    "footer": {
+      "thankYou": "感謝您的善意與支持，讓更多孩子擁有平等的學習機會"
+    },
+    "certificate": {
+      "closeLabel": "關閉證書查看",
+      "altText": "捐款公示證書大圖"
+    },
+    "publicity": {
+      "title": "捐款收支公示",
+      "closeLabel": "關閉公示",
+      "totalDonation": "總捐贈金額",
+      "operationCost": "營運成本",
+      "publicWelfareExpense": "公益支出",
+      "certificateLabel": "捐款公示證書：",
+      "viewFullCert": "點擊查看完整證書",
+      "updateHint": "公示數據每月更新，確保每一筆捐贈都公開透明，歡迎監督",
+      "empty": "暫無公示數據，首月數據將在下月初更新。"
+    },
+    "main": {
+      "title": "愛心捐贈",
+      "subtitle": "助力每個鄉村孩子的健康成長，讓孩子的未來發光發亮",
+      "desc1": "群山環繞的一些偏遠地區，優質的學習資源尤為稀缺，這裡的孩子們沒有多少能夠了解外面世界的機會。他們渴望探索知識，卻因缺乏基礎的教材、設備和指導而面臨阻礙。我們希望匯聚大家的力量，為這些孩子搭建通往未來的橋梁。",
+      "desc2": "我們僅扣除維持網站運轉的必要基礎費用，剩餘捐贈將全部用於支持偏遠地區孩子的學習。"
+    },
+    "donateNow": {
+      "title": "立即捐贈",
+      "hint": "選擇您常用的支付方式，掃描二維碼即可完成捐贈。所有捐贈都將為偏遠地區的孩子帶來實質性幫助。"
+    },
+    "instructions": {
+      "title": "捐贈說明",
+      "viewPublicityBtn": "查看捐款公示",
+      "item1": "除網站基本營運成本（伺服器、網域名稱等）外，所有捐贈資金用於偏遠地區公益學習項目",
+      "item2": "每月公示捐贈收支明細，確保資金透明可追溯，接受社會監督",
+      "item3": "捐贈金額不限，每一分錢都能為孩子帶來實質性幫助",
+      "item4": "營運成本控制在最低限度，最大化公益用途"
+    },
+    "aria": {
+      "closeCertificate": "關閉證書查看",
+      "closePublicity": "關閉公示",
+      "viewPublicity": "查看捐款公示"
+    }
+  },
+  "FeedbackModal": {
+    "title": "問題回報",
+    "close": "關閉",
+    "typeLabel": "回報類型",
+    "contentLabel": "詳細內容",
+    "contentPlaceholder": "請詳細描述您遇到的問題或建議 (2000字以內)",
+    "submitBtn": "提交",
+    "cancelBtn": "取消",
+    "submitting": "提交中...",
+    "submitSuccess": "感謝您的回報！",
+    "submitError": "提交失敗，請稍後重試。",
+    "types": {
+      "WORD": "詞彙問題",
+      "FUNCTION": "網站功能",
+      "BUG": "缺陷漏洞",
+      "SUGGESTION": "功能建議"
+    },
+    "contactLabel": "您的郵箱 (可選)",
+    "contactPlaceholder": "如果您希望我們回覆您...",
+    "contactHint": "未登入用戶可填寫郵箱，以便我們與您聯繫。"
+  },
+  "WordDisplay": {
+    "loginPrompt": "登入以查看例句，儲存學習進度和錯題記錄。"
+  },
+  "DonateBanner": {
+    "text": "助力每個鄉村孩子的健康成長，讓孩子的未來發光發亮。",
+    "link": "了解更多",
+    "closeAriaLabel": "關閉捐贈橫幅"
+  },
+  "Footer": {
+    "copyright": "iSpell. 版權所有。",
+    "terms": "服務條款",
+    "privacy": "隱私政策",
+    "donate": "愛心捐贈",
+    "changelogLink": "更新日誌",
+    "feedbackLink": "問題回報"
+  },
+  "Changelog": {
+    "title": "更新日誌",
+    "description": "看看我們都做了哪些新改進。",
+    "types": {
+      "new": "新增",
+      "fix": "修復",
+      "refactor": "重構",
+      "perf": "效能",
+      "docs": "書籍"
+    },
+    "v1_0_0": {
+      "new1": "iSpell 愛拼詞正式發布！",
+      "new2": "支援郵箱/密碼、郵箱驗證碼及第三方 (GitHub, Google) 認證登入。",
+      "new3": "實現拼寫與學習模組，包括單詞瀏覽、計畫制定、拼寫練習和智能複習。",
+      "docs1": "上線 67 本英文單詞書，涵蓋學生階段到出國留學全場景。"
+    }
   }
 }

@@ -1,7 +1,8 @@
+'use client';
 /*
  * @Date: 2025-10-30 10:25:00
- * @LastEditTime: 2025-11-06 21:48:53
- * @Description: 学习计划列表组件 (已优化空状态)
+ * @LastEditTime: 2025-11-08 08:49:33
+ * @Description: 学习计划列表组件 (已优化空状态并更新进度显示)
  */
 
 import React, { RefObject } from 'react';
@@ -15,7 +16,8 @@ import {
   SlidersHorizontal,
   ArchiveX,
 } from 'lucide-react';
-import type { Book, LearningPlan, PlanDetails } from '@/types/book.types';
+// [!! 移除 !!] 不再需要 Book 和 PlanDetails，因为 getPlanDescription 被移除
+import type { LearningPlan } from '@/types/book.types';
 import PlanSetupView from './PlanSetupView';
 // [!! 1. 新增导入 !!] 导入 Next.js Image 组件
 import Image from 'next/image';
@@ -23,18 +25,23 @@ import Image from 'next/image';
 interface LearningViewProps {
   learningList: LearningPlan[];
   currentBookId: string | null;
-  previewBook: Book | null;
+  previewBook: LearningPlan['book'] | null; // [!!] 类型可以简化
   openMenu: number | null;
   menuRef: RefObject<HTMLDivElement | null>;
-  getPlanDescription: (book: Book, plan: PlanDetails) => string;
+  // [!! 1. 移除 !!] getPlanDescription 不再需要
+  // getPlanDescription: (book: Book, plan: PlanDetails) => string;
   reviewStrategyNames: { [key: string]: string };
   handleActivateLearning: (planId: number, listCode: string) => void;
-  handleAdjustPlanClick: (book: Book) => void;
+  handleAdjustPlanClick: (book: LearningPlan['book']) => void;
   setOpenMenu: (id: number | null) => void;
   openResetModal: (planId: number, bookName: string) => void;
   openCancelModal: (planId: number, bookName: string) => void;
-  setPreviewBook: (book: Book | null) => void;
-  handleUpdatePlan: (planId: number, book: Book, plan: PlanDetails) => void;
+  setPreviewBook: (book: LearningPlan['book'] | null) => void;
+  handleUpdatePlan: (
+    planId: number,
+    book: LearningPlan['book'],
+    plan: LearningPlan['plan']
+  ) => void;
   handleViewPlanWords?: (planId: number, bookName: string) => void;
   handleViewMistakes?: (planId: number, bookName: string) => void;
 }
@@ -45,7 +52,7 @@ const LearningView: React.FC<LearningViewProps> = ({
   previewBook,
   openMenu,
   menuRef,
-  getPlanDescription,
+  // [!! 2. 移除 !!] getPlanDescription
   reviewStrategyNames,
   handleActivateLearning,
   handleAdjustPlanClick,
@@ -71,9 +78,19 @@ const LearningView: React.FC<LearningViewProps> = ({
       <div className="p-4 space-y-3">
         {learningList.length > 0 ? (
           learningList.map((learningItem) => {
-            const { planId, listCode, book, series, plan } = learningItem;
+            const { planId, listCode, book, series, plan, progress } =
+              learningItem;
             const isPreviewingThis = previewBook?.listCode === listCode;
             const isActuallyCurrent = currentBookId === listCode;
+
+            // 检查计划是否完成
+            const isCompleted = progress.learnedCount >= progress.totalWords;
+
+            // [!! 3. 新增 !!] 计算每日单词数
+            const wordsPerDay =
+              progress.totalChapters > 0
+                ? Math.ceil(progress.totalWords / progress.totalChapters)
+                : 0;
 
             const learningOrderText =
               plan.learningOrder === 'SEQUENTIAL'
@@ -132,9 +149,24 @@ const LearningView: React.FC<LearningViewProps> = ({
                     {series.description}
                     {book.description && ` / ${book.description}`}
                   </p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                    {getPlanDescription(book, plan)}
+
+                  {/* [!! 4. 修改 !!] 统一的进度显示 */}
+                  <p className="text-sm mt-2">
+                    {isCompleted ? (
+                      <span className="font-semibold text-green-600 dark:text-green-400">
+                        {t('LearningView.planProgress.completed')}
+                      </span>
+                    ) : (
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">
+                        {t('LearningView.planProgress.detailed', {
+                          current: progress.currentChapter,
+                          total: progress.totalChapters,
+                          wordsPerDay: wordsPerDay,
+                        })}
+                      </span>
+                    )}
                   </p>
+
                   <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                     <span>
                       {t('LearningView.learningOrder.label')}:{' '}
@@ -308,7 +340,7 @@ const LearningView: React.FC<LearningViewProps> = ({
             </h3>
 
             {/* 优化后的文案 (描述) */}
-            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl">
               {t('LearningView.noLearningBooks')}
             </p>
           </div>

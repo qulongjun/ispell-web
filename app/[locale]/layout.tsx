@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-23 09:38:39
- * @LastEditTime: 2025-11-07 20:38:30
+ * @LastEditTime: 2025-11-07 23:13:50
  * @Description: 应用根布局 (已添加 DonateBanner 和 固定 Footer)
  */
 
@@ -114,7 +114,7 @@ export default async function RootLayout({
                   <DonateBanner />
 
                   {/* 2. 原始 Header (移除了 sticky) */}
-                  <header className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+                  <header className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-900">
                     <Logo />
                     <HeaderActions />
                   </header>

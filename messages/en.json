@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "iSpell - Free & Easy-to-Use Language Learning Platform",
+    "title": "iSpell - Free and easy-to-use language learning platform",
     "description": "A free language learning platform focused on vocabulary memorization and review, helping you master new words efficiently."
   },
   "Locale": {
@@ -14,7 +14,7 @@
   },
   "LoginModal": {
     "title": "Welcome",
-    "emailOrPhone": "Email or Phone",
+    "emailOrPhone": "Email",
     "password": "Password",
     "verificationCode": "Verification Code",
     "getCode": "Get Code",
@@ -24,20 +24,20 @@
     "usePassword": "Login with Password",
     "forgotPassword": "Forgot Password?",
     "loginSubmit": "Login",
-    "loginSuccess": "Login successful. Welcome back!",
+    "loginSuccess": "Login successful, welcome back!",
     "newUserHint": "New users will be registered automatically",
     "registerNow": "Register Now",
-    "thirdParty": "Or log in with",
+    "thirdParty": "Or login with",
     "agreePolicyPrefix": "I have read and agree to the",
     "terms": "Terms of Service",
     "and": "and",
     "privacy": "Privacy Policy"
   },
   "RegisterModal": {
-    "title": "Create New Account",
+    "title": "Create a new account",
     "confirmPassword": "Confirm Password",
     "registerSubmit": "Register",
-    "registerSuccess": "Registration successful. Welcome!",
+    "registerSuccess": "Registration successful, welcome!",
     "alreadyHaveAccount": "Already have an account?",
     "loginNow": "Login Now"
   },
@@ -46,23 +46,27 @@
     "newPassword": "New Password (8-16 characters)",
     "confirmNewPassword": "Confirm New Password",
     "resetSubmit": "Confirm Reset",
-    "resetSuccess": "Password reset successfully. Please log in with your new password.",
-    "rememberPassword": "Remembered your password?",
+    "resetSuccess": "Password reset successful, please login with your new password",
+    "rememberPassword": "Remember your password?",
     "loginNow": "Login Now"
   },
   "LearningStart": {
-    "title": "Ready to Learn",
-    "noActiveBookDescription": "Pick a book from your bookshelf to start learning!",
+    "title": "Ready",
+    "noActiveBookDescription": "Pick a book from the bookshelf to start learning",
+    "noActiveBookDescription2": "The power to change the world is at your fingertips.",
+    "testNow": "Try it Now",
     "browseBookshelfBtn": "Browse Bookshelf",
     "openBookshelfBtn": "Open Bookshelf",
     "startLearningBtn": "Start Learning",
     "openNextChapterBtn": "Start Next Chapter",
-    "openingChapter": "Starting...",
+    "openingChapter": "Opening...",
     "openNewChapterSuccess": "New chapter started!",
     "chapterProgress": "Chapter Progress: {current} / {total}",
     "todayProgressTitle": "Today's Progress",
     "todayTaskOnlyNew": "New {completed}/{total}",
     "todayTaskWithReview": "New {completedNew}/{totalNew} | Review {completedReview}/{totalReview}",
+    "congratsBookCompleteTitle": "Congratulations",
+    "congratsBookCompleteDesc": "You have completed all chapters of {bookName}",
     "alt": {
       "selectBookIllustration": "Select book illustration",
       "bookIllustration": "Word book illustration"
@@ -71,14 +75,18 @@
   "BookSelection": {
     "bookshelfBtnText": "Bookshelf",
     "aria": {
-      "selectBook": "Select a word book"
+      "selectBook": "Select word book"
     },
     "BookCard": {
       "totalWords": "{count} words total"
     },
     "LearningView": {
       "currentActive": "Currently Active",
-      "noLearningBooks": "You haven't started learning any books yet.",
+      "noLearningBooks": "You are not learning any books, go pick one.",
+      "empty": {
+        "title": "Bookshelf is empty",
+        "alt": "An illustration of an astronaut exploring"
+      },
       "learningOrder": {
         "label": "Order",
         "sequential": "Sequential",
@@ -89,16 +97,18 @@
       },
       "buttons": {
         "active": "Active",
-        "setAsCurrent": "Set as Current",
+        "setAsCurrent": "Activate Plan",
         "adjustPlan": "Adjust Plan",
         "resetProgress": "Reset Progress",
-        "cancelLearning": "Cancel Learning"
+        "cancelLearning": "Cancel Learning",
+        "viewPlanWords": "View Plan",
+        "viewMistakes": "Mistake List"
       }
     },
     "PlanSetupView": {
       "titles": {
-        "createPlan": "Create Plan: {bookName}",
-        "editPlan": "Edit Plan: {bookName}"
+        "createPlan": "Create Learning Plan: {bookName}",
+        "editPlan": "Edit Learning Plan: {bookName}"
       },
       "sectionTitles": {
         "generalPlan": "General Plan",
@@ -109,7 +119,9 @@
       "buttons": {
         "cancel": "Cancel",
         "createPlan": "Create Plan",
-        "updatePlan": "Update Plan"
+        "updatePlan": "Update Plan",
+        "loginToCreate": "Login to Create Plan",
+        "viewWords": "View Words"
       },
       "placeholders": {
         "days": "Days",
@@ -117,17 +129,18 @@
       },
       "errors": {
         "invalidCustomDays": "Please enter valid custom days",
-        "invalidCustomWords": "Please enter a valid number of daily words"
+        "invalidCustomWords": "Please enter valid daily words",
+        "needLogin": "Please log in to create a learning plan~"
       },
       "presetPlan": {
         "dayUnit": "Days",
-        "wordsPerDay": "≈ {count} words/day"
+        "wordsPerDay": "Approx. {count} words/day"
       },
       "customPlan": {
         "customDays": "Custom Days",
         "dailyWords": "Daily Words",
-        "wordsPerDay": "Plan: ≈ {count} words/day",
-        "totalDays": "Plan: ≈ {count} days total"
+        "wordsPerDay": "Plan: Approx. {count} words/day",
+        "totalDays": "Plan: Approx. {count} days to complete"
       },
       "learningOrder": {
         "sequential": {
@@ -143,48 +156,81 @@
         "recommended": "Recommended",
         "NONE": {
           "name": "No Review",
-          "description": "Only learn new words, no reviews scheduled. Good for exams or refreshers."
+          "description": "Only learn new words, no reviews. Suitable for those with a foundation or for pre-exam cramming."
         },
         "EBBINGHAUS": {
           "name": "Ebbinghaus",
-          "description": "Based on the Ebbinghaus forgetting curve, schedules reviews at key intervals (e.g., 1, 2, 4, 7 days)."
+          "description": "Based on the Ebbinghaus forgetting curve, intelligently schedules reviews at key forgetting points (e.g., 1, 2, 4, 7 days)."
         },
         "SM2": {
           "name": "SM-2 Algorithm",
-          "description": "Smart Spaced Repetition (SRS). Dynamically adjusts the best review time for each word based on your answers."
+          "description": "Intelligent spaced repetition, dynamically adjusts the best review time for each word based on your answers."
         },
         "LEITNER": {
           "name": "Leitner System",
-          "description": "The classic flashcard box system. Correct words move to the next box (longer interval), incorrect ones return to the first."
+          "description": "Classic flashcard box system. Correct words move to the next level (longer interval), incorrect words return to the first level."
         }
       }
     },
     "BrowserView": {
-      "noBooksInCategory": "No books in this category yet.",
+      "noBooksInCategory": "No books in this category.",
       "aria": {
         "tabLabel": "Switch to {categoryName} category",
-        "bookRadiogroupLabel": "Select word book to learn"
+        "bookRadiogroupLabel": "Select a word book to learn"
       }
+    },
+    "PlanWordsModal": {
+      "title": "Word Plan: {bookName}",
+      "loading": "Loading word plan...",
+      "error": "Could not load plan, please try again later.",
+      "dayHeader": "Day {day}",
+      "wordCount": "{count} words",
+      "empty": "No words in this plan.",
+      "close": "Close",
+      "searchPlaceholder": "Search {count} words...",
+      "noResults": "No words found containing “{query}”"
+    },
+    "MistakeModal": {
+      "title": "Mistake List: {bookName}",
+      "loading": "Loading mistake list...",
+      "error": "Could not load mistake list, please try again later.",
+      "empty": "Great! The mistake list is empty.",
+      "emptyReview": "Mistake list is empty, no review needed.",
+      "close": "Close",
+      "mistakeCount": "Misspelled {count} times",
+      "removeAria": "Remove this mistake",
+      "removeSuccess": "Mistake removed",
+      "removeError": "Failed to remove",
+      "clearAll": "Clear All Mistakes",
+      "clearAllSuccess": "Mistake list cleared",
+      "clearAllError": "Failed to clear",
+      "clearAllConfirmTitle": "Confirm to clear all mistakes?",
+      "clearAllConfirmDesc": "This will permanently delete all mistake records for \"{bookName}\" and cannot be undone.",
+      "clearAllConfirmBtn": "Confirm Clear",
+      "reviewAll": "Review All ({count} words)",
+      "strategyHint": "Tip: Correct spelling reduces the misspell count. Words are automatically removed from the list when the count reaches 0."
     }
   },
   "Settings": {
+    "pageTitle": "System Settings",
+    "pageDescription": "Manage your application preferences",
     "sectionTitles": {
-      "speechSettings": "Speech Settings",
-      "displaySettings": "Word Display",
-      "sentenceSettings": "Content Display"
+      "appSettings": "App Settings"
     },
     "labels": {
       "speechSource": "Speech Source",
       "accent": "Accent",
-      "speechRate": "Speech Rate",
+      "speechRate": "Speed",
       "voiceGender": "Voice",
-      "displayMode": "Mode",
-      "showSentences": "Show Sentences"
+      "displayMode": "Recite Mode",
+      "hideWordInSentence": "Hide word in sentence",
+      "showSentences": "Show sentences",
+      "showSentenceTranslation": "Show sentence translation"
     },
     "options": {
       "speechSource": {
-        "default": "Default (API)",
-        "custom": "Custom (Browser)"
+        "default": "Default",
+        "custom": "Custom"
       },
       "accent": {
         "american": "American",
@@ -204,11 +250,16 @@
       }
     },
     "aria": {
-      "openSettings": "Open settings",
-      "closeSettings": "Close settings"
-    }
+      "openSettings": "Settings"
+    },
+    "feedbackBtn": "Feedback",
+    "feedbackCardTitle": "Feedback",
+    "feedbackCardDescription": "Encountered a problem or have a suggestion? We're here to listen."
   },
   "Words": {
+    "DefinitionDisplay": {
+      "noDefinition": "No definition available"
+    },
     "WordList": {
       "drawer": {
         "title": "Word List",
@@ -223,7 +274,7 @@
       "timing": "Timing",
       "attempts": "Attempts",
       "correctSpelling": "Correct Spelling",
-      "mastered": "Mastered",
+      "remainingWords": "Remaining Words",
       "accuracy": "Accuracy"
     },
     "Pronunciation": {
@@ -233,15 +284,12 @@
         "playUk": "Play UK pronunciation",
         "playUs": "Play US pronunciation"
       },
-      "unsupportedHint": "Browser does not support speech synthesis"
+      "unsupportedHint": "Browser does not support speech"
     },
     "Sentence": {
-      "show": "Show sentence",
-      "hide": "Hide sentence",
       "aria": {
-        "show": "Show example sentence",
-        "hide": "Hide example sentence",
-        "toggleTranslation": "Toggle translation"
+        "prevSentence": "Previous sentence",
+        "nextSentence": "Next sentence"
       }
     },
     "Relations": {
@@ -258,38 +306,220 @@
     "Confirmation": {
       "confirm": "Confirm",
       "cancel": "Cancel"
+    },
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "edit": "Edit",
+      "bind": "Bind",
+      "unbind": "Unbind"
+    },
+    "messages": {
+      "noChangesToSave": "No changes to save",
+      "operationSuccess": "Operation successful",
+      "operationFailed": "Operation failed, please try again later"
     }
   },
   "Errors": {
-    "invalidFormat": "Please enter a valid email or phone number",
+    "invalidFormat": "Please enter a valid email",
     "min8": "Password must be at least 8 characters",
     "max16": "Password cannot exceed 16 characters",
     "length6": "Code must be 6 digits",
     "passwordsMismatch": "The two passwords do not match",
     "agreePolicy": "Please agree to the Terms of Service and Privacy Policy",
     "invalidCode": "Invalid or expired verification code",
-    "invalidCredentials": "Incorrect email/phone or password",
-    "passwordNotSupported": "Password login is not supported for this account. Please use a code.",
-    "userAlreadyExists": "This email or phone number is already registered",
+    "invalidCredentials": "Incorrect email or password",
+    "passwordNotSupported": "Password login is not supported for this account, please use verification code",
+    "infoNotComplete": "User information is incomplete, cannot reset password",
+    "userAlreadyExists": "This email is already registered",
     "userNotFound": "This user does not exist",
-    "sendCodeFailed": "Failed to send code. Please try again later.",
-    "sendCodeSuccess": "Verification code sent. Please check your messages.",
-    "loginFailed": "Login failed. Please try again later.",
-    "unknownError": "An unknown error occurred. Please try again later.",
-    "oauthFailed": "Third-party login failed. Please try again later.",
-    "oauthStateMismatch": "Security verification failed. Please refresh the page and try again."
+    "sendCodeFailed": "Failed to send code, please try again later",
+    "sendCodeSuccess": "Verification code sent, please check",
+    "noEmailORPhone": "No available email or phone to send code",
+    "loginFailed": "Login failed, please try again later",
+    "unknownError": "An unknown error occurred, please try again later",
+    "oauthFailed": "Third-party login failed, please try again later",
+    "oauthStateMismatch": "Security verification failed, please refresh and try again",
+    "nicknameRequired": "Please enter a nickname",
+    "nicknameTooLong": "Nickname cannot exceed 10 characters",
+    "avatarTooLarge": "Avatar file cannot exceed 2MB"
   },
   "Alt": {
     "wechat": "Login with WeChat",
     "qq": "Login with QQ",
     "google": "Login with Google",
-    "github": "Login with GitHub"
+    "github": "Login with GitHub",
+    "userAvatar": "User Avatar",
+    "changeAvatar": "Change Avatar"
   },
   "UserMenu": {
     "label": "User Menu",
     "hello": "Hello",
     "profileSettings": "Profile Settings",
     "systemSettings": "System Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "changelog": "Changelog",
+    "donate": "Donate"
+  },
+  "Profile": {
+    "pageTitle": "Profile Settings",
+    "pageDescription": "Manage your personal information, password, and account bindings",
+    "profileInfo": {
+      "title": "Profile",
+      "avatarLabel": "Avatar",
+      "avatarHint": "Click avatar to change image<br />Supports JPG, PNG formats, up to 2MB",
+      "nicknameLabel": "Nickname",
+      "nicknamePlaceholder": "Please enter your nickname",
+      "saveSuccess": "Profile updated successfully",
+      "chooseAvatar": "Avatar selected"
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "setPasswordTitle": "Set Password",
+      "description": "Change your login password using a verification code.",
+      "setPasswordDescription": "You are currently logged in with a third-party account and have not set a password. You can set a login password here.",
+      "contactLabel_email": "Email",
+      "contactLabel_phone": "Phone",
+      "verificationCodeLabel": "Verification Code",
+      "verificationCodePlaceholder": "Enter verification code",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "8-16 characters, including letters and numbers",
+      "confirmPasswordLabel": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Enter new password again",
+      "getCodeBtn": "Get Code",
+      "resendCodeBtn": "Retry in {seconds}s",
+      "saveSuccess_change": "Password changed successfully",
+      "saveSuccess_set": "Password set successfully"
+    },
+    "accountBindings": {
+      "title": "Account Bindings",
+      "description": "Bind third-party accounts for quick login",
+      "github": "GitHub",
+      "google": "Google",
+      "bindBtn": "Bind",
+      "unbindBtn": "Unbind",
+      "unbindConfirm": "Are you sure you want to unbind from {provider}?",
+      "unbindSuccess": "Successfully unbound from {provider}",
+      "bindFailed": "Failed to get binding link, please try again later"
+    },
+    "deleteAccount": {
+      "title": "Danger Zone",
+      "sectionTitle": "Delete Account",
+      "description": "Proceed with caution. Once your account is deleted, all data will be unrecoverable, including your learning records, personal settings, and bound third-party accounts.",
+      "deleteBtn": "Delete My Account",
+      "modalTitle": "Are you sure you want to delete your account?",
+      "warning": "This is an irreversible action!",
+      "deleteInfo1": "All your learning plans, progress, and personal information will be permanently deleted.",
+      "deleteInfo2": "Your nickname and avatar will be reset, and bound third-party accounts will be unlinked.",
+      "confirmInputLabel": "Please enter your nickname “{nickname}” to confirm deletion.",
+      "confirmInputPlaceholder": "Enter your nickname to confirm",
+      "confirmDeleteBtn": "I understand, confirm deletion",
+      "deleteSuccess": "Your account has been deleted successfully",
+      "deleteFailed": "Deletion failed, please try again later"
+    }
+  },
+  "Donation": {
+    "qrCode": {
+      "alipayTitle": "Alipay Donation",
+      "wechatTitle": "WeChat Donation",
+      "scanHint": "Long-press to scan QR code to donate"
+    },
+    "footer": {
+      "thankYou": "Thank you for your kindness and support, giving more children equal learning opportunities"
+    },
+    "certificate": {
+      "closeLabel": "Close certificate view",
+      "altText": "Large image of donation disclosure certificate"
+    },
+    "publicity": {
+      "title": "Donation Income and Expenditure",
+      "closeLabel": "Close",
+      "totalDonation": "Total Donations",
+      "operationCost": "Operational Costs",
+      "publicWelfareExpense": "Public Welfare Expenditure",
+      "certificateLabel": "Donation Certificate:",
+      "viewFullCert": "Click to view full certificate",
+      "updateHint": "Data is updated monthly to ensure transparency. All donations are public and open to supervision.",
+      "empty": "No disclosure data available yet. First month's data will be updated early next month."
+    },
+    "main": {
+      "title": "Donate",
+      "subtitle": "Support the healthy growth of every rural child, let their future shine",
+      "desc1": "In some remote, mountainous areas, quality learning resources are scarce. Children here have few opportunities to learn about the outside world. They are eager to explore knowledge but face barriers due to a lack of basic materials, equipment, and guidance. We hope to gather everyone's support to build a bridge to the future for these children.",
+      "desc2": "We only deduct necessary basic costs to maintain the website. All remaining donations will be used to support learning for children in remote areas."
+    },
+    "donateNow": {
+      "title": "Donate Now",
+      "hint": "Choose your preferred payment method and scan the QR code to donate. Every donation will provide substantial help to children in remote areas."
+    },
+    "instructions": {
+      "title": "Donation-Instructions",
+      "viewPublicityBtn": "View Donation Disclosure",
+      "item1": "Except for basic operational costs (server, domain, etc.), all funds are used for public welfare learning projects in remote areas.",
+      "item2": "Monthly disclosure of income and expenditure ensures transparency and accountability, open to public supervision.",
+      "item3": "Any amount is appreciated. Every cent provides substantial help to children.",
+      "item4": "Operational costs are kept to a minimum to maximize the funds' public welfare use."
+    },
+    "aria": {
+      "closeCertificate": "Close certificate view",
+      "closePublicity": "Close disclosure",
+      "viewPublicity": "View donation disclosure"
+    }
+  },
+  "FeedbackModal": {
+    "title": "Feedback",
+    "close": "Close",
+    "typeLabel": "Feedback Type",
+    "contentLabel": "Details",
+    "contentPlaceholder": "Please describe the problem or suggestion in detail (within 2000 characters)",
+    "submitBtn": "Submit",
+    "cancelBtn": "Cancel",
+    "submitting": "Submitting...",
+    "submitSuccess": "Thank you for your feedback!",
+    "submitError": "Submission failed, please try again later.",
+    "types": {
+      "WORD": "Vocabulary Issue",
+      "FUNCTION": "Website Function",
+      "BUG": "Bug Report",
+      "SUGGESTION": "Feature Suggestion"
+    },
+    "contactLabel": "Your Email (Optional)",
+    "contactPlaceholder": "If you want us to reply...",
+    "contactHint": "Non-logged-in users can fill in email so we can contact you."
+  },
+  "WordDisplay": {
+    "loginPrompt": "Log in to view example sentences, save learning progress, and mistake records."
+  },
+  "DonateBanner": {
+    "text": "Support the healthy growth of every rural child, let their future shine.",
+    "link": "Learn More",
+    "closeAriaLabel": "Close donation banner"
+  },
+  "Footer": {
+    "copyright": "iSpell. All rights reserved.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "donate": "Donate",
+    "changelogLink": "Changelog",
+    "feedbackLink": "Feedback"
+  },
+  "Changelog": {
+    "title": "Changelog",
+    "description": "See what's new and improved.",
+    "types": {
+      "new": "New",
+      "fix": "Fix",
+      "refactor": "Refactor",
+      "perf": "Perf",
+      "docs": "Books"
+    },
+    "v1_0_0": {
+      "new1": "iSpell is officially launched!",
+      "new2": "Supports login via Email/Password, Email Verification Code, and third-party (GitHub, Google) authentication.",
+      "new3": "Implemented spelling and learning modules, including word browsing, plan creation, spelling practice, and smart review.",
+      "docs1": "Launched 67 English word books, covering all scenarios from student phase to studying abroad."
+    }
   }
 }
