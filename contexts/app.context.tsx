@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-28 22:05:53
- * @LastEditTime: 2025-11-08 23:27:27
+ * @LastEditTime: 2025-11-09 19:14:32
  * @Description: 应用全局状态管理上下文，集中管理用户认证、弹窗状态、主题设置、学习进度和核心数据，提供跨组件状态访问和修改能力
  */
 'use client';
@@ -103,7 +103,6 @@ interface IAppContext {
   // 数据管理
   hierarchy: Language[]; // 书籍层级结构数据
   learningList: LearningPlan[]; // 学习计划列表
-  isDataLoading: boolean; // 数据加载状态
   dataError: string | null; // 数据加载错误信息
   refreshAllData: () => Promise<void>; // 刷新所有核心数据
   setLearningList: React.Dispatch<React.SetStateAction<LearningPlan[]>>; // 设置学习计划列表
@@ -139,7 +138,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // --- 数据状态管理 ---
   const [hierarchy, setHierarchy] = useState<Language[]>([]); // 书籍层级数据
   const [learningList, setLearningList] = useState<LearningPlan[]>([]); // 学习计划列表
-  const [isDataLoading, setIsDataLoading] = useState(true); // 数据加载状态
   const [dataError, setDataError] = useState<string | null>(null); // 数据错误信息
 
   // --- 弹窗状态管理 ---
@@ -199,7 +197,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
    * 包括书籍层级和学习计划列表，处理加载状态和错误
    */
   const refreshAllData = useCallback(async () => {
-    setIsDataLoading(true);
     setDataError(null);
     console.log(`[AppContext] 刷新数据，令牌状态: ${!!accessToken}`);
 
@@ -233,8 +230,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } catch (err: unknown) {
       console.error('全局数据加载失败:', err);
       setDataError((err as Error).message || '无法加载数据，请稍后重试');
-    } finally {
-      setIsDataLoading(false);
     }
   }, [accessToken, currentBookId]);
 
@@ -463,7 +458,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (accessToken) {
       console.log('[AppContext] 令牌变化，加载学习数据...');
-      setIsDataLoading(true);
 
       // 并行加载学习计划和用户信息
       Promise.all([fetchLearningList(), apiFetchProfile()])
@@ -492,7 +486,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           }
         })
         .finally(() => {
-          setIsDataLoading(false);
           setIsLoading(false); // 结束初始化加载
         });
     } else {
@@ -582,7 +575,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       // 数据管理
       hierarchy,
       learningList,
-      isDataLoading,
       dataError,
       refreshAllData,
       setLearningList,
@@ -611,7 +603,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       startMistakeReview,
       hierarchy,
       learningList,
-      isDataLoading,
       dataError,
       refreshAllData,
     ]

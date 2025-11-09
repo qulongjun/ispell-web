@@ -767,6 +767,9 @@
       "perf": "Performance",
       "docs": "Books"
     },
+     "v1_1_2": {
+      "fix1": "Fixed the issue where the bookshelf failed to open when not logged in; now guest users can properly access the bookshelf to browse word book lists."
+    },
     "v1_1_1": {
       "fix1": "Fixed the issue of delayed feedback after button clicks on the learning page; interaction is now more instantaneous.",
       "fix2": "Fixed display issues with distorted layout on the mistakes collection review page on small screens, optimizing responsive experience.",

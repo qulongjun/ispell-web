@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-11-04 20:17:42
- * @LastEditTime: 2025-11-08 22:31:22
+ * @LastEditTime: 2025-11-09 19:13:30
  * @Description: 书籍选择抽屉组件
  */
 'use client';
@@ -68,7 +68,6 @@ const BookSelectionDrawer: React.FC = () => {
     loadBook,
     hierarchy,
     learningList,
-    isDataLoading,
     dataError,
     refreshAllData,
     isBookDrawerOpen,
@@ -516,15 +515,8 @@ const BookSelectionDrawer: React.FC = () => {
 
               {/* 右侧内容区：根据视图显示不同内容 */}
               <div className="flex-1 flex flex-col overflow-hidden">
-                {/* 加载状态 */}
-                {isDataLoading && (
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="w-8 h-8 animate-spin text-gray-500 border-4 border-t-transparent border rounded-full" />
-                  </div>
-                )}
-
                 {/* 数据加载错误状态 */}
-                {dataError && !isDataLoading && (
+                {dataError && (
                   <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
                     <p className="text-red-600 dark:text-red-400 mb-4">
                       {dataError}
@@ -539,7 +531,7 @@ const BookSelectionDrawer: React.FC = () => {
                 )}
 
                 {/* 主内容区域：根据视图切换显示 */}
-                {!isDataLoading && !dataError && (
+                {!dataError && (
                   <AnimatePresence mode="wait">
                     {mainView === 'browser' ? (
                       <BrowserView
