@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "iSpell - Free and Effective Language Learning Platform",
-    "description": "A free language learning platform focused on vocabulary memorization and review, helping you master new words efficiently.",
+    "title": "iSpell - Immersive Language Learning Platform",
+    "description": "An immersive language learning platform focused on vocabulary memorization and review, helping you master new words efficiently.",
     "siteName": "iSpell"
   },
   "Locale": {
@@ -254,7 +254,7 @@
   "Settings": {
     "metadata": {
       "title": "System Settings",
-      "description": "Manage iSpell app preferences, including language, theme mode, and other personalized options."
+      "description": "Manage iSpell app preferences, including interface language, theme mode, and other personalized options."
     },
     "pageTitle": "System Settings",
     "pageDescription": "Manage your application preferences",
@@ -766,6 +766,11 @@
       "refactor": "Refactor",
       "perf": "Performance",
       "docs": "Books"
+    },
+    "v1_1_1": {
+      "fix1": "Fixed the issue of delayed feedback after button clicks on the learning page; interaction is now more instantaneous.",
+      "fix2": "Fixed display issues with distorted layout on the mistakes collection review page on small screens, optimizing responsive experience.",
+      "fix3": "Optimized API error handling logic, fixed issues with some APIs repeatedly reporting errors during unstable network conditions, and enhanced error message readability."
     },
     "v1_1_0": {
       "new1": "New 'Mistakes Collection' feature! The system automatically collects your misspelled words, and you can conduct targeted review at any time from the bookshelf.",
