@@ -1,62 +1,73 @@
-# iSpell - 爱拼词
+# 📖 iSpell - Immersive Multi-Language Vocabulary Platform
 
-免费的语言学习平台，专注于词汇记忆与复习，助你高效掌握新单词。
+> 🎯 **Conquer new vocabulary efficiently and enjoyably using scientific methods.**
 
-## 快速开始
+-----
 
-### 环境准备
-- Node.js 18+
-- npm/yarn/pnpm 任一包管理器
+## 🚀 Project Overview
 
-### 安装步骤
-1. **克隆项目**
-   ```bash
-   git clone https://github.com/ispell-net/ispell-web.git
-   cd ispell-web
-   ```
+**iSpell** is a modern, high-performance language learning platform built with **Next.js** and **TypeScript**. We are dedicated to providing the most elegant and effective vocabulary learning experience on the market.
 
-2.  **安装依赖**
-   ```bash
-   # 使用npm
-   npm install
-   # 或使用yarn
-   yarn install
-   # 或使用pnpm
-   pnpm install
-   ```
+## 🛠️ Technology Stack
 
-3.  **配置环境变量**
-   在项目根目录创建 `.env.local` 文件，配置必要环境变量：
-   ```env
-   # 后端API基础地址
-   NEXT_PUBLIC_API_BASE_URL=https://api.ispell.net/api
-   ```
+  * **Framework:** [**Next.js**](https://nextjs.org/)
+  * **Language:** [**TypeScript**](https://www.typescriptlang.org/)
+  * **Styling:** [**Tailwind CSS**](https://tailwindcss.com/)
+  * **Animation:** [**Framer Motion**](https://www.framer.com/motion/)
+  * **Data Validation:** [**Zod**](https://zod.dev/)
+  * **Internationalization:** [**next-intl**](https://next-intl-docs.vercel.app/)
+  * **Icons:** [**Lucide React**](https://lucide.dev/)
 
-4.  **启动开发环境**
-   ```bash
-   npm run dev
-   # 或 yarn dev / pnpm dev
-   ```
+## ⚙️ Deployment and Local Development
 
-5.  **访问项目**
-   浏览器打开 `http://localhost:3000` 即可进入应用开发调试页面
+To start the iSpell project, please ensure you have **Node.js (\>=18.x)** and **npm** installed.
 
-## 项目目录结构
-```
-root/
-├── app/            # 页面路由
-├── contexts/       # 全局状态管理上下文
-├── hooks/          # 全局钩子方法
-├── i18n/           # 国际化的一些配置
-├── messages/       # 国际化 JSON 文件
-├── public/         # 公共资源库
-├── schema/         # 表单校验规则
-├── services/       # API请求服务封装
-├── mocks/          # 前端 MOCK 数据
-├── types/          # 全局类型定义
-├── utils/          # 通用工具函数
-└── components/     # 业务UI组件
+### 1\. Clone the Repository
+
+```bash
+git clone https://github.com/ispell-net/ispell-web.git
+cd ispell
 ```
 
-## 许可证
-本项目采用 **Apache 许可证** 开源。
+### 2\. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3\. Configure Environment Variables
+
+Create a `.env.local` file and fill in the necessary variables for your backend service and OAuth configuration:
+
+```env
+# Base Configuration
+NEXT_PUBLIC_API_BASE_URL=https://api.ispell.net/api
+```
+
+### 4\. Start the Project
+
+```bash
+npm run dev
+```
+
+The project will start at `http://localhost:3000`.
+
+## 🤝 Contribution Guide
+
+We welcome contributions in all forms\! Whether you want to fix a bug, add a new feature, or improve documentation or translations, please refer to our [Contribution Guide][CONTRIBUTING.md] file.
+
+We are particularly interested in contributions in the following areas:
+
+1.  **Scientific Review Algorithm Optimization:** Improve the SM-2 algorithm or introduce a new SRS variant.
+2.  **Frontend Performance Tuning:** Enhance the loading speed and interaction responsiveness of the core spelling pages.
+3.  **UI/UX Improvement:** Use `framer-motion` to enhance the animation effects of existing or new interfaces.
+4.  **Internationalization Expansion:** Add support for more languages (e.g., Korean, French).
+
+Before submitting a Pull Request, please ensure your code passes TypeScript type checks and is properly formatted.
+
+-----
+
+> **License:** This project is licensed under the Apache License. See [LICENSE][LICENSE] for details.
+
+[CONTRIBUTING.md]: CONTRIBUTING.md
+[LICENSE]: LICENSE
