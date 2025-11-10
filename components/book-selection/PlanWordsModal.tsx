@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-11-03 13:30:05
- * @LastEditTime: 2025-11-08 22:45:07
+ * @LastEditTime: 2025-11-10 18:43:30
  * @Description: 学习计划单词列表模态框组件，按天展示计划中的单词，支持手风琴式展开/折叠每天的单词列表，包含加载状态、错误处理和空状态展示
  */
 'use client';
@@ -13,7 +13,6 @@ import { useTranslations } from 'next-intl';
 // 服务与类型
 import { getPlanWordsByDay, PlanDayWords } from '../../services/planService';
 import { useAppContext } from '../../contexts/app.context';
-import type { Definition } from '../../types/word.types';
 
 // 子组件
 import DefinitionDisplay from '../common/DefinitionDisplay';
@@ -209,7 +208,7 @@ const PlanWordsModal: React.FC<PlanWordsModalProps> = ({
                                     </span>
                                     <DefinitionDisplay
                                       definitions={
-                                        word.definitions as Definition[]
+                                        word.definitions
                                       }
                                       mode="single-line"
                                       className="text-sm text-right max-w-[70%]"

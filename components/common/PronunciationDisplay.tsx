@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-27 18:51:58
- * @LastEditTime: 2025-11-08 22:52:04
+ * @LastEditTime: 2025-11-10 16:12:37
  * @Description: 单词发音展示组件，支持显示英式和美式发音音标，提供发音播放功能，适配用户默认口音设置，处理语音支持状态并提供无障碍提示
  */
 'use client';
@@ -9,7 +9,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Volume1 } from 'lucide-react';
 import { Pronunciation } from '@/types/word.types';
-import { useSpelling } from '@/contexts/spelling.context';
+import { useSettings } from '@/contexts/setting.context';
 
 /**
  * 发音展示组件属性类型
@@ -40,7 +40,7 @@ const PronunciationDisplay: React.FC<PronunciationDisplayProps> = ({
   className = '',
 }) => {
   const t = useTranslations('Words.Pronunciation');
-  const { speechConfig } = useSpelling();
+  const { speechConfig } = useSettings();
   const defaultAccent = speechConfig.accent; // 用户默认口音设置
 
   // 提取英式和美式发音信息
@@ -84,7 +84,7 @@ const PronunciationDisplay: React.FC<PronunciationDisplayProps> = ({
               isUkDefault ? highlightClass : defaultClass
             }`}
           >
-            {ukPronunciation.phonetic ? `/${ukPronunciation.phonetic}/` : ''}
+            {ukPronunciation.phonetic ? `${ukPronunciation.phonetic}` : ''}
           </p>
           {/* 英式发音播放按钮 */}
           <button
@@ -119,7 +119,7 @@ const PronunciationDisplay: React.FC<PronunciationDisplayProps> = ({
               isUsDefault ? highlightClass : defaultClass
             }`}
           >
-            {usPronunciation.phonetic ? `/${usPronunciation.phonetic}/` : ''}
+            {usPronunciation.phonetic ? `${usPronunciation.phonetic}` : ''}
           </p>
           {/* 美式发音播放按钮 */}
           <button

@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-11-05 14:30:00
- * @LastEditTime: 2025-11-08 22:33:07
+ * @LastEditTime: 2025-11-10 18:59:30
  * @Description: 书籍单词列表模态框组件
  */
 'use client';
@@ -12,7 +12,7 @@ import { useTranslations } from 'next-intl';
 
 // 服务与类型
 import { getWordsByBook } from '../../services/bookService';
-import { Definition, SimpleWord } from '@/types/word.types';
+import { SimpleWord } from '@/types/word.types';
 import { ApiError } from '../../utils/error.utils';
 
 // 子组件
@@ -156,7 +156,6 @@ const BookWordsModal: React.FC<BookWordsModalProps> = ({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('searchPlaceholder', { count: words.length })}
                   className="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  aria-label={t('searchAriaLabel')}
                 />
               </div>
             </div>
@@ -191,7 +190,7 @@ const BookWordsModal: React.FC<BookWordsModalProps> = ({
                           {word.word}
                         </span>
                         <DefinitionDisplay
-                          definitions={word.definitions as Definition[]}
+                          definitions={word.definitions}
                           mode="single-line"
                           className="text-sm text-right max-w-[70%]"
                         />

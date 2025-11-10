@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-26 10:02:44
- * @LastEditTime: 2025-11-08 23:23:49
+ * @LastEditTime: 2025-11-10 19:06:56
  * @Description: 单词拼写显示区域
  */
 'use client';
@@ -18,11 +18,12 @@ import {
   getVowelIndices,
 } from '@/utils/word.utils';
 import { SpeechOptions } from '@/utils/speech.utils';
-import { AccentType } from '@/types/word.types';
 import SentenceDisplay from '@/components/common/SentenceDisplay';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useSettings } from '@/contexts/setting.context';
+import { AccentType } from '@/types/setting.types';
 
 const isInputtableChar = (char: string): boolean => {
   return /[a-zA-Z']/.test(char); // 字母 和 撇号
@@ -39,18 +40,20 @@ export default function WordDisplay() {
     speechSupported,
     incrementInputCount,
     incrementCorrectCount,
-    speechConfig,
-    displayMode,
     updateWordProgressInContext,
     setHasMadeMistake,
-    showSentences,
-    showSentenceTranslation,
   } = useSpelling();
+
+  const { speechConfig, displayMode, showSentences, showSentenceTranslation } =
+    useSettings();
 
   const { isLoggedIn } = useAppContext();
   const t = useTranslations('WordDisplay');
 
   const { speak, isPlaying } = useSpeechPlayer();
+
+  // 创建一个 ref 来引用隐藏的 input 元素，用于移动端键盘唤起
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const successSfx =
@@ -174,60 +177,82 @@ export default function WordDisplay() {
       if (currentWord?.text) {
         setCurrentPosition(findNextInputtablePosition(currentWord.text, 0));
       }
-      playCurrentWord();
+      playCurrentWord(); // 调用在这里
     }, 1000);
   }, [
     errorSfx,
     setHasMadeMistake,
     updateWordProgressInContext,
-    playCurrentWord,
+    playCurrentWord, // 依赖在这里
     resetInputState,
     currentWord?.text,
     findNextInputtablePosition,
   ]);
 
-  const handleInputKeyPress = useCallback(
+  // 共享的按键处理逻辑，供 PC 全局 和 移动端 <input> 调用
+  const handleKeyEvent = useCallback(
     (e: KeyboardEvent) => {
+      // 如果事件已经被处理（例如，被 onKeyDown 捕获并阻止了默认行为），则跳过
+      if (e.defaultPrevented) {
+        return;
+      }
+
+      // 如果正在完成、出错或按下了功能键，则忽略
       if (
         isComplete ||
         isError ||
         e.ctrlKey ||
         e.metaKey ||
         e.altKey ||
-        !currentWord?.text ||
-        !/^[a-zA-Z']$/.test(e.key) // 允许字母和撇号
-      )
+        !currentWord?.text
+      ) {
         return;
+      }
 
       const inputChar = e.key;
-      const targetChar = currentWord.text[currentPosition];
 
-      if (!targetChar) return;
+      // 检查是否是可输入的字符
+      if (isInputtableChar(inputChar)) {
+        // 阻止默认行为（例如在页面上滚动或在 <input> 中输入字符）
+        e.preventDefault();
 
-      const newInput = [...userInput];
-      newInput[currentPosition] = inputChar;
-      setUserInput(newInput);
+        const targetChar = currentWord.text[currentPosition];
+        if (!targetChar) return;
 
-      const isMatch = inputChar === targetChar;
-
-      if (isMatch) {
-        const nextInputtablePos = findNextInputtablePosition(
-          currentWord.text,
-          currentPosition + 1
-        );
-
-        for (let i = currentPosition + 1; i < nextInputtablePos; i++) {
-          newInput[i] = currentWord.text[i];
-        }
+        const newInput = [...userInput];
+        newInput[currentPosition] = inputChar;
         setUserInput(newInput);
 
-        setCurrentPosition(nextInputtablePos);
+        // 比较时转换为小写，以改善移动端体验（自动大写）
+        const isMatch = inputChar.toLowerCase() === targetChar.toLowerCase();
 
-        if (nextInputtablePos === currentWord.text.length) {
-          handleSuccess();
+        if (isMatch) {
+          const nextInputtablePos = findNextInputtablePosition(
+            currentWord.text,
+            currentPosition + 1
+          );
+
+          for (let i = currentPosition + 1; i < nextInputtablePos; i++) {
+            newInput[i] = currentWord.text[i];
+          }
+          setUserInput(newInput);
+
+          setCurrentPosition(nextInputtablePos);
+
+          if (nextInputtablePos === currentWord.text.length) {
+            handleSuccess();
+          }
+        } else {
+          handleFailure();
         }
       } else {
-        handleFailure();
+        // 对于PC全局监听器，我们不想阻止非输入键（如 F5, Tab等）
+        // 但如果焦点在我们的隐藏 input 上，我们应该阻止
+        if (e.target === inputRef.current) {
+          if (e.key !== 'Backspace' && e.key !== 'Delete') {
+            e.preventDefault();
+          }
+        }
       }
     },
     [
@@ -242,13 +267,26 @@ export default function WordDisplay() {
     ]
   );
 
-  // ... (Effect Hooks (useEffect) ... 保持不变) ...
+  // 处理输入框失焦事件，尝试重新聚焦以保持键盘（主要用于移动端）
+  const handleInputBlur = useCallback(() => {
+    setTimeout(() => {
+      if (inputRef.current && !isComplete && !isError) {
+        inputRef.current.focus();
+      }
+    }, 50);
+  }, [isComplete, isError]);
+
+  // Effect Hook: 加载新单词时
   useEffect(() => {
     if (currentWord?.text && currentWord.text !== prevWordRef.current) {
       resetInputState(true);
       setCurrentPosition(findNextInputtablePosition(currentWord.text, 0));
       setHasMadeMistake(false);
       prevWordRef.current = currentWord.text;
+
+      // 当新单词加载时，自动聚焦到隐藏输入框（对移动端友好）
+      inputRef.current?.focus();
+
       const shouldPlay = speechSupported;
       if (shouldPlay) {
         playNewWordPronunciation();
@@ -265,11 +303,35 @@ export default function WordDisplay() {
     findNextInputtablePosition,
   ]);
 
+  // Effect Hook: 添加全局键盘监听器（对PC端友好）
   useEffect(() => {
-    const keyPressHandler = (e: KeyboardEvent) => handleInputKeyPress(e);
-    window.addEventListener('keydown', keyPressHandler);
-    return () => window.removeEventListener('keydown', keyPressHandler);
-  }, [handleInputKeyPress]);
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // 检查事件目标
+      const target = e.target as HTMLElement;
+
+      // 1. 如果事件来自我们的隐藏输入框，让 <input> 的 onKeyDown 自己处理，这里跳过
+      if (target === inputRef.current) {
+        return;
+      }
+
+      // 2. 如果用户正在其他输入框里打字（如搜索框、评论框），也跳过
+      const isWriting =
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable;
+      if (isWriting) {
+        return;
+      }
+
+      // 3. 否则，这是PC上的全局快捷键，手动调用共享逻辑
+      handleKeyEvent(e);
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, [handleKeyEvent]); // 依赖共享的事件处理器
 
   const renderWord = (word: string) => {
     if (!word) return null;
@@ -304,20 +366,28 @@ export default function WordDisplay() {
 
           let isCorrect = false;
           if (isEntered) {
-            isCorrect = userInput[index] === char;
+            // 比较用户输入和目标字符
+            isCorrect = userInput[index]?.toLowerCase() === char.toLowerCase();
           }
 
           let colorClass = 'text-gray-400 dark:text-gray-600';
           if (isEntered)
             colorClass = isCorrect
-              ? 'text-green-500 dark:text-green-300'
+              ? 'text-green-500 dark:text-green-300' // 正确
               : 'text-red-500 dark:text-red-300';
-          else if (hasError) colorClass = 'text-red-500 dark:text-red-300';
-          else if (isCurrent) colorClass = 'text-gray-900 dark:text-gray-100';
+          // 错误
+          else if (hasError)
+            colorClass = 'text-red-500 dark:text-red-300'; // 当前输入错误
+          else if (isCurrent) colorClass = 'text-gray-900 dark:text-gray-100'; // 当前光标
 
           let charToShow = char;
+          // 如果是隐藏索引、未输入、未悬停，则显示下划线
           if (hiddenIndices.includes(index) && !isEntered && !isHovering) {
             charToShow = '_';
+          }
+          // 如果是已输入的位置，显示用户输入的字符
+          if (isEntered && userInput[index]) {
+            charToShow = userInput[index];
           }
 
           return (
@@ -383,12 +453,33 @@ export default function WordDisplay() {
     playWordPronunciation(type);
   };
 
-  // --- JSX 返回 (修改) ---
+  if (!currentWord) return null;
+
   return (
     <div
       className="w-full flex flex-col items-center justify-center relative"
       style={{ minHeight: '300px' }}
+      // 添加 onClick 以便用户点击屏幕任意位置都能唤起键盘
+      onClick={() => inputRef.current?.focus()}
     >
+      {/* 隐藏的 input 元素，用于在移动端捕获键盘事件 */}
+      <input
+        ref={inputRef}
+        type="text"
+        className="absolute top-0 left-0 w-0 h-0 opacity-0 border-none p-0 m-0"
+        // <input> 的 onKeyDown 直接调用共享的按键逻辑
+        onKeyDown={(e) => handleKeyEvent(e.nativeEvent as KeyboardEvent)}
+        onBlur={handleInputBlur} // 绑定失焦处理
+        value="" // 始终保持为空，防止自动填充或显示
+        onChange={() => {}} // 满足 React 对受控组件的要求
+        autoCapitalize="off" // 关闭自动大写
+        autoCorrect="off" // 关闭自动纠正
+        autoComplete="off" // 关闭自动完成
+        spellCheck="false" // 关闭拼写检查
+        tabIndex={-1} // 确保无法通过 Tab 键选中
+        aria-hidden="true" // 对屏幕阅读器隐藏
+      />
+
       <div className="mb-6 min-h-[80px] w-full px-4 flex items-center justify-center">
         {renderWord(currentWord?.text || '')}
       </div>
@@ -400,7 +491,7 @@ export default function WordDisplay() {
         speechSupported={!!speechSupported}
       />
 
-      <DefinitionDisplay definitions={currentWord?.definitions} />
+      <DefinitionDisplay definitions={currentWord.definitions} />
 
       {isLoggedIn ? (
         <>

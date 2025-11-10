@@ -1,13 +1,13 @@
 /*
  * @Date: 2025-10-29 23:14:16
- * @LastEditTime: 2025-11-08 23:54:15
+ * @LastEditTime: 2025-11-10 18:44:24
  * @Description: 学习计划相关 API 服务，提供学习计划的管理、单词进度跟踪及错题集管理功能
  */
 
 import apiClient from '@/utils/api.utils';
 import { handleApiError, ApiError } from '@/utils/error.utils';
 import type { LearningPlan, PlanDetails } from '@/types/book.types';
-import type { Definition, Pronunciation, Word } from '@/types/word.types';
+import type { DefinitionsData, Pronunciation, Word } from '@/types/word.types';
 
 // --- 学习计划核心功能 ---
 
@@ -201,7 +201,7 @@ export async function advancePlan(planId: number): Promise<LearningPlan> {
 export type PlanDayWord = {
   id: number;
   word: string;
-  definitions: Definition[] | null;
+  definitions: DefinitionsData | null;
   pronunciation?: Pronunciation[];
 };
 

@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-28 22:05:53
- * @LastEditTime: 2025-11-08 23:45:29
+ * @LastEditTime: 2025-11-10 09:31:35
  * @Description: 拼写学习上下文，管理单词学习会话状态、用户设置和学习进度，包含演示模式支持
  */
 'use client';
@@ -18,38 +18,9 @@ import React, {
 import { useAppContext, type LearningAction } from '@/contexts/app.context';
 import { fetchLearningWords, updateWordProgress } from '@/services/wordService';
 import { advancePlan } from '@/services/planService';
-import { DisplayMode, SpeechConfig, Stats, Word } from '@/types/word.types';
+import { Word, Stats } from '@/types/word.types';
 import toast from 'react-hot-toast';
 import { PlanDetails } from '@/types/book.types';
-
-// 本地存储键名常量定义
-const SETTINGS_KEYS = {
-  SPEECH_CONFIG: 'ispell_speechConfig',
-  IS_CUSTOM_SPEECH: 'ispell_isCustomSpeech',
-  DISPLAY_MODE: 'ispell_displayMode',
-  HIDE_WORD_IN_SENTENCE: 'ispell_hideWordInSentence',
-  SHOW_SENTENCES: 'ispell_showSentences',
-  SHOW_SENTENCE_TRANSLATION: 'ispell_showSentenceTranslation',
-};
-
-/**
- * 从本地存储加载数据
- * @param key 存储键名
- * @param defaultValue 默认值
- * @returns 加载的数据或默认值
- */
-const loadFromLocalStorage = <T,>(key: string, defaultValue: T): T => {
-  if (typeof window === 'undefined') {
-    return defaultValue;
-  }
-  try {
-    const item = window.localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch (error) {
-    console.warn(`Error reading localStorage key “${key}”:`, error);
-    return defaultValue;
-  }
-};
 
 /**
  * 格式化时间为 MM:SS 格式
@@ -70,26 +41,16 @@ export interface SpellingContextType {
   currentIndex: number;
   currentWord: Word | undefined;
   stats: Stats;
-  displayMode: DisplayMode;
-  speechConfig: SpeechConfig;
-  speechSupported: boolean;
-  isCustomSpeech: boolean;
-  showSentences: boolean;
   isSessionComplete: boolean;
-  showSentenceTranslation: boolean;
-  hideWordInSentence: boolean;
   isDemoMode: boolean; // 演示模式状态
+  speechSupported: boolean; // 浏览器是否支持语音
+
+  // 会话操作
   handleNext: () => void;
   handlePrev: () => void;
   startTimer: () => void;
   incrementInputCount: () => void;
   incrementCorrectCount: () => void;
-  setSpeechConfig: React.Dispatch<React.SetStateAction<SpeechConfig>>;
-  setDisplayMode: React.Dispatch<React.SetStateAction<DisplayMode>>;
-  setIsCustomSpeech: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowSentences: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowSentenceTranslation: React.Dispatch<React.SetStateAction<boolean>>;
-  setHideWordInSentence: React.Dispatch<React.SetStateAction<boolean>>;
   updateWordProgressInContext: (quality: number) => void;
   handleWordFailure: () => void;
   handleAdvanceToNextChapter: () => Promise<void>;
@@ -129,44 +90,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
   const [words, setWords] = useState<Word[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
-  // 设置状态 - 从本地存储初始化
-  const [showSentences, setShowSentences] = useState<boolean>(() =>
-    loadFromLocalStorage<boolean>(SETTINGS_KEYS.SHOW_SENTENCES, false)
-  );
-  const [showSentenceTranslation, setShowSentenceTranslation] =
-    useState<boolean>(() =>
-      loadFromLocalStorage<boolean>(
-        SETTINGS_KEYS.SHOW_SENTENCE_TRANSLATION,
-        true
-      )
-    );
-  const [displayMode, setDisplayMode] = useState<DisplayMode>(() =>
-    loadFromLocalStorage<DisplayMode>(SETTINGS_KEYS.DISPLAY_MODE, 'hideRandom')
-  );
-  const [hideWordInSentence, setHideWordInSentence] = useState<boolean>(() =>
-    loadFromLocalStorage<boolean>(SETTINGS_KEYS.HIDE_WORD_IN_SENTENCE, true)
-  );
-
-  // 语音配置 - 合并默认值和存储值
-  const defaultSpeechConfig: SpeechConfig = {
-    lang: 'en-GB',
-    rate: 0.8,
-    volume: 1,
-    pitch: 1,
-    accent: 'en-GB',
-    gender: 'auto',
-  };
-  const [speechConfig, setSpeechConfig] = useState<SpeechConfig>(() => {
-    const savedConfig = loadFromLocalStorage<Partial<SpeechConfig>>(
-      SETTINGS_KEYS.SPEECH_CONFIG,
-      {}
-    );
-    return { ...defaultSpeechConfig, ...savedConfig };
-  });
-  const [isCustomSpeech, setIsCustomSpeech] = useState<boolean>(() =>
-    loadFromLocalStorage<boolean>(SETTINGS_KEYS.IS_CUSTOM_SPEECH, false)
-  );
-
   // 会话状态
   const [isSessionComplete, setIsSessionComplete] = useState<boolean>(false);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(false); // 演示模式状态
@@ -188,91 +111,6 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     _setHasMadeMistake(value);
     hasMadeMistakeRef.current = value;
   }, []);
-
-  // 本地存储同步副作用 - 当设置变化时保存到本地存储
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem(
-          SETTINGS_KEYS.SPEECH_CONFIG,
-          JSON.stringify(speechConfig)
-        );
-      } catch (error) {
-        console.warn(`Error writing speechConfig to localStorage:`, error);
-      }
-    }
-  }, [speechConfig]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem(
-          SETTINGS_KEYS.IS_CUSTOM_SPEECH,
-          JSON.stringify(isCustomSpeech)
-        );
-      } catch (error) {
-        console.warn(`Error writing isCustomSpeech to localStorage:`, error);
-      }
-    }
-  }, [isCustomSpeech]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem(
-          SETTINGS_KEYS.DISPLAY_MODE,
-          JSON.stringify(displayMode)
-        );
-      } catch (error) {
-        console.warn(`Error writing displayMode to localStorage:`, error);
-      }
-    }
-  }, [displayMode]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem(
-          SETTINGS_KEYS.HIDE_WORD_IN_SENTENCE,
-          JSON.stringify(hideWordInSentence)
-        );
-      } catch (error) {
-        console.warn(
-          `Error writing hideWordInSentence to localStorage:`,
-          error
-        );
-      }
-    }
-  }, [hideWordInSentence]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem(
-          SETTINGS_KEYS.SHOW_SENTENCES,
-          JSON.stringify(showSentences)
-        );
-      } catch (error) {
-        console.warn(`Error writing showSentences to localStorage:`, error);
-      }
-    }
-  }, [showSentences]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem(
-          SETTINGS_KEYS.SHOW_SENTENCE_TRANSLATION,
-          JSON.stringify(showSentenceTranslation)
-        );
-      } catch (error) {
-        console.warn(
-          `Error writing showSentenceTranslation to localStorage:`,
-          error
-        );
-      }
-    }
-  }, [showSentenceTranslation]);
 
   /**
    * 开始计时
@@ -646,26 +484,16 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     currentIndex,
     currentWord,
     stats,
-    displayMode,
-    speechConfig,
-    speechSupported,
-    isCustomSpeech,
-    showSentences,
     isSessionComplete,
-    showSentenceTranslation,
-    hideWordInSentence,
     isDemoMode,
+    speechSupported,
+
+    // 会话操作
     handleNext,
     handlePrev,
     startTimer,
     incrementInputCount,
     incrementCorrectCount,
-    setSpeechConfig,
-    setDisplayMode,
-    setIsCustomSpeech,
-    setShowSentences,
-    setShowSentenceTranslation,
-    setHideWordInSentence,
     updateWordProgressInContext,
     handleWordFailure,
     handleAdvanceToNextChapter,

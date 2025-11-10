@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-26 10:02:25
- * @LastEditTime: 2025-11-08 23:12:28
+ * @LastEditTime: 2025-11-10 09:29:49
  * @Description: 单词导航
  */
 'use client';
@@ -8,10 +8,12 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import DefinitionDisplay from '../common/DefinitionDisplay';
 import { useSpelling } from '@/contexts/spelling.context';
+import { useSettings } from '@/contexts/setting.context';
 
 export default function WordNavigation() {
-  const { currentIndex, words, displayMode, handlePrev, handleNext } =
-    useSpelling();
+  const { currentIndex, words, handlePrev, handleNext } = useSpelling();
+
+  const { displayMode } = useSettings();
 
   const totalWords = words.length;
   const prevWord = words[currentIndex - 1];

@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-11-08 12:00:00
- * @LastEditTime: 2025-11-08 18:06:42
+ * @LastEditTime: 2025-11-10 09:54:10
  * @Description: 系统设置页面客户端交互组件
  */
 
@@ -12,10 +12,11 @@ import { useAppContext } from '@/contexts/app.context';
 import { useTranslations } from 'next-intl';
 import { Loader2, MessageSquareWarning } from 'lucide-react';
 
-// 导入设置表单组件
-import SettingsForm from '@/components/settings';
 // 导入公共卡片组件
 import SectionCard from '@/components/common/SectionCard';
+import SpeechSettingsSection from '@/components/settings/SpeechSettingsSection';
+import DisplaySettingsSection from '@/components/settings/DisplaySettingsSection';
+import ContentSettingsSection from '@/components/settings/ContentSettingsSection';
 
 /**
  * 系统设置页面客户端组件
@@ -45,7 +46,6 @@ const SettingsContent: React.FC<{ locale: string }> = ({ locale }) => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      {/* 页面标题区域 */}
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           {t('pageTitle')}
@@ -55,14 +55,11 @@ const SettingsContent: React.FC<{ locale: string }> = ({ locale }) => {
         </p>
       </div>
 
-      {/* 设置内容区域 */}
       <div className="space-y-6 pb-16">
-        {/* 应用设置表单卡片 */}
-        <SectionCard title={t('sectionTitles.appSettings')}>
-          <SettingsForm />
-        </SectionCard>
+        <SpeechSettingsSection />
+        <DisplaySettingsSection />
+        <ContentSettingsSection />
 
-        {/* 问题反馈卡片 */}
         <SectionCard title={t('feedbackCardTitle')}>
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">

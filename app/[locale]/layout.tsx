@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-23 09:38:39
- * @LastEditTime: 2025-11-08 18:10:24
+ * @LastEditTime: 2025-11-10 09:23:11
  * @Description: 应用根布局组件
  */
 
@@ -25,6 +25,7 @@ import HeaderActions from '@/components/header-actions'; // 头部操作区（�
 import DonateBanner from '@/components/banners/DonateBanner'; // 捐赠提示横幅
 import Footer from '@/components/common/Footer'; // 页脚组件
 import FeedbackModal from '@/components/feedback'; // 反馈弹窗组件
+import { SettingsProvider } from '@/contexts/setting.context';
 
 // 字体配置：引入JetBrains Mono字体，定义可用字重、样式及变量
 const jetbrainsMono = JetBrains_Mono({
@@ -98,35 +99,37 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           {/* 应用全局状态提供者 */}
           <AppProvider>
-            {/* 拼写练习功能上下文 */}
-            <SpellingProvider>
-              {/* 主容器：实现固定页脚布局 */}
-              <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col">
-                {/* 头部区域：固定在顶部，包含捐赠横幅和导航 */}
-                <div className="sticky top-0 z-10 w-full">
-                  <DonateBanner />
-                  <header className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-900">
-                    <Logo />
-                    <HeaderActions />
-                  </header>
+            <SettingsProvider>
+              {/* 拼写练习功能上下文 */}
+              <SpellingProvider>
+                {/* 主容器：实现固定页脚布局 */}
+                <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col">
+                  {/* 头部区域：固定在顶部，包含捐赠横幅和导航 */}
+                  <div className="sticky top-0 z-10 w-full">
+                    <DonateBanner />
+                    <header className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-900">
+                      <Logo />
+                      <HeaderActions />
+                    </header>
+                  </div>
+
+                  {/* 主内容区：自动填充剩余空间，底部预留页脚高度 */}
+                  <main className="flex-1 flex flex-col items-center p-4 pb-16">
+                    {children}
+                  </main>
                 </div>
 
-                {/* 主内容区：自动填充剩余空间，底部预留页脚高度 */}
-                <main className="flex-1 flex flex-col items-center p-4 pb-16">
-                  {children}
-                </main>
-              </div>
+                {/* 固定页脚：定位在视口底部 */}
+                <Footer />
 
-              {/* 固定页脚：定位在视口底部 */}
-              <Footer />
+                {/* 全局弹窗组件 */}
+                <AuthModals />
+                <FeedbackModal />
 
-              {/* 全局弹窗组件 */}
-              <AuthModals />
-              <FeedbackModal />
-
-              {/* 通知提示组件 */}
-              <Toaster position="top-center" />
-            </SpellingProvider>
+                {/* 通知提示组件 */}
+                <Toaster position="top-center" />
+              </SpellingProvider>
+            </SettingsProvider>
           </AppProvider>
         </NextIntlClientProvider>
       </body>

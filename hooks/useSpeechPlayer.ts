@@ -5,15 +5,15 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useSpelling } from '@/contexts/spelling.context';
 import { playPronunciation, SpeechOptions } from '@/utils/speech.utils';
+import { useSettings } from '@/contexts/setting.context';
 
 /**
  * useSpeechPlayer Hook
  * @description 封装了所有语音播放逻辑，包括 API vs 浏览器切换、Fallback、状态管理。
  */
 export const useSpeechPlayer = () => {
-  const { isCustomSpeech, speechConfig } = useSpelling();
+  const { isCustomSpeech, speechConfig } = useSettings();
 
   // 状态：正在播放的文本 (null 表示未播放)
   const [playingText, setPlayingText] = useState<string | null>(null);

@@ -1,8 +1,9 @@
 /*
  * @Date: 2025-10-26 09:55:11
- * @LastEditTime: 2025-11-06 23:45:38
+ * @LastEditTime: 2025-11-10 18:39:43
  * @Description: 单词学习相关类型定义
  */
+import { DisplayMode } from './setting.types';
 
 /**
  * 单个发音项（包含音标和发音音频）
@@ -23,14 +24,23 @@ export interface Pronunciation {
 }
 
 /**
- * 单词释义项（按词性分组）
- * 存储单词在特定词性下的含义和补充说明
+ * 单词释义项（新结构）
+ * 存储单词在特定词性下的具体含义和元数据
  */
-export interface Definition {
-  pos: string; // 词性缩写（如 n. 名词、v. 动词、adj. 形容词）
-  translation: string; // 中文释义（如 "n. 单词；话语"）
-  description?: string; // 补充说明（可选，如用法示例、同义词辨析）
+export interface DefinitionItem {
+  translation: string; // 中文释义
+  enTranslation?: string; // 英文释义 (可选)
+  level?: string; // 难度等级 (可选)
+  register?: string; // 语域 (可选)
+  frequency?: string; // 频率 (可选)
 }
+
+/**
+ * 单词释义数据（按词性分组的对象）
+ * key 为词性 (如 "n.", "v."), value 为该词性的释义数组
+ * 示例: {"n.": [DefinitionItem, ...], "v.": [DefinitionItem, ...]}
+ */
+export type DefinitionsData = Record<string, DefinitionItem[]>;
 
 /**
  * 例句数据结构
@@ -80,37 +90,12 @@ export interface Word {
   progressId: number;
   id: number; // 单词唯一ID（后端自增）
   pronunciation: Pronunciation; // 发音信息（英式/美式）
-  definitions: Definition[]; // 释义列表（按词性分组）
+  definitions: DefinitionsData; // 释义列表（按词性分组）
   examples: {
     general: Sentence[]; // 通用例句列表（日常场景例句）
   };
   relations: Relations; // 词语关系（近义词、相关词等）
   text: string; // 单词文本（如 "word"）
-}
-
-/**
- * 口音类型（语音合成用）
- * 限定支持的语音口音选项
- */
-export type AccentType = 'en-US' | 'en-GB'; // 美式英语 / 英式英语
-
-/**
- * 语音性别类型（语音合成用）
- * 限定支持的语音性别选项
- */
-export type GenderType = 'auto' | 'male' | 'female'; // 自动 / 男性 / 女性
-
-/**
- * 语音合成配置
- * 控制单词/例句发音的参数（语言、语速、音量等）
- */
-export interface SpeechConfig {
-  lang: string; // 语言代码（如 'en-US' 对应美式英语）
-  rate: number; // 语速（范围 0.1-10，1 为正常速度）
-  volume: number; // 音量（范围 0-1，1 为最大音量）
-  pitch: number; // 音调（范围 0-2，1 为默认音调）
-  accent: AccentType; // 口音（美式/英式）
-  gender: GenderType; // 语音性别（自动/男性/女性）
 }
 
 /**
@@ -124,17 +109,6 @@ export interface Stats {
   masteredCount: number; // 已掌握的单词数
   accuracy: number; // 正确率（correctCount / inputCount，百分比或小数）
 }
-
-/**
- * 单词显示模式（拼写练习用）
- * 控制单词在练习中的隐藏/显示规则
- */
-export type DisplayMode =
-  | 'full' // 完全显示（无隐藏）
-  | 'hideVowels' // 隐藏元音字母（a/e/i/o/u）
-  | 'hideConsonants' // 隐藏辅音字母
-  | 'hideRandom' // 随机隐藏部分字母
-  | 'hideAll'; // 完全隐藏（全空白）
 
 /**
  * 导航回调函数类型
@@ -164,13 +138,11 @@ export interface SpellingContextType {
 }
 
 /**
- * [!! 建议新增 !!]
- * 简化的单词类型（用于API返回）
  * 描述：包含单词、释义和发音等核心信息
  */
 export interface SimpleWord {
   id: number;
   word: string; // 单词原文 (来自 Prisma 的 'text' 字段)
-  definitions: Definition[]; // 或更具体的 Definition[]，来自 JSON 字段
+  definitions: DefinitionsData; // 或更具体的 Definition[]，来自 JSON 字段
   pronunciation: Pronunciation; // 或更具体的 PronunciationType，来自 JSON 字段
 }

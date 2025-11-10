@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-27 11:44:29
- * @LastEditTime: 2025-11-08 23:13:04
+ * @LastEditTime: 2025-11-10 09:30:08
  * @Description: 显示单词列表的侧边抽屉组件
  */
 'use client';
@@ -13,6 +13,7 @@ import { useSpelling } from '@/contexts/spelling.context';
 import { useSpeechPlayer } from '@/hooks/useSpeechPlayer';
 import { Word } from '@/types/word.types';
 import { SpeechOptions } from '@/utils/speech.utils';
+import { useSettings } from '@/contexts/setting.context';
 
 /**
  * 单词列表抽屉的 Props
@@ -86,7 +87,8 @@ export default function WordListDrawer({
 }: WordListDrawerProps) {
   // 国际化命名空间：根路径为 Words（对应配置结构）
   const t = useTranslations('Words');
-  const { words, speechConfig } = useSpelling();
+  const { words } = useSpelling();
+  const { speechConfig } = useSettings();
   const { speak, playingText, isPlaying } = useSpeechPlayer();
 
   const handlePlayWord = (wordToPlay: string) => {

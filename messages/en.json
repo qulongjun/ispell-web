@@ -767,7 +767,13 @@
       "perf": "Performance",
       "docs": "Books"
     },
-     "v1_1_2": {
+    "v1_1_3": {
+      "new1": "Added 'Cloud Sync' for settings. Your system preferences (like theme, pronunciation source, etc.) now support cloud saving, enabling configuration roaming across devices.",
+      "refactor1": "Optimized 'Mobile Spelling' experience. Refactored the virtual keyboard invocation logic for mobile devices and added in-app spelling keyboard support, significantly improving input fluency.",
+      "fix1": "Optimized definition loading logic, fixing a bug where definitions could display abnormally or show 'No definition available' in specific scenarios.",
+      "fix2": "Fixed several known user experience (UX) and interface (UI) display issues, enhancing the app's overall fluidity and stability."
+    },
+    "v1_1_2": {
       "fix1": "Fixed the issue where the bookshelf failed to open when not logged in; now guest users can properly access the bookshelf to browse word book lists."
     },
     "v1_1_1": {

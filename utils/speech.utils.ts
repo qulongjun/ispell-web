@@ -1,10 +1,10 @@
 /*
  * @Date: 2025-10-26 11:10:22
- * @LastEditTime: 2025-11-08 23:26:38
+ * @LastEditTime: 2025-11-10 10:02:35
  * @Description: 文本转语音工具函数
  */
 
-import { AccentType, GenderType } from '@/types/word.types';
+import { AccentType, GenderType } from '@/types/setting.types';
 
 export interface SpeechOptions {
   text: string;

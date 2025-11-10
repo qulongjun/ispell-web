@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-11-04
- * @LastEditTime: 2025-11-08 22:40:41
+ * @LastEditTime: 2025-11-10 18:43:14
  * @Description: 错题集模态框组件
  */
 'use client';
@@ -19,7 +19,6 @@ import {
   MistakeEntry,
 } from '../../services/planService';
 import { useAppContext } from '../../contexts/app.context';
-import type { Definition } from '../../types/word.types';
 
 // 子组件
 import DefinitionDisplay from '../common/DefinitionDisplay';
@@ -241,7 +240,7 @@ const MistakeModal: React.FC<MistakeModalProps> = ({
                               </span>
                             </div>
                             <DefinitionDisplay
-                              definitions={mistake.word.definitions as Definition[]}
+                              definitions={mistake.word.definitions}
                               mode="single-line"
                               className="text-sm text-gray-500 dark:text-gray-400 mt-1"
                             />

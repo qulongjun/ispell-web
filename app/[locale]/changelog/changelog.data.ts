@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-11-06 21:11:15
- * @LastEditTime: 2025-11-09 19:19:54
+ * @LastEditTime: 2025-11-10 22:40:37
  * @Description: 更新日志数据定义及具体日志内容
  */
 
@@ -47,12 +47,20 @@ export interface ChangelogEntry {
  * @description 按发布时间倒序排列，最新版本位于数组最上方
  */
 export const changelogData: ChangelogEntry[] = [
-   {
+  {
+    version: 'v1.1.3',
+    date: '2025-11-10',
+    changes: [
+      { type: 'new', descriptionKey: 'v1_1_3.new1' },
+      { type: 'refactor', descriptionKey: 'v1_1_3.refactor1' },
+      { type: 'fix', descriptionKey: 'v1_1_3.fix1' },
+      { type: 'fix', descriptionKey: 'v1_1_3.fix2' },
+    ],
+  },
+  {
     version: 'v1.1.2',
     date: '2025-11-09',
-    changes: [
-      { type: 'fix', descriptionKey: 'v1_1_2.fix1' },
-    ],
+    changes: [{ type: 'fix', descriptionKey: 'v1_1_2.fix1' }],
   },
   {
     version: 'v1.1.1',

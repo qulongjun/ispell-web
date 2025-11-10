@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-10-28 09:30:00
- * @LastEditTime: 2025-11-08 22:56:26
+ * @LastEditTime: 2025-11-10 09:28:36
  * @Description: 单词例句展示组件，支持多例句切换、翻译显示/隐藏及单词隐藏模式（用下划线替换目标单词），包含平滑切换动画和分页指示器，适配响应式布局和明暗模式
  */
 'use client';
@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // 上下文与工具函数
 import { useSpelling } from '@/contexts/spelling.context';
 import { findWordIndices } from '@/utils/word.utils';
+import { useSettings } from '@/contexts/setting.context';
 
 /**
  * 例句数据结构类型
@@ -109,7 +110,8 @@ const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
   showTranslation,
 }) => {
   const t = useTranslations('Words.Sentence');
-  const { currentWord, hideWordInSentence } = useSpelling(); // 从全局状态获取当前单词和隐藏设置
+  const { currentWord } = useSpelling(); // 从全局状态获取当前单词和隐藏设置
+  const { hideWordInSentence } = useSettings();
 
   // 分页状态：[当前页码, 切换方向]
   const [[page, direction], setPage] = useState([0, 0]);
