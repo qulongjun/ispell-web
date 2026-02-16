@@ -86,20 +86,17 @@ const DefinitionDisplay: React.FC<DefinitionDisplayProps> = ({
   if (mode === 'single-line') {
     return (
       <div
-        className={`mt-1 text-xs sm:text-base text-gray-500 dark:text-gray-400 ${className}`}
+        className={`mt-1 text-xs sm:text-base text-gray-500 dark:text-gray-400 wrap-break-word ${className}`}
       >
         {definitionEntries.map(([pos, items], index) => (
           <React.Fragment key={pos}>
-            {/* 词性标注：斜体加粗，与释义区分 */}
             <span className="italic font-medium text-gray-600 dark:text-gray-300 mr-1">
               {pos}
             </span>
-            {/* 释义内容：拼接同一词性下的所有释义，用全角分号分隔 */}
-            <span className="mr-2">
-              {items 
+            <span className="mr-2 wrap-break-word">
+              {items
                 .map((item) => item.translation.replaceAll(' ', ''))
                 .join('；')}
-              {/* 在不同词性之间添加全角逗号作为分隔符 */}
               {index < definitionEntries.length - 1 ? '， ' : ''}
             </span>
           </React.Fragment>
@@ -108,25 +105,33 @@ const DefinitionDisplay: React.FC<DefinitionDisplayProps> = ({
     );
   }
 
-  // 多行模式：每个词性组单独成行，提升可读性
+  // 多行模式：词性+释义分行，长文本换行与截断优化
   return (
     <div
-      className={`mt-1 text-xs sm:text-base text-gray-500 dark:text-gray-400 space-y-1 ${className}`}
+      className={`mt-2 w-full max-w-xl mx-auto text-xs sm:text-base ${className}`}
     >
-      {definitionEntries.map(([pos, items]) => (
-        <div key={pos} className="flex items-start">
-          {/* 词性标注：固定宽度右对齐，增强视觉结构 */}
-          <span className="italic font-medium text-gray-600 dark:text-gray-300 text-right mr-2 shrink-0">
-            {pos}
-          </span>
-          {/* 释义内容：拼接同一词性下的所有释义，用全角分号分隔 */}
-          <span>
-            {items
+      <div className="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-100 dark:border-gray-700/80">
+        <div className="space-y-2 sm:space-y-2.5">
+          {definitionEntries.map(([pos, items]) => {
+            const text = items
               .map((item) => item.translation.replaceAll(' ', ''))
-              .join('；')}
-          </span>
+              .join('；');
+            return (
+              <div
+                key={pos}
+                className="flex gap-2 sm:gap-3 items-baseline min-w-0"
+              >
+                <span className="italic font-medium text-gray-600 dark:text-gray-300 shrink-0 w-7 sm:w-8 text-right tabular-nums">
+                  {pos}
+                </span>
+                <span className="text-gray-600 dark:text-gray-300 wrap-break-word min-w-0 leading-relaxed">
+                  {text}
+                </span>
+              </div>
+            );
+          })}
         </div>
-      ))}
+      </div>
     </div>
   );
 };

@@ -105,16 +105,16 @@ export default async function RootLayout({
                 {/* 主容器：实现固定页脚布局 */}
                 <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col">
                   {/* 头部区域：固定在顶部，包含捐赠横幅和导航 */}
-                  <div className="sticky top-0 z-10 w-full">
+                  <div className="sticky top-0 z-10 w-full shrink-0">
                     <DonateBanner />
-                    <header className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-900">
-                      <Logo />
+                    <header className="flex justify-between items-center gap-4 min-h-14 px-4 py-3 sm:px-6 bg-gray-50 dark:bg-gray-900 border-b border-gray-200/80 dark:border-gray-700/80">
+                      <Logo className="min-w-0 shrink" />
                       <HeaderActions />
                     </header>
                   </div>
 
                   {/* 主内容区：自动填充剩余空间，底部预留页脚高度 */}
-                  <main className="flex-1 flex flex-col items-center p-4 pb-16">
+                  <main className="flex-1 flex flex-col items-center w-full min-w-0 px-4 py-6 sm:px-6 sm:py-8 pb-20 sm:pb-16">
                     {children}
                   </main>
                 </div>

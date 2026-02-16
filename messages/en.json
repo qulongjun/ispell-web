@@ -55,7 +55,7 @@
     "title": "Ready to Go",
     "noActiveBookDescription": "Select a book from the Bookshelf and start learning instantly",
     "noActiveBookDescription2": "The power to change the world is at your fingertips.",
-    "testNow": "Try Now",
+    "testNow": "Try Demo",
     "browseBookshelfBtn": "Browse Bookshelf",
     "openBookshelfBtn": "Open Bookshelf",
     "startLearningBtn": "Start Learning",
@@ -316,6 +316,9 @@
     },
     "statsCard": {
       "timing": "Time",
+      "pause": "Pause",
+      "resume": "Resume",
+      "reset": "Reset",
       "attempts": "Attempts",
       "correctSpelling": "Correct Spells",
       "remainingWords": "Remaining Words",
@@ -326,7 +329,9 @@
       "usLabel": "US",
       "aria": {
         "playUk": "Play UK pronunciation",
-        "playUs": "Play US pronunciation"
+        "playUs": "Play US pronunciation",
+        "switchToUk": "Switch to UK phonetic",
+        "switchToUs": "Switch to US phonetic"
       },
       "unsupportedHint": "Browser does not support speech functionality"
     },
@@ -576,7 +581,22 @@
     "contactHint": "Unlogged users can provide an email for us to contact you."
   },
   "WordDisplay": {
-    "loginPrompt": "Log in to view example sentences, save learning progress and mistake records."
+    "loginPrompt": "Log in to view example sentences, save learning progress and mistake records.",
+    "tapToRevealAria": "Tap word to show or hide letters"
+  },
+  "SpellingOnboarding": {
+    "step1Title": "Step 1: Spelling area",
+    "step1Desc": "Here you see the current word, definition and pronunciation. Tap anywhere then type to spell.",
+    "step2Title": "Step 2: Navigate words",
+    "step2Desc": "Use the left and right sides to see previous or next word and switch quickly.",
+    "step3Title": "Step 3: Today's progress",
+    "step3Desc": "Shows time, attempts, accuracy and remaining words for this session.",
+    "step4Title": "Step 4: Word list",
+    "step4Desc": "Tap this button to open the word list, view progress or jump to a word. You can drag it; it snaps to the screen edge when close.",
+    "stepIndicator": "Step {current} / {total}",
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Got it"
   },
   "DonateBanner": {
     "text": "Help every rural child grow healthily and make their future shine brightly.",
@@ -766,6 +786,17 @@
       "refactor": "Refactor",
       "perf": "Performance",
       "docs": "Books"
+    },
+    "v1_1_4": {
+      "new1": "Onboarding for the spelling screen (step-by-step guide).",
+      "new2": "Word list button is draggable with edge snapping.",
+      "new3": "Arrow keys switch words, Space plays word; timer hover: pause/resume/reset; timer pauses when tab hidden.",
+      "refactor1": "Pronunciation shows only set accent by default, toggle to switch; first-play and Space use same accent.",
+      "refactor2": "Mobile spelling single-line with smaller font for long words; definition block layout improved.",
+      "refactor3": "Hide-letters mode: tap word on mobile to show/hide letters.",
+      "fix1": "Guest 'Try Demo' no longer shows empty-mistakes toast; label unified to Try Demo.",
+      "fix2": "Right arrow on last word no longer ends session.",
+      "fix3": "Timer pauses when tab hidden, resumes when visible."
     },
     "v1_1_3": {
       "new1": "Added 'Cloud Sync' for settings. Your system preferences (like theme, pronunciation source, etc.) now support cloud saving, enabling configuration roaming across devices.",

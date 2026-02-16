@@ -42,23 +42,23 @@ export async function generateMetadata({
 
 /**
  * 根据变更类型获取对应的徽章样式
- * 采用黑白灰色调设计，通过对比度区分不同类型
+ * 黑白灰配色：用明暗 + 填充/描边区分（新增=最深填充，修复=中灰填充，重构=描边）
  * @param type 变更类型（new/fix/refactor/perf/docs）
  * @returns Tailwind CSS类名字符串
  */
 const getBadgeStyle = (type: ChangeType): string => {
   switch (type) {
-    case 'new': // 新增功能：最高对比度（填充式）
-      return 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900';
-    case 'fix': // 问题修复：中暗对比度（填充式）
-      return 'bg-gray-600 text-white dark:bg-gray-500 dark:text-white';
-    case 'perf': // 性能优化：中亮对比度（填充式）
-      return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100';
-    case 'refactor': // 代码重构：中等对比度（边框式）
-      return 'border border-gray-400 text-gray-600 dark:border-gray-600 dark:text-gray-400';
-    case 'docs': // 文档更新：低对比度（边框式）
+    case 'new': // 新增：最深色填充，最醒目
+      return 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 font-semibold';
+    case 'fix': // 修复：中深灰填充，与新增明显拉开明度
+      return 'bg-gray-500 text-white dark:bg-gray-600 dark:text-white font-semibold';
+    case 'refactor': // 重构：描边样式，不填充，与两种填充区分
+      return 'border-2 border-gray-500 text-gray-700 dark:border-gray-400 dark:text-gray-300 bg-transparent font-semibold';
+    case 'perf': // 性能：浅灰填充
+      return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    case 'docs': // 文档：细描边，最弱
     default:
-      return 'border border-gray-300 text-gray-500 dark:border-gray-700 dark:text-gray-500';
+      return 'border border-gray-400 text-gray-600 dark:border-gray-500 dark:text-gray-400';
   }
 };
 

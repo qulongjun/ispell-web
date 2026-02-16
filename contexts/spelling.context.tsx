@@ -49,6 +49,10 @@ export interface SpellingContextType {
   handleNext: () => void;
   handlePrev: () => void;
   startTimer: () => void;
+  isTimerPaused: boolean;
+  pauseTimer: () => void;
+  resumeTimer: () => void;
+  resetTimer: () => void;
   incrementInputCount: () => void;
   incrementCorrectCount: () => void;
   updateWordProgressInContext: (quality: number) => void;
@@ -97,6 +101,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
   // 统计状态
   const [startTime, setStartTime] = useState<number | null>(null);
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
+  const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
   const [failCount, setFailCount] = useState<number>(0);
   const [successCount, setSuccessCount] = useState<number>(0);
   const [speechSupported, setSpeechSupported] = useState<boolean>(true);
@@ -122,6 +127,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
       }
       return prevStartTime;
     });
+    setIsTimerPaused(false);
   }, []);
 
   /**
@@ -293,16 +299,81 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     }
   }, []);
 
-  // 学习会话计时器
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const pausedElapsedRef = useRef<number>(0);
+
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (startTime && isLearningSessionActive) {
-      timer = setInterval(() => {
-        setTimeElapsed(Math.floor((Date.now() - startTime) / 1000));
+    startTimeRef.current = startTime;
+  }, [startTime]);
+
+  // 学习会话计时器（暂停或 tab 隐藏时不递增）
+  useEffect(() => {
+    if (startTime && isLearningSessionActive && !isTimerPaused) {
+      timerRef.current = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - (startTimeRef.current ?? 0)) / 1000);
+        setTimeElapsed(elapsed);
       }, 1000);
     }
-    return () => clearInterval(timer);
-  }, [startTime, isLearningSessionActive]);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [startTime, isLearningSessionActive, isTimerPaused]);
+
+  const pauseTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    const start = startTimeRef.current ?? 0;
+    if (start) pausedElapsedRef.current = Math.floor((Date.now() - start) / 1000);
+    setIsTimerPaused(true);
+  }, []);
+
+  const resumeTimer = useCallback(() => {
+    const elapsed = pausedElapsedRef.current;
+    setStartTime(Date.now() - elapsed * 1000);
+    setTimeElapsed(elapsed);
+    setIsTimerPaused(false);
+  }, []);
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setTimeElapsed(0);
+    setStartTime(Date.now());
+    setIsTimerPaused(false);
+  }, []);
+
+  // 切出 tab 时暂停计时，回来时继续（仅当未手动暂停时恢复）
+  useEffect(() => {
+    if (typeof document === 'undefined' || !startTime || !isLearningSessionActive) return;
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        const start = startTimeRef.current ?? 0;
+        if (start) pausedElapsedRef.current = Math.floor((Date.now() - start) / 1000);
+      } else {
+        if (!isTimerPaused) {
+          const elapsed = pausedElapsedRef.current;
+          setStartTime(Date.now() - elapsed * 1000);
+          setTimeElapsed(elapsed);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isLearningSessionActive, startTime, isTimerPaused]);
 
   /**
    * 处理单词拼写失败
@@ -492,6 +563,10 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     handleNext,
     handlePrev,
     startTimer,
+    isTimerPaused,
+    pauseTimer,
+    resumeTimer,
+    resetTimer,
     incrementInputCount,
     incrementCorrectCount,
     updateWordProgressInContext,

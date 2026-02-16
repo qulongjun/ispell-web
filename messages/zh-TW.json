@@ -55,7 +55,7 @@
     "title": "準備就緒",
     "noActiveBookDescription": "從書架挑選一本書，即刻開始學習",
     "noActiveBookDescription2": "你的指尖，有改變世界的力量。",
-    "testNow": "立即體驗",
+    "testNow": "試用體驗",
     "browseBookshelfBtn": "逛逛書架",
     "openBookshelfBtn": "打開書架",
     "startLearningBtn": "開始學習",
@@ -316,6 +316,9 @@
     },
     "statsCard": {
       "timing": "計時",
+      "pause": "暫停",
+      "resume": "繼續",
+      "reset": "重新計時",
       "attempts": "嘗試次數",
       "correctSpelling": "正確拼寫",
       "remainingWords": "剩餘單字",
@@ -326,7 +329,9 @@
       "usLabel": "美",
       "aria": {
         "playUk": "播放英式發音",
-        "playUs": "播放美式發音"
+        "playUs": "播放美式發音",
+        "switchToUk": "切換到英式音標",
+        "switchToUs": "切換到美式音標"
       },
       "unsupportedHint": "瀏覽器不支援語音功能"
     },
@@ -576,7 +581,22 @@
     "contactHint": "未登入用戶可填寫郵箱，以便我們與您聯繫。"
   },
   "WordDisplay": {
-    "loginPrompt": "登入以查看例句，儲存學習進度和錯題記錄。"
+    "loginPrompt": "登入以查看例句，儲存學習進度和錯題記錄。",
+    "tapToRevealAria": "點擊單字顯示或隱藏字母"
+  },
+  "SpellingOnboarding": {
+    "step1Title": "第一步：拼寫區",
+    "step1Desc": "在此處查看當前單字的釋義與發音，在螢幕任意位置點擊後即可輸入拼寫。",
+    "step2Title": "第二步：切換單字",
+    "step2Desc": "左右兩側可查看上一詞／下一詞，點擊可快速切換。",
+    "step3Title": "第三步：今日進度",
+    "step3Desc": "這裡顯示本次練習的計時、嘗試次數、正確率與剩餘單字數。",
+    "step4Title": "第四步：單字列表",
+    "step4Desc": "點擊此按鈕可打開本局單字列表，查看進度或跳轉到某一詞。按鈕可拖動，靠近螢幕邊緣會自動吸邊。",
+    "stepIndicator": "第 {current} / {total} 步",
+    "next": "下一步",
+    "skip": "跳過",
+    "done": "知道了"
   },
   "DonateBanner": {
     "text": "助力每個鄉村孩子的健康成長，讓孩子的未來發光發亮。",
@@ -766,6 +786,17 @@
       "refactor": "重構",
       "perf": "性能",
       "docs": "書籍"
+    },
+    "v1_1_4": {
+      "new1": "首次進入拼寫介面顯示多步驟新人引導。",
+      "new2": "單字列表按鈕可拖動，靠近邊緣自動吸邊。",
+      "new3": "支援左右鍵切換單字、空格朗讀；計時區懸停可暫停／繼續／重置；切出標籤頁計時暫停。",
+      "refactor1": "音標預設只顯示設定口音，可切換；首次與空格朗讀口音一致。",
+      "refactor2": "行動裝置拼寫單行、過長縮字型；釋義區背景與換行優化。",
+      "refactor3": "隱藏字母模式下，行動裝置點擊單字可顯示／隱藏字母。",
+      "fix1": "未登入「試用體驗」不再誤報錯題集為空；文案統一為試用體驗。",
+      "fix2": "最後一個詞時按右鍵不再結束工作階段。",
+      "fix3": "切出標籤頁時計時暫停，返回後繼續。"
     },
     "v1_1_3": {
       "new1": "新增「設定雲端同步」功能。您的系統設定（如主題、發音來源等）現已支援雲端儲存，可實現跨裝置設定同步。",

@@ -38,21 +38,25 @@ const HeaderActions: React.FC = () => {
   const { isLoggedIn } = useAppContext();
 
   return (
-    <div className="flex items-center space-x-0.5 sm:space-x-1">
-      {/* 应用设置功能组 */}
-      <BookSelection />
-      <LanguageSwitcher />
-      <ThemeToggle />
+    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+      {/* 应用设置功能组：书架 / 语言 / 主题 */}
+      <div className="flex items-center gap-0.5 sm:gap-1">
+        <BookSelection />
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
 
       {/* 功能组分隔线：仅在中等及以上屏幕显示 */}
       <VerticalDivider />
 
       {/* 用户会话功能组：根据登录状态动态切换 */}
-      {isLoggedIn ? (
-        <UserAvatar /> // 已登录：显示用户头像（含个人中心入口）
-      ) : (
-        <AuthButtons /> // 未登录：显示登录按钮（打开登录模态框）
-      )}
+      <div className="flex items-center">
+        {isLoggedIn ? (
+          <UserAvatar />
+        ) : (
+          <AuthButtons />
+        )}
+      </div>
     </div>
   );
 };

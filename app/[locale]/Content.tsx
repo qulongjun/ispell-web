@@ -11,6 +11,7 @@ import StatsCard from '@/components/spelling/StatsCard'; // 学习统计卡片
 import WordDisplay from '@/components/spelling/WordDisplay'; // 单词展示组件
 import WordNavigation from '@/components/spelling/WordNavigation'; // 单词导航控制
 import WordList from '@/components/word-list'; // 单词列表组件
+import SpellingOnboarding from '@/components/spelling/SpellingOnboarding'; // 拼写界面新人引导
 import { useAppContext } from '@/contexts/app.context'; // 应用全局状态上下文
 import { useSpelling } from '@/contexts/spelling.context'; // 拼写学习上下文
 import { useEffect } from 'react';
@@ -63,6 +64,9 @@ function Content() {
 
       {/* 学习会话激活且未完成时：显示当前单词列表 */}
       {isLearningSessionActive && !isSessionComplete && <WordList />}
+
+      {/* 首次进入拼写界面时的新人引导 */}
+      {isLearningSessionActive && !isSessionComplete && <SpellingOnboarding />}
     </>
   );
 }

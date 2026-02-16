@@ -35,7 +35,7 @@ export default function WordNavigation() {
     'text-base sm:text-2xl font-medium text-gray-500 dark:text-gray-300 truncate';
 
   return (
-    <div className="w-full max-w-7xl flex justify-between items-center mb-4 sm:mb-12 mt-4 sm:mt-10 space-x-2 sm:space-x-8">
+    <div id="spelling-guide-nav" className="w-full max-w-7xl flex justify-between items-center mb-4 sm:mb-12 mt-4 sm:mt-10 space-x-2 sm:space-x-8">
       {!isPrevDisabled && (
         <button
           onClick={handlePrev}

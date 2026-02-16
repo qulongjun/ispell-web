@@ -36,7 +36,10 @@ const isSkippableChar = (char: string): boolean => {
 export default function WordDisplay() {
   const {
     currentWord,
+    currentIndex,
+    words,
     handleNext,
+    handlePrev,
     speechSupported,
     incrementInputCount,
     incrementCorrectCount,
@@ -76,9 +79,12 @@ export default function WordDisplay() {
   const [isError, setIsError] = useState<boolean>(false);
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isHovering, setIsHovering] = useState(false);
+  /** 移动端点击显示：无 hover 时通过点击单词区域切换字母显示 */
+  const [isTapReveal, setIsTapReveal] = useState(false);
 
   const wordContainerRef = useRef<HTMLDivElement>(null);
   const prevWordRef = useRef<string>(currentWord?.text || '');
+  const playPronunciationRef = useRef<(type: 'uk' | 'us' | null) => void>(() => {});
 
   const findNextInputtablePosition = useCallback(
     (word: string, startIndex: number): number => {
@@ -102,6 +108,7 @@ export default function WordDisplay() {
       setIsComplete(false);
       wordContainerRef.current?.classList.remove('shake');
       setIsHovering(false);
+      setIsTapReveal(false);
     },
     [incrementInputCount]
   );
@@ -192,22 +199,31 @@ export default function WordDisplay() {
   // 共享的按键处理逻辑，供 PC 全局 和 移动端 <input> 调用
   const handleKeyEvent = useCallback(
     (e: KeyboardEvent) => {
-      // 如果事件已经被处理（例如，被 onKeyDown 捕获并阻止了默认行为），则跳过
-      if (e.defaultPrevented) {
+      if (e.defaultPrevented) return;
+      if (!currentWord?.text) return;
+
+      // 键盘上一词 / 下一词；最后一个词时不允许右键结束
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrev();
         return;
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (currentIndex < words.length - 1) handleNext();
+        return;
+      }
+      // 空格：若当前要输入的字符不是空格则朗读当前单词，否则用于输入空格
+      if (e.key === ' ') {
+        const targetChar = currentWord.text[currentPosition];
+        if (targetChar !== ' ') {
+          e.preventDefault();
+          playPronunciationRef.current(null);
+          return;
+        }
       }
 
-      // 如果正在完成、出错或按下了功能键，则忽略
-      if (
-        isComplete ||
-        isError ||
-        e.ctrlKey ||
-        e.metaKey ||
-        e.altKey ||
-        !currentWord?.text
-      ) {
-        return;
-      }
+      if (isComplete || isError || e.ctrlKey || e.metaKey || e.altKey) return;
 
       const inputChar = e.key;
 
@@ -258,8 +274,12 @@ export default function WordDisplay() {
     [
       currentPosition,
       currentWord,
+      currentIndex,
+      words.length,
       handleFailure,
       handleSuccess,
+      handleNext,
+      handlePrev,
       isComplete,
       isError,
       userInput,
@@ -337,12 +357,43 @@ export default function WordDisplay() {
     if (!word) return null;
     const chars = word.split('');
 
+    const hasHidden = hiddenIndices.length > 0;
+    const isRevealed = isHovering || isTapReveal;
+
+    // 移动端单行：过长时缩小字号与间隔
+    const len = word.length;
+    const mobileSizeClass =
+      len > 14 ? 'text-2xl' : len > 10 ? 'text-3xl' : len > 7 ? 'text-4xl' : 'text-[2rem]';
+    const mobileGapClass = len > 12 ? 'gap-x-0.5' : len > 8 ? 'gap-x-1' : 'gap-x-1.5';
+    const mobileWClass = len > 12 ? 'w-2.5' : len > 8 ? 'w-3' : 'w-3.5';
+
     return (
       <div
         ref={wordContainerRef}
-        className="flex items-center justify-center gap-x-2 gap-y-4 flex-wrap transition-all duration-300 cursor-default"
+        role={hasHidden ? 'button' : undefined}
+        aria-label={hasHidden ? t('tapToRevealAria') : undefined}
+        tabIndex={hasHidden ? 0 : undefined}
+        className={`flex items-center justify-center flex-nowrap sm:flex-wrap ${mobileGapClass} sm:gap-x-2 gap-y-0 sm:gap-y-4 transition-all duration-300 ${hasHidden ? 'cursor-pointer touch-manipulation' : 'cursor-default'}`}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
+        onClick={
+          hasHidden
+            ? (e) => {
+                e.stopPropagation();
+                setIsTapReveal((prev) => !prev);
+              }
+            : undefined
+        }
+        onKeyDown={
+          hasHidden
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsTapReveal((prev) => !prev);
+                }
+              }
+            : undefined
+        }
       >
         {chars.map((char, index) => {
           const isEntered = index < currentPosition;
@@ -355,7 +406,7 @@ export default function WordDisplay() {
             return (
               <span
                 key={index}
-                className={`text-5xl sm:text-7xl ${colorClass} w-4 sm:w-6`}
+                className={`${mobileSizeClass} sm:text-5xl md:text-7xl ${colorClass} ${mobileWClass} sm:w-4 md:w-6 shrink-0`}
                 dangerouslySetInnerHTML={{ __html: displayChar }}
               />
             );
@@ -381,8 +432,8 @@ export default function WordDisplay() {
           else if (isCurrent) colorClass = 'text-gray-900 dark:text-gray-100'; // 当前光标
 
           let charToShow = char;
-          // 如果是隐藏索引、未输入、未悬停，则显示下划线
-          if (hiddenIndices.includes(index) && !isEntered && !isHovering) {
+          // 如果是隐藏索引、未输入、且未通过悬停或点击显示，则显示下划线
+          if (hiddenIndices.includes(index) && !isEntered && !isRevealed) {
             charToShow = '_';
           }
           // 如果是已输入的位置，显示用户输入的字符
@@ -393,7 +444,7 @@ export default function WordDisplay() {
           return (
             <span
               key={index}
-              className={`text-5xl sm:text-7xl tracking-tight ${colorClass}`}
+              className={`${mobileSizeClass} sm:text-5xl md:text-7xl tracking-tight shrink-0 ${colorClass}`}
             >
               {charToShow}
             </span>
@@ -420,7 +471,12 @@ export default function WordDisplay() {
       detailToPlay = currentWord.pronunciation.us;
       accentLang = 'en-US';
     } else {
-      if (currentWord.pronunciation.us?.phonetic) {
+      // 与首次进入时一致：按设置中的口音选择英式/美式
+      const preferUk = speechConfig.accent === 'en-GB';
+      if (preferUk && currentWord.pronunciation.uk?.phonetic) {
+        detailToPlay = currentWord.pronunciation.uk;
+        accentLang = 'en-GB';
+      } else if (currentWord.pronunciation.us?.phonetic) {
         detailToPlay = currentWord.pronunciation.us;
         accentLang = 'en-US';
       } else if (currentWord.pronunciation.uk?.phonetic) {
@@ -448,6 +504,7 @@ export default function WordDisplay() {
     };
     speak(configToPlay);
   };
+  playPronunciationRef.current = playWordPronunciation;
 
   const handlePlaySelectedPronunciation = (type: 'uk' | 'us') => {
     playWordPronunciation(type);
@@ -457,6 +514,7 @@ export default function WordDisplay() {
 
   return (
     <div
+      id="spelling-guide-word"
       className="w-full flex flex-col items-center justify-center relative"
       style={{ minHeight: '300px' }}
       // 添加 onClick 以便用户点击屏幕任意位置都能唤起键盘
@@ -480,11 +538,12 @@ export default function WordDisplay() {
         aria-hidden="true" // 对屏幕阅读器隐藏
       />
 
-      <div className="mb-6 min-h-[80px] w-full px-4 flex items-center justify-center">
+      <div className="mb-6 min-h-[80px] w-full max-w-full px-4 flex items-center justify-center overflow-x-auto overflow-y-hidden">
         {renderWord(currentWord?.text || '')}
       </div>
 
       <PronunciationDisplay
+        key={currentWord?.id}
         pronunciation={currentWord?.pronunciation}
         onPlay={handlePlaySelectedPronunciation}
         isPlaying={isPlaying}
@@ -525,7 +584,7 @@ export default function WordDisplay() {
         </>
       ) : (
         <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400 px-4 text-center py-2">
-          <Info className="w-4 h-4 flex-shrink-0" />
+          <Info className="w-4 h-4 shrink-0" />
           <span>{t('loginPrompt')}</span>
         </div>
       )}

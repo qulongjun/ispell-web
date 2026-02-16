@@ -48,6 +48,21 @@ export interface ChangelogEntry {
  */
 export const changelogData: ChangelogEntry[] = [
   {
+    version: 'v1.1.4',
+    date: '2026-02-16',
+    changes: [
+      { type: 'new', descriptionKey: 'v1_1_4.new1' },
+      { type: 'new', descriptionKey: 'v1_1_4.new2' },
+      { type: 'new', descriptionKey: 'v1_1_4.new3' },
+      { type: 'refactor', descriptionKey: 'v1_1_4.refactor1' },
+      { type: 'refactor', descriptionKey: 'v1_1_4.refactor2' },
+      { type: 'refactor', descriptionKey: 'v1_1_4.refactor3' },
+      { type: 'fix', descriptionKey: 'v1_1_4.fix1' },
+      { type: 'fix', descriptionKey: 'v1_1_4.fix2' },
+      { type: 'fix', descriptionKey: 'v1_1_4.fix3' },
+    ],
+  },
+  {
     version: 'v1.1.3',
     date: '2025-11-10',
     changes: [
