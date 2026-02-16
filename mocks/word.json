@@ -1,1 +1,69 @@
-[]
+[
+  {
+    "progressId": 1,
+    "id": 1,
+    "pronunciation": {
+      "uk": { "phonetic": "/heləʊ/" },
+      "us": { "phonetic": "/heˈloʊ/" }
+    },
+    "definitions": {
+      "int.": [{ "translation": "喂；你好" }]
+    },
+    "examples": {
+      "general": [
+        {
+          "cn": "你好，请问有什么可以帮您？",
+          "en": "Hello, how can I help you?",
+          "en_highlighted": "Hello, how can I help you?"
+        }
+      ]
+    },
+    "relations": {},
+    "text": "hello"
+  },
+  {
+    "progressId": 2,
+    "id": 2,
+    "pronunciation": {
+      "uk": { "phonetic": "/ˈwɜːd/" },
+      "us": { "phonetic": "/wɜːrd/" }
+    },
+    "definitions": {
+      "n.": [{ "translation": "词；单词；话" }]
+    },
+    "examples": {
+      "general": [
+        {
+          "cn": "这个词很难拼写。",
+          "en": "This word is difficult to spell.",
+          "en_highlighted": "This word is difficult to spell."
+        }
+      ]
+    },
+    "relations": {},
+    "text": "word"
+  },
+  {
+    "progressId": 3,
+    "id": 3,
+    "pronunciation": {
+      "uk": { "phonetic": "/ˈpræktɪs/" },
+      "us": { "phonetic": "/ˈpræktɪs/" }
+    },
+    "definitions": {
+      "n.": [{ "translation": "练习；实践" }],
+      "v.": [{ "translation": "练习；实践" }]
+    },
+    "examples": {
+      "general": [
+        {
+          "cn": "熟能生巧。",
+          "en": "Practice makes perfect.",
+          "en_highlighted": "Practice makes perfect."
+        }
+      ]
+    },
+    "relations": {},
+    "text": "practice"
+  }
+]
