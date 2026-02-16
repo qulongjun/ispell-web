@@ -12,6 +12,7 @@ import { useTranslations } from 'next-intl';
 import { useAppContext } from '@/contexts/app.context';
 import toast from 'react-hot-toast';
 import { LearningPlan } from '@/types/book.types';
+import { Word } from '@/types/word.types';
 import { advancePlan } from '@/services/planService';
 
 import DEMO_WORDS from '@/mocks/word.json';
@@ -54,7 +55,7 @@ const LearningStart: React.FC = () => {
    * 使用模拟单词数据开启学习会话
    */
   const handleStartDemo = () => {
-    startMistakeReview(0, DEMO_WORDS);
+    startMistakeReview(0, DEMO_WORDS as Word[]);
   };
 
   // 未选择书籍或无进度信息时的展示
