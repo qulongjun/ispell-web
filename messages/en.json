@@ -525,9 +525,12 @@
       "closeLabel": "Close publicity",
       "totalDonation": "Total Donations",
       "operationCost": "Operating Costs",
+      "operationCostDetail": "Operating Cost Breakdown",
       "publicWelfareExpense": "Public Welfare Expenditure",
-      "certificateLabel": "Donation Publicity Certificate:",
-      "viewFullCert": "Click to view full certificate",
+      "donationList": "Donation Details",
+      "donor": "Donor",
+      "amount": "Amount",
+      "anonymous": "Anonymous",
       "updateHint": "Publicity data is updated monthly to ensure every donation is open and transparent. Supervision is welcome.",
       "empty": "No publicity data available yet. First month's data will be updated early next month."
     },
@@ -631,8 +634,9 @@
       "intro": "iSpell is a language learning platform, providing services including but not limited to:",
       "list1": "Word book browsing and selection;",
       "list2": "Creation and management of personalized learning plans (by days or by word count);",
-      "list3": "Word memorization and spelling practice based on intelligent review algorithms (SRS);",
-      "list4": "Authentication login via third-party services (WeChat, QQ, Google, GitHub).",
+      "list3": "Word memorization and spelling practice based on intelligent review algorithms (SRS), and mistake review;",
+      "list4": "Cloud sync of learning data and settings (consistent experience across devices);",
+      "list5": "Authentication login via third-party services (WeChat, QQ, Google, GitHub).",
       "freeService": "We currently provide basic services for **free**, but reserve the right to charge for some or all services in the future. Any fee changes will be notified to you in advance via announcement or email."
     },
     "section3": {
@@ -786,6 +790,12 @@
       "refactor": "Refactor",
       "perf": "Performance",
       "docs": "Books"
+    },
+    "v1_1_5": {
+      "new1": "After demo completes, login modal opens automatically if not logged in.",
+      "refactor1": "Added donation detail list with donor names masked.",
+      "fix1": "Privacy and Terms pages now render **bold** text correctly.",
+      "fix2": "Privacy section3 duplicate fixed; Terms and Privacy copy updated."
     },
     "v1_1_4": {
       "new1": "Onboarding for the spelling screen (step-by-step guide).",
