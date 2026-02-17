@@ -1,28 +1,39 @@
 /*
  * @Date: 2025-11-08 17:55:27
  * @LastEditTime: 2025-11-08 17:55:43
- * @Description: 
+ * @Description:
  */
 'use client';
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Gift, QrCode, CheckCircle, FileText, X, ZoomIn } from 'lucide-react';
+import { Gift, QrCode, CheckCircle, FileText, X } from 'lucide-react';
 
-/**
- * 二维码类型枚举
- */
 type QrCodeType = 'alipay' | 'wechat';
 
+/** 单笔捐赠记录 */
+interface DonationRecord {
+  donor: string;
+  amount: number;
+}
+
 /**
- * 捐款公示数据项接口
+ * 捐赠人名称脱敏：多字只显示首尾、中间用 *；2 或 3 字只显示第一个
  */
+function maskDonorName(name: string): string {
+  if (!name || name.length === 0) return name;
+  if (name.length === 1) return name;
+  if (name.length <= 3) return name[0] + '*'.repeat(name.length - 1);
+  return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
+}
+
+/** 捐款公示数据项 */
 interface PublicityItem {
   period: string;
   totalDonation: number;
   operationCost: number;
   publicWelfareExpense: number;
-  certificateUrl: string;
+  donations: DonationRecord[];
 }
 
 /**
@@ -78,16 +89,40 @@ const DonationItem: React.FC<DonationItemProps> = ({ textKey }) => {
   const t = useTranslations('Donation.instructions');
   return (
     <div className="flex items-start gap-2 mb-1.5">
-      <CheckCircle className="w-5 h-5 text-gray-600 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+      <CheckCircle className="w-5 h-5 text-gray-600 dark:text-gray-400 mt-0.5 shrink-0" />
       <p className="text-sm text-gray-700 dark:text-gray-300">{t(textKey)}</p>
     </div>
   );
 };
 
 /**
- * 捐款公示数据列表
+ * 捐款公示数据列表（示例数据）
  */
-const publicityData: PublicityItem[] = [];
+const publicityData: PublicityItem[] = [
+  {
+    period: '2026年1月',
+    totalDonation: 260.04,
+    operationCost: 26.0,
+    publicWelfareExpense: 234.04,
+    donations: [
+      { donor: '爱拼才会赢', amount: 100 },
+      { donor: '单词君', amount: 88.88 },
+      { donor: '匿名', amount: 50 },
+      { donor: '背词小透明', amount: 21.16 },
+    ],
+  },
+  {
+    period: '2025年12月',
+    totalDonation: 125.5,
+    operationCost: 12.6,
+    publicWelfareExpense: 112.9,
+    donations: [
+      { donor: '深夜学习者', amount: 66.0 },
+      { donor: '匿名', amount: 30 },
+      { donor: 'SpellMaster', amount: 29.5 },
+    ],
+  },
+];
 
 /**
  * 客户端交互主组件
@@ -95,46 +130,12 @@ const publicityData: PublicityItem[] = [];
 const DonationContent: React.FC<{ locale: string }> = ({ locale }) => {
   const t = useTranslations('Donation');
   const [showPublicity, setShowPublicity] = useState(false);
-  const [selectedCertificate, setSelectedCertificate] = useState<string | null>(
-    null
-  );
-
-  const openCertificate = (url: string) => {
-    setSelectedCertificate(url);
-  };
-
-  const closeCertificate = () => {
-    setSelectedCertificate(null);
-  };
 
   return (
     <div className="w-full flex flex-col items-center flex-1">
-      {/* 证书大图查看器 */}
-      {selectedCertificate && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm cursor-zoom-out"
-          onClick={closeCertificate}
-        >
-          <div className="max-w-4xl max-h-[90vh] relative">
-            <button
-              onClick={closeCertificate}
-              className="absolute -top-10 right-0 p-1 rounded-full bg-black/30 hover:bg-black/50 text-white transition-colors"
-              aria-label={t('aria.closeCertificate')}
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <img
-              src={selectedCertificate}
-              alt={t('certificate.altText')}
-              className="w-full h-full object-contain rounded-lg shadow-2xl"
-            />
-          </div>
-        </div>
-      )}
-
       {/* 捐款公示弹窗 */}
       {showPublicity && (
-        <div className="fixed inset-0 z-[50] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -187,32 +188,43 @@ const DonationContent: React.FC<{ locale: string }> = ({ locale }) => {
                           </p>
                         </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                          {t('publicity.certificateLabel')}
-                        </p>
-                        <div
-                          className="relative group cursor-pointer"
-                          onClick={() => openCertificate(item.certificateUrl)}
-                        >
-                          <div className="bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
-                            <img
-                              src={item.certificateUrl}
-                              alt={`${item.period}${t(
-                                'publicity.certificateLabel'
-                              )}`}
-                              className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                              loading="lazy"
-                            />
-                          </div>
-                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <ZoomIn className="w-8 h-8 text-white" />
-                          </div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                            {t('publicity.viewFullCert')}
+
+                      {item.donations.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {t('publicity.donationList')}
                           </p>
+                          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="bg-gray-50 dark:bg-gray-800/80 text-left text-gray-600 dark:text-gray-400">
+                                  <th className="px-3 py-2 font-medium">
+                                    {t('publicity.donor')}
+                                  </th>
+                                  <th className="px-3 py-2 font-medium text-right">
+                                    {t('publicity.amount')}
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                {item.donations.map((d, i) => (
+                                  <tr
+                                    key={i}
+                                    className="text-gray-700 dark:text-gray-300"
+                                  >
+                                    <td className="px-3 py-2">
+                                      {maskDonorName(d.donor)}
+                                    </td>
+                                    <td className="px-3 py-2 text-right font-medium">
+                                      ¥{d.amount.toFixed(2)}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   ))}
                   <p className="text-xs text-gray-500 dark:text-gray-400 text-center">

@@ -21,20 +21,19 @@ import { useEffect } from 'react';
  * 基于学习会话状态（激活/未激活、完成/未完成）动态渲染界面
  */
 function Content() {
-  // 从全局上下文获取学习会话激活状态（控制整体布局切换）
-  const { isLearningSessionActive } = useAppContext();
-  // 从拼写上下文获取会话完成状态和返回首页方法
-  const { isSessionComplete, handleReturnToHome } = useSpelling();
+  const { isLearningSessionActive, openLoginModal } = useAppContext();
+  const { isSessionComplete, isDemoMode, handleReturnToHome } = useSpelling();
 
   /**
-   * 会话完成时的自动处理
-   * 当会话标记为完成，触发返回首页逻辑
+   * 会话完成时：返回主界面；未登录试用完成则同时打开登录弹窗
    */
   useEffect(() => {
-    if (isSessionComplete) {
-      handleReturnToHome();
+    if (!isSessionComplete) return;
+    if (isDemoMode) {
+      openLoginModal();
     }
-  }, [isSessionComplete, handleReturnToHome]);
+    handleReturnToHome();
+  }, [isSessionComplete, isDemoMode, handleReturnToHome, openLoginModal]);
 
   return (
     <>
@@ -46,11 +45,11 @@ function Content() {
       >
         {/* 学习会话激活且未完成时：显示学习核心组件 */}
         {isLearningSessionActive ? (
-          isSessionComplete ? null : ( // 会话完成时隐藏学习组件
+          isSessionComplete ? null : (
             <>
-              <WordNavigation /> {/* 上/下一个单词导航控制 */}
-              <WordDisplay /> {/* 当前单词展示及学习交互 */}
-              <StatsCard /> {/* 学习进度与统计数据展示 */}
+              <WordNavigation />
+              <WordDisplay />
+              <StatsCard />
             </>
           )
         ) : (

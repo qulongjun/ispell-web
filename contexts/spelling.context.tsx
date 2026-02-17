@@ -409,7 +409,9 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
         setFailedWordsInSession([]);
         setCurrentIndex((prev) => prev + 1);
       } else {
-        toast.success('任务已完成！');
+        if (!isDemoMode) {
+          toast.success('任务已完成！');
+        }
         setIsSessionComplete(true);
       }
     }
@@ -419,6 +421,7 @@ export const SpellingProvider = ({ children }: SpellingProviderProps) => {
     failedWordsInSession,
     handleWordFailure,
     setHasMadeMistake,
+    isDemoMode,
   ]);
 
   /**
